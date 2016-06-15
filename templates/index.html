@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="theme-color" content="#2196F3">
+    <title>WH Stats</title>
+
+    <!-- chartist -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.bundle.min.js"></script>
+
+    <!-- CSS  -->
+    <link href="min/plugin-min.css" type="text/css" rel="stylesheet">
+    <link href="min/custom-min.css" type="text/css" rel="stylesheet" >
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+
+</head>
+<body id="top" class="scrollspy">
+
+<!-- Pre Loader -->
+<div id="loader-wrapper">
+    <div id="loader"></div>
+
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+
+</div>
+
+<!--Navigation-->
+ <div class="navbar-fixed">
+    <ul id="dropdown1" class="dropdown-content">
+      <li><a href="#intro">Hourly</a></li>
+      <li><a href="daily">Daily</a></li>
+      <li><a href="weekly">Weekly</a></li>
+      <li><a href="monthly">Monthly</a></li>
+      <li><a href="#work">Total</a></li>
+    </ul>
+    <nav id="nav_f" class="default_color" role="navigation">
+        <div class="container">
+            <div class="nav-wrapper">
+            <a href="#" id="logo-container" class="brand-logo">WH STATS <span class="logo-version">v1.6</span></a>
+                <ul class="right hide-on-med-and-down">
+                    <li><a class="dropdown-button" href="#!" data-activates="dropdown1">Stats Period &#9660;</a></li>
+                    <li><a href="#team">Raw Stats</a></li>
+                    <li><a href="#updates">Updates</a></li>
+                </ul>
+                <ul id="nav-mobile" class="side-nav">
+                    <li><a href="#intro">Hourly</a></li>
+                    <li><a href="daily">Daily</a></li>
+                    <li><a href="weekly">Weekly</a></li>
+                    <li><a href="monthly">Monthly</a></li>
+                    <li><a href="#work">Total</a></li>
+                    <li><a href="#team">Raw Stats</a></li>
+                    <li><a href="#updates">Updates</a></li>
+                </ul>
+            <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<!--Hero-->
+<div class="section no-pad-bot" id="index-banner">
+    <div class="container">
+        <h1 class="text_h center header cd-headline letters type">
+            <span>Stats for</span>
+            <span class="cd-words-wrapper waiting">
+                <b class="is-visible">dank kills</b>
+                <b>dem splosions</b>
+                <b>the Glory of Bob</b>
+            </span>
+        </h1>
+    </div>
+</div>
+
+<!--Intro and service-->
+<div id="intro" class="section scrollspy">
+    <div class="container">
+        <div class="row">
+            <div  class="col s12">
+                <h2 class="center header text_h2">Kills per WH class are recorded every hour <span class="span_h2"> on the hour.  </span><span id="refreshText">Time until next refresh </span><span id="countdown" class="span_h2"></span></h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">Hourly Kills</h5>
+                <div class="big-chart-holder">
+                  <canvas id="chartHour" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C1 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC1" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C2 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC2" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C3 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC3" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C4 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC4" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C5 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC5" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C6 Hourly Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartHourC6" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">Fleet Fights</h5>
+                <p>Fleet fights are defined and recorded as occasions where at least two sides are present with at least 5 per side</p>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C1 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC1" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C2 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC2" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C3 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC3" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C4 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC4" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C5 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC5" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C6 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC6" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">ISK Killed (Billions)</h5>
+                <div class="big-chart-holder">
+                  <canvas id="chartISKHour" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C1 Average Kill</h5>
+                    <span class="updates" id="c1Avg"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C2 Average Kill</h5>
+                    <span class="updates" id="c2Avg"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C3 Average Kill</h5>
+                    <span class="updates" id="c3Avg"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C4 Average Kill</h5>
+                    <span class="updates" id="c4Avg"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C5 Average Kill</h5>
+                    <span class="updates" id="c5Avg"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C6 Average Kill</h5>
+                    <span class="updates" id="c6Avg"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Work-->
+<div class="section scrollspy" id="work">
+    <div class="container">
+        <h2 class="header text_b">Total Since 1st June 2016</h2>
+        <div class="row">
+            <div  class="col s12">
+                <h5 class="promo-caption">Total Kills</h5>
+                <div class="big-chart-holder">
+                  <canvas id="chartTotal" width="400" height="300"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C1 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC1" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C2 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC2" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C3 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC3" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C4 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC4" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C5 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC5" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C6 Total Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalC6" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">Fleet Fights</h5>
+                <p>Fleet fights are defined and recorded as occasions where at least two sides are present with at least 5 per side</p>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C1 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC1Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C2 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC2Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C3 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC3Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C4 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC4Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C5 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC5Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">C6 Fights</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartFleetC6Total" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">Cap/Logi Kill Breakdown</h5>
+                <p>Logi Kills are Guardians/Oneiros/Basilisks/Scimitars, usually an indicator of a larger fight</p>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">Carrier Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalCarrier" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">Dread Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalDread" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">Force Auxiliary Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalFAX" width="400" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <h5 class="promo-caption">Logi Kills</h5>
+                <div class="small-chart-holder">
+                  <canvas id="chartTotalLogi" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <h5 class="promo-caption">ISK Killed (Billions)</h5>
+                <div class="big-chart-holder">
+                  <canvas id="chartISKTotal" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C1 Average Kill</h5>
+                    <span class="updates" id="c1AvgTotal"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C2 Average Kill</h5>
+                    <span class="updates" id="c2AvgTotal"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C3 Average Kill</h5>
+                    <span class="updates" id="c3AvgTotal"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C4 Average Kill</h5>
+                    <span class="updates" id="c4AvgTotal"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C5 Average Kill</h5>
+                    <span class="updates" id="c5AvgTotal"></span>
+                </div>
+            </div>
+            <div class="col s12 m4 14">
+                <div class="center promo promo-example">
+                    <h5 class="promo-caption">C6 Average Kill</h5>
+                    <span class="updates" id="c6AvgTotal"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Parallax-->
+<div class="parallax-container">
+    <div class="parallax"><img src="img/nebulabg.jpg"></div>
+</div>
+
+<!--Team-->
+<div class="section scrollspy" id="team">
+    <div class="container">
+        <h2 class="header text_b"> Raw Stats </h2>
+        <div class="row">
+            <table>
+              <thead>
+                <tr>
+                  <th data-field="class">Class</th>
+                  <th data-field="hour">Last Hour</th>
+                  <th data-field="total">Total</th>
+                </tr>
+              </thead>
+              <tbody id="dataTable">
+
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!--Updates-->
+<div class="section scrollspy" id="updates">
+    <div class="container">
+        <h2 class="header text_b">Recent Updates</h2>
+        <div class="row">
+            <div class="col s12">
+                <span class="updates">2016-06-14 - v1.6 - Monthly Stats</span>
+                <p>Added Monthly stats, resets every month.<br>
+                  Made all pie/doughnuts smaller
+                </p>
+
+                <span class="updates">2016-06-14 - v1.5 - Cap/Logi Breakdowns</span>
+                <p>Added breakdowns of Cap and Logistic Cruiser usage over each WH class.
+                </p>
+
+                <span class="updates">2016-06-13 - v1.4 - Back-End Improvements</span>
+                <p>Improved the accuracy of data pulls.
+                </p>
+
+                <span class="updates">2016-06-09 - v1.3 - Daily and Weekly Stats</span>
+                <p>Added two whole new pages for daily stats, reset every night at midnight GMT, and weekly, reset at midnight GMT every Sunday morning!
+                </p>
+
+                <span class="updates">2016-06-09 - v1.2 - Hour Kill Hotfix</span>
+                <p>Wasn't tracking new hour kills we've already seen as they came in, resulting in multiple counts in some cases
+                </p>
+
+                <span class="updates">2016-06-08 - v1.1 - Kill Logic Review</span>
+                <p>Kills are now pulled in a more consistent manner in the hope that kills added 'late' are picked up and recorded (e.g. when an hour has been pulled but new kills are added from a slow API/CREST update) <br />
+                   In addition the graphs should update to reflect these changes when new kills are detected in the last hour 'block'.<br />
+                   Added in some missing structure IDs.
+                </p>
+
+                <span class="updates">2016-06-08 - v1.0 - Tweaks/Bugfixes</span>
+                <p>Tweaked 'Fleet Fight' classification to at least 5 per side to better count 'fights' on most scales<br />
+                   Data is now current from 206-06-03 @ 10:00 onwards (older data is hard to reach, we use zkills w-space/page/100 as a hard limit for populating old data)<br />
+                   However all data from this point onwards (8th June 2016) will be tracked and updated hourly<br />
+                   A few bugs still exist and the auto hourly-refresh can just stop working on some browsers or if a particular kill scrape takes longer than usual<br />
+                   General Fixes:
+                   - Fighter kills are now detected and discarded, we are only interested in ship, structure and citadel kills<br />
+                   - Added tracking for special edition and rare faction ships, Utu, Etana etc. Classed as generic 'Faction'<br />
+                   - Fixed infinite loop on a case where the first kill processed was of an unknown type (what???)<br />
+                   - Added error handling and catch blocks for occasions where things go wrong<br />
+                   - Displays a 'No Data' prompt on graphs that have nothing to display (looking at you C6s...)<br />
+                   - Sat through 63 thousand lines of returned data and almost choked on a triple chocolate muffin while doing so
+                </p>
+
+                <span class="updates">2016-06-07 - v0.9 - CSS/Layout</span>
+                <p>Site styling updated, graphs made less humungous on large screens (finally). Feedback appreciated</p>
+
+                <span class="updates">2016-06-07 - v0.8 - Fleet Fights v2</span>
+                <p>Improved the fleet fight calculation. Now all kills are cross-checked with a battlereport through some hacky HTML scraping<br />
+                   All kills involving 8 or more people per side show up as a full 'Fleet Fight' whilst those with 7 or less are classed as a 'Small Fight'<br />
+                   While again not 100% true 100% of the time, this should suffice for detecting most legit 'Fights'!
+                </p>
+                <span class="updates">2016-06-07 - v0.7 - Fleet fights</span>
+                <p>Added a (rough) estimate to number of 'big' and 'small' fights in each class <br />
+                   This is calculated based on a simple count of number of involved people on a kill. <br />
+                   If there are more than 10 entities, then class it as a fleet fight!<br />
+                   This feature will be improved in the future to take more factors into account as this approach is realtively naive
+                </p>
+
+                <span class="updates">2016-06-06 - v0.6 - ISK Averages</span>
+                <p>Added ISK total and average displays per class</p>
+
+                <span class="updates">2016-06-06 - v0.5 - Citadels</span>
+                <p>Added Citadel Kill Hourly and Total tracking</p>
+
+                <span class="updates">2016-06-06 - v0.4 - Doughnuts</span>
+                <p>Added doughnut charts. Yep. Doughnuts.</p>
+
+                <span class="updates">2016-06-06 - v0.3 - Chartjs</span>
+                <p>Switched to Chart.js library, reverted from stacked bars to side-by-side</p>
+
+                <span class="updates">2016-06-06 - v0.2 - Ship Types</span>
+                <p>Adding ship types to charts and breakdowns according to generalised classes</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Footer-->
+<footer id="contact" class="page-footer default_color scrollspy">
+    <div class="footer-copyright default_color">
+        <div class="container">
+            Made by <a class="white-text" href="https://discord.gg/0keRDoXN2Cxw6PIY" target="_blank">Aekro</a> of <a class="white-text" href="http://apply.limited-power.co.uk/" target="_blank">[.LIMP]</a> and <a class="white-text" href="http://takeshis-castle.com/" target="_blank">[TAKSH]</a>. Thanks to <a class="white-text" href="http://materializecss.com/">materializecss</a>.
+            Try <a class="white-text" href="http://eve-vippy.com/" target="_blank">Vippy</a> as your next WH Mapper!
+        </div>
+    </div>
+</footer>
+
+
+    <!--  Scripts-->
+    <script src="min/plugin-min.js"></script>
+    <script src="min/custom-min.js"></script>
+    <script src="js/timer.js"></script>
+
+    </body>
+</html>

@@ -119,4 +119,5 @@ function updateEU(data) {
       r[++j] = '</td></tr>';
   }
   $('#dataTable').html(r.join(''));
+  $(".progress").hide();
 }

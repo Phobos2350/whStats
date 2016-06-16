@@ -474,7 +474,7 @@ function updateCharts(data) {
             "rgba(255,102,0,0.5)",
             "rgba(204,0,0,0.5)",
           ],
-          data: [data[0]['carrierKillsTotal'], data[1]['carrierKillsTotal'], data[2]['carrierKillsTotal'], data[3]['carrierKillsTotal'], data[4]['carrierKillsTotal'], data[4]['carrierKillsTotal']]
+          data: [data[0]['carrierKillsTotal'], data[1]['carrierKillsTotal'], data[2]['carrierKillsTotal'], data[3]['carrierKillsTotal'], data[4]['carrierKillsTotal'], data[5]['carrierKillsTotal']]
         }
       ]
     },
@@ -498,7 +498,7 @@ function updateCharts(data) {
             "rgba(255,102,0,0.5)",
             "rgba(204,0,0,0.5)",
           ],
-          data: [data[0]['dreadKillsTotal'], data[1]['dreadKillsTotal'], data[2]['dreadKillsTotal'], data[3]['dreadKillsTotal'], data[4]['dreadKillsTotal'], data[4]['dreadKillsTotal']]
+          data: [data[0]['dreadKillsTotal'], data[1]['dreadKillsTotal'], data[2]['dreadKillsTotal'], data[3]['dreadKillsTotal'], data[4]['dreadKillsTotal'], data[5]['dreadKillsTotal']]
         }
       ]
     },
@@ -522,7 +522,7 @@ function updateCharts(data) {
             "rgba(255,102,0,0.5)",
             "rgba(204,0,0,0.5)",
           ],
-          data: [data[0]['forceAuxKillsTotal'], data[1]['forceAuxKillsTotal'], data[2]['forceAuxKillsTotal'], data[3]['forceAuxKillsTotal'], data[4]['forceAuxKillsTotal'], data[4]['forceAuxKillsTotal']]
+          data: [data[0]['forceAuxKillsTotal'], data[1]['forceAuxKillsTotal'], data[2]['forceAuxKillsTotal'], data[3]['forceAuxKillsTotal'], data[4]['forceAuxKillsTotal'], data[5]['forceAuxKillsTotal']]
         }
       ]
     },
@@ -546,7 +546,7 @@ function updateCharts(data) {
             "rgba(255,102,0,0.5)",
             "rgba(204,0,0,0.5)",
           ],
-          data: [data[0]['logiKillsTotal'], data[1]['logiKillsTotal'], data[2]['logiKillsTotal'], data[3]['logiKillsTotal'], data[4]['logiKillsTotal'], data[4]['logiKillsTotal']]
+          data: [data[0]['logiKillsTotal'], data[1]['logiKillsTotal'], data[2]['logiKillsTotal'], data[3]['logiKillsTotal'], data[4]['logiKillsTotal'], data[5]['logiKillsTotal']]
         }
       ]
     },

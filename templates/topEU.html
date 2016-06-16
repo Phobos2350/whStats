@@ -11,7 +11,7 @@
   <link href="/min/custom-min.css" type="text/css" rel="stylesheet" >
   <link href="/css/style.css" type="text/css" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-  <script src="/js/topEU.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fixed-header-table/1.3.0/jquery.fixedheadertable.min.js"></script>
 
 </head>
 <body id="top" class="scrollspy">
@@ -31,16 +31,16 @@
               <div class="nav-wrapper">
               <a href="./" id="logo-container" class="brand-logo">WH STATS <span class="logo-version">v1.6</span></a>
                   <ul class="right hide-on-med-and-down">
-                      <li><a href="top/eu">Top EU</a></li>
-                      <li><a href="top/us">Top US</a></li>
-                      <li><a href="top/au">Top AU</a></li>
-                      <li><a href="top/ru">Top RU</a></li>
+                    <li><a href="../top/eu">Top EU</a></li>
+                    <li><a href="../top/us">Top US</a></li>
+                    <li><a href="../top/au">Top AU</a></li>
+                    <li><a href="../top/ru">Top RU</a></li>
                   </ul>
                   <ul id="nav-mobile" class="side-nav">
-                    <li><a href="top/eu">Top EU</a></li>
-                    <li><a href="top/us">Top US</a></li>
-                    <li><a href="top/au">Top AU</a></li>
-                    <li><a href="top/ru">Top RU</a></li>
+                    <li><a href="../top/eu">Top EU</a></li>
+                    <li><a href="../top/us">Top US</a></li>
+                    <li><a href="../top/au">Top AU</a></li>
+                    <li><a href="../top/ru">Top RU</a></li>
                   </ul>
               <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="mdi-navigation-menu"></i></a>
               </div>
@@ -67,12 +67,15 @@
       <div class="container">
           <div class="row">
               <div  class="col s12">
+                  <div class="progress">
+                      <div class="indeterminate"></div>
+                  </div>
                   <h2 class="center header text_h2">EU Stats (1800-0000)<span class="span_h2"> updated every 10 minutes </span></h2>
               </div>
           </div>
           <div class="row">
               <div  class="col s12">
-                <table id="euStats">
+                <table id="euStats" class="highlight sticky-header">
                   <thead>
                     <tr>
                       <th data-field="rank">Rank</th>
@@ -155,6 +158,7 @@
   <!--  Scripts-->
   <script src="/min/plugin-min.js"></script>
   <script src="/min/custom-min.js"></script>
+  <script src="/js/topEU.js"></script>
 
 </body>
 </html>

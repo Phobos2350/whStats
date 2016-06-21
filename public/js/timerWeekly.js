@@ -74,6 +74,14 @@ function addCommas(nStr)
 }
 
 function updateCharts(data) {
+  $('canvas').parent().each(function () {
+      //get child canvas id
+      childCanvasId = $(this).children().attr('id');
+      //remove canvas
+      $('#'+childCanvasId).remove();
+      // append new canvas to the parent again
+      $(this).append('<canvas id="'+childCanvasId+'"></canvas>');
+  });
   // TOTALS
   var dataTotal = {
     type: 'bar',

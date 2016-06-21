@@ -358,7 +358,13 @@ $ct-series-colors: (#d70206, #F4C63D, #F05B4F, #453D3F) !default;
   color: #F2F2F2;
 }
 
+.big-chart-holder {
+  height: 400px;
+}
+
 .small-chart-holder {
+  height: 200px;
+  width: 200px;
   max-height: 250px;
   max-width: 250px;
 }

@@ -62,6 +62,15 @@ function addCommas(nStr)
 
 function updateCharts(data) {
 
+  $('canvas').parent().each(function () {
+      //get child canvas id
+      childCanvasId = $(this).children().attr('id');
+      //remove canvas
+      $('#'+childCanvasId).remove();
+      // append new canvas to the parent again
+      $(this).append('<canvas id="'+childCanvasId+'" width="300" height="300"></canvas>');
+  });
+
   var dataHour = {
     type: 'bar',
     data: {
@@ -112,7 +121,7 @@ function updateCharts(data) {
           ticks: {
             suggestedMax: 5,
             min: 0,
-            stepSize: 1
+            stepSize: 2
           }
         }]
       }

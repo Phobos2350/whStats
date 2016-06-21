@@ -547,7 +547,7 @@
               } else {
                   $whKills = 1;
                   $avgFleet = 1;
-                  $largestFleet = 0;
+                  $largestFleet = 1;
               }
               $oldTotal = $avgFleet * $whKills;
               $newAvg = ($oldTotal + $count) / ($whKills + 1);

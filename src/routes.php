@@ -87,5 +87,17 @@ $app->get('/top/{tz}[/]', function ($request, $response, $args) {
     $this->logger->info("Slim-Skeleton '/top' route");
     $tzQuery = strtoupper(strval($args['tz']));
     // Render index view
-    return $this->renderer->render($response, 'top'.$tzQuery.'.html', $args);
+    return $this->renderer->render($response, 'top.html', $args);
+});
+
+$app->get('/entity/{id}[/]', function ($request, $response, $args) {
+    // Sample log message
+    $this->logger->info("Slim-Skeleton '/entity' route");
+    // $id = strval($args['id']);
+    // // Render index view
+    // $entity = $this->db->prepare("SELECT * FROM entitystatseu WHERE entityID = {$id}");
+    // $entity->execute();
+    // $result = $entity->fetchAll();
+    // $statsEU = json_encode($result);
+    return $this->renderer->render($response, 'entityStats.html', $args);
 });

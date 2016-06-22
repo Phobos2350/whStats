@@ -151,13 +151,13 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
       $(this).append('<canvas id="'+childCanvasId+'" width="300" height="300"></canvas>');
   });
 
-  var totalKills = parseInt(dataEU[0]['whKills']) + parseInt(dataUS[0]['whKills']) + parseInt(dataAU[0]['whKills']) + parseInt(dataRU[0]['whKills']);
-  var totalAvg = (parseInt(dataEU[0]['avgFleetSize']) + parseInt(dataUS[0]['avgFleetSize']) + parseInt(dataAU[0]['avgFleetSize']) + parseInt(dataRU[0]['avgFleetSize'])) / 4 ;
+  var totalKills = parseInt(dataEU[0]['whKills'], 10) + parseInt(dataUS[0]['whKills'], 10) + parseInt(dataAU[0]['whKills'], 10) + parseInt(dataRU[0]['whKills'], 10);
+  var totalAvg = (parseInt(dataEU[0]['avgFleetSize'], 10) + parseInt(dataUS[0]['avgFleetSize'], 10) + parseInt(dataAU[0]['avgFleetSize'], 10) + parseInt(dataRU[0]['avgFleetSize'], 10)) / 4 ;
   // Logi Stats
-  var euLogi = getPercent((parseInt(dataEU[0]['whKills']) / parseInt(dataEU[0]['avgFleetSize'])), (parseInt(dataEU[0]['cruiserLogiUse']) + parseInt(dataEU[0]['frigLogiUse'])));
-  var usLogi = getPercent((parseInt(dataUS[0]['whKills']) / parseInt(dataUS[0]['avgFleetSize'])), (parseInt(dataUS[0]['cruiserLogiUse']) + parseInt(dataUS[0]['frigLogiUse'])));
-  var auLogi = getPercent((parseInt(dataAU[0]['whKills']) / parseInt(dataAU[0]['avgFleetSize'])), (parseInt(dataAU[0]['cruiserLogiUse']) + parseInt(dataAU[0]['frigLogiUse'])));
-  var ruLogi = getPercent((parseInt(dataRU[0]['whKills']) / parseInt(dataRU[0]['avgFleetSize'])), (parseInt(dataRU[0]['cruiserLogiUse']) + parseInt(dataRU[0]['frigLogiUse'])));
+  var euLogi = getPercent((parseInt(dataEU[0]['whKills'], 10) / parseInt(dataEU[0]['avgFleetSize'], 10)), (parseInt(dataEU[0]['cruiserLogiUse'], 10) + parseInt(dataEU[0]['frigLogiUse'], 10)));
+  var usLogi = getPercent((parseInt(dataUS[0]['whKills'], 10) / parseInt(dataUS[0]['avgFleetSize'], 10)), (parseInt(dataUS[0]['cruiserLogiUse'], 10) + parseInt(dataUS[0]['frigLogiUse'], 10)));
+  var auLogi = getPercent((parseInt(dataAU[0]['whKills'], 10) / parseInt(dataAU[0]['avgFleetSize'], 10)), (parseInt(dataAU[0]['cruiserLogiUse'], 10) + parseInt(dataAU[0]['frigLogiUse'], 10)));
+  var ruLogi = getPercent((parseInt(dataRU[0]['whKills'], 10) / parseInt(dataRU[0]['avgFleetSize'], 10)), (parseInt(dataRU[0]['cruiserLogiUse'], 10) + parseInt(dataRU[0]['frigLogiUse'], 10)));
 
   $('#euLogi').html("EU - " + (euLogi/100).toFixed(2));
   $('#usLogi').html("US - " + (usLogi/100).toFixed(2));
@@ -165,9 +165,9 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   $('#ruLogi').html("RU - " + (ruLogi/100).toFixed(2));
 
   //EWAR
-  var neutsTotal = parseInt(dataEU[0]['neutsUse']) + parseInt(dataUS[0]['neutsUse']) + parseInt(dataAU[0]['neutsUse']) + parseInt(dataRU[0]['neutsUse']);
-  var jamsTotal = parseInt(dataEU[0]['jamsUse']) + parseInt(dataUS[0]['jamsUse']) + parseInt(dataAU[0]['jamsUse']) + parseInt(dataRU[0]['jamsUse']);
-  var dampsTotal = parseInt(dataEU[0]['dampsUse']) + parseInt(dataUS[0]['dampsUse']) + parseInt(dataAU[0]['dampsUse']) + parseInt(dataRU[0]['dampsUse']);
+  var neutsTotal = parseInt(dataEU[0]['neutsUse'], 10) + parseInt(dataUS[0]['neutsUse'], 10) + parseInt(dataAU[0]['neutsUse'], 10) + parseInt(dataRU[0]['neutsUse'], 10);
+  var jamsTotal = parseInt(dataEU[0]['jamsUse'], 10) + parseInt(dataUS[0]['jamsUse'], 10) + parseInt(dataAU[0]['jamsUse'], 10) + parseInt(dataRU[0]['jamsUse'], 10);
+  var dampsTotal = parseInt(dataEU[0]['dampsUse'], 10) + parseInt(dataUS[0]['dampsUse'], 10) + parseInt(dataAU[0]['dampsUse'], 10) + parseInt(dataRU[0]['dampsUse'], 10);
 
   $('#neuts').html("Neuts - " + getPercent((totalKills / totalAvg), neutsTotal) + "%");
   $('#jams').html("Jams - " + getPercent((totalKills / totalAvg), jamsTotal) + "%");
@@ -244,12 +244,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxTotal = new Chart($('#chartActivity'), dataTotal);
 
-  var totalFrigsEU = parseInt(dataEU[0]['t1FrigUse']) + parseInt(dataEU[0]['factionFrigUse']) + parseInt(dataEU[0]['t2FrigUse']);
-  var totalDestEU = parseInt(dataEU[0]['t1DestroyerUse']) + parseInt(dataEU[0]['factionDestroyerUse']) + parseInt(dataEU[0]['t2DestroyerUse']) + parseInt(dataEU[0]['t3DestroyerUse']);
-  var totalCruiserEU = parseInt(dataEU[0]['t1CruiserUse']) + parseInt(dataEU[0]['factionCruiserUse']) + parseInt(dataEU[0]['t2CruiserUse']) + parseInt(dataEU[0]['t3CruiserUse']);
-  var totalBCEU = parseInt(dataEU[0]['t1BCUse']) + parseInt(dataEU[0]['t2BCUse']);
-  var totalBSEU = parseInt(dataEU[0]['t1BattleshipUse']) + parseInt(dataEU[0]['factionBattleshipUse']) + parseInt(dataEU[0]['t2BattleshipUse']);
-  var totalCapEU = parseInt(dataEU[0]['carrierUse']) + parseInt(dataEU[0]['dreadUse']) + parseInt(dataEU[0]['faxUse']);
+  var totalFrigsEU = parseInt(dataEU[0]['t1FrigUse'], 10) + parseInt(dataEU[0]['factionFrigUse'], 10) + parseInt(dataEU[0]['t2FrigUse'], 10);
+  var totalDestEU = parseInt(dataEU[0]['t1DestroyerUse'], 10) + parseInt(dataEU[0]['factionDestroyerUse'], 10) + parseInt(dataEU[0]['t2DestroyerUse'], 10) + parseInt(dataEU[0]['t3DestroyerUse'], 10);
+  var totalCruiserEU = parseInt(dataEU[0]['t1CruiserUse'], 10) + parseInt(dataEU[0]['factionCruiserUse'], 10) + parseInt(dataEU[0]['t2CruiserUse'], 10) + parseInt(dataEU[0]['t3CruiserUse'], 10);
+  var totalBCEU = parseInt(dataEU[0]['t1BCUse'], 10) + parseInt(dataEU[0]['t2BCUse'], 10);
+  var totalBSEU = parseInt(dataEU[0]['t1BattleshipUse'], 10) + parseInt(dataEU[0]['factionBattleshipUse'], 10) + parseInt(dataEU[0]['t2BattleshipUse'], 10);
+  var totalCapEU = parseInt(dataEU[0]['carrierUse'], 10) + parseInt(dataEU[0]['dreadUse'], 10) + parseInt(dataEU[0]['faxUse'], 10);
   var totalShipCountEU = totalFrigsEU + totalDestEU + totalCruiserEU + totalBCEU + totalBSEU + totalCapEU;
 
   var dataShipsEU = {
@@ -275,12 +275,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
             "rgba(252,205,229, 0.4)",
             "rgba(188,128,189, 0.5)",
           ],
-          data: [getPercent(totalShipCountEU, parseInt(dataEU[0]['t1FrigUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionFrigUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2FrigUse'])),
-                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1DestroyerUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2DestroyerUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t3DestroyerUse'])),
-                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1CruiserUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionCruiserUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2CruiserUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t3CruiserUse'])),
-                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1BCUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2BCUse'])),
-                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1BattleshipUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionBattleshipUse'])), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2BattleshipUse'])),
-                 getPercent(totalShipCountEU, parseInt(dataEU[0]['totalCapEU']))
+          data: [getPercent(totalShipCountEU, parseInt(dataEU[0]['t1FrigUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionFrigUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2FrigUse'], 10)),
+                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1DestroyerUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2DestroyerUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t3DestroyerUse'], 10)),
+                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1CruiserUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionCruiserUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2CruiserUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t3CruiserUse'], 10)),
+                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1BCUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2BCUse'], 10)),
+                 getPercent(totalShipCountEU, parseInt(dataEU[0]['t1BattleshipUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['factionBattleshipUse'], 10)), getPercent(totalShipCountEU, parseInt(dataEU[0]['t2BattleshipUse'], 10)),
+                 getPercent(totalShipCountEU, parseInt(dataEU[0]['totalCapEU'], 10))
                 ]
         }
       ]
@@ -295,12 +295,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxShipsEU = dataEU[0]['whKills'] != 0 ? new Chart($('#chartShipsEU'), dataShipsEU) : $('#chartShipsEU').parent().html("No Data!");
 
-  var totalFrigsUS = parseInt(dataUS[0]['t1FrigUse']) + parseInt(dataUS[0]['factionFrigUse']) + parseInt(dataUS[0]['t2FrigUse']);
-  var totalDestUS = parseInt(dataUS[0]['t1DestroyerUse']) + parseInt(dataUS[0]['factionDestroyerUse']) + parseInt(dataUS[0]['t2DestroyerUse']) + parseInt(dataUS[0]['t3DestroyerUse']);
-  var totalCruiserUS = parseInt(dataUS[0]['t1CruiserUse']) + parseInt(dataUS[0]['factionCruiserUse']) + parseInt(dataUS[0]['t2CruiserUse']) + parseInt(dataUS[0]['t3CruiserUse']);
-  var totalBCUS = parseInt(dataUS[0]['t1BCUse']) + parseInt(dataUS[0]['t2BCUse']);
-  var totalBSUS = parseInt(dataUS[0]['t1BattleshipUse']) + parseInt(dataUS[0]['factionBattleshipUse']) + parseInt(dataUS[0]['t2BattleshipUse']);
-  var totalCapUS = parseInt(dataUS[0]['carrierUse']) + parseInt(dataUS[0]['dreadUse']) + parseInt(dataUS[0]['faxUse']);
+  var totalFrigsUS = parseInt(dataUS[0]['t1FrigUse'], 10) + parseInt(dataUS[0]['factionFrigUse'], 10) + parseInt(dataUS[0]['t2FrigUse'], 10);
+  var totalDestUS = parseInt(dataUS[0]['t1DestroyerUse'], 10) + parseInt(dataUS[0]['factionDestroyerUse'], 10) + parseInt(dataUS[0]['t2DestroyerUse'], 10) + parseInt(dataUS[0]['t3DestroyerUse'], 10);
+  var totalCruiserUS = parseInt(dataUS[0]['t1CruiserUse'], 10) + parseInt(dataUS[0]['factionCruiserUse'], 10) + parseInt(dataUS[0]['t2CruiserUse'], 10) + parseInt(dataUS[0]['t3CruiserUse'], 10);
+  var totalBCUS = parseInt(dataUS[0]['t1BCUse'], 10) + parseInt(dataUS[0]['t2BCUse'], 10);
+  var totalBSUS = parseInt(dataUS[0]['t1BattleshipUse'], 10) + parseInt(dataUS[0]['factionBattleshipUse'], 10) + parseInt(dataUS[0]['t2BattleshipUse'], 10);
+  var totalCapUS = parseInt(dataUS[0]['carrierUse'], 10) + parseInt(dataUS[0]['dreadUse'], 10) + parseInt(dataUS[0]['faxUse'], 10);
   var totalShipCountUS = totalFrigsUS + totalDestUS + totalCruiserUS + totalBCUS + totalBSUS + totalCapUS;
 
   var dataShipsUS = {
@@ -326,12 +326,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
             "rgba(252,205,229, 0.4)",
             "rgba(188,128,189, 0.5)",
           ],
-          data: [getPercent(totalShipCountUS, parseInt(dataUS[0]['t1FrigUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionFrigUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2FrigUse'])),
-                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1DestroyerUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2DestroyerUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t3DestroyerUse'])),
-                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1CruiserUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionCruiserUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2CruiserUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t3CruiserUse'])),
-                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1BCUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2BCUse'])),
-                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1BattleshipUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionBattleshipUse'])), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2BattleshipUse'])),
-                 getPercent(totalShipCountUS, parseInt(dataUS[0]['totalCapEU']))
+          data: [getPercent(totalShipCountUS, parseInt(dataUS[0]['t1FrigUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionFrigUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2FrigUse'], 10)),
+                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1DestroyerUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2DestroyerUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t3DestroyerUse'], 10)),
+                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1CruiserUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionCruiserUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2CruiserUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t3CruiserUse'], 10)),
+                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1BCUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2BCUse'], 10)),
+                 getPercent(totalShipCountUS, parseInt(dataUS[0]['t1BattleshipUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['factionBattleshipUse'], 10)), getPercent(totalShipCountUS, parseInt(dataUS[0]['t2BattleshipUse'], 10)),
+                 getPercent(totalShipCountUS, parseInt(dataUS[0]['totalCapEU'], 10))
                 ]
         }
       ]
@@ -346,12 +346,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxShipsUS = dataUS[0]['whKills'] != 0 ? new Chart($('#chartShipsUS'), dataShipsUS) : $('#chartShipsUS').parent().html("No Data!");
 
-  var totalFrigsAU = parseInt(dataUS[0]['t1FrigUse']) + parseInt(dataUS[0]['factionFrigUse']) + parseInt(dataUS[0]['t2FrigUse']);
-  var totalDestAU = parseInt(dataUS[0]['t1DestroyerUse']) + parseInt(dataUS[0]['factionDestroyerUse']) + parseInt(dataUS[0]['t2DestroyerUse']) + parseInt(dataUS[0]['t3DestroyerUse']);
-  var totalCruiserAU = parseInt(dataUS[0]['t1CruiserUse']) + parseInt(dataUS[0]['factionCruiserUse']) + parseInt(dataUS[0]['t2CruiserUse']) + parseInt(dataUS[0]['t3CruiserUse']);
-  var totalBCAU = parseInt(dataUS[0]['t1BCUse']) + parseInt(dataUS[0]['t2BCUse']);
-  var totalBSAU = parseInt(dataUS[0]['t1BattleshipUse']) + parseInt(dataUS[0]['factionBattleshipUse']) + parseInt(dataUS[0]['t2BattleshipUse']);
-  var totalCapAU = parseInt(dataUS[0]['carrierUse']) + parseInt(dataUS[0]['dreadUse']) + parseInt(dataUS[0]['faxUse']);
+  var totalFrigsAU = parseInt(dataUS[0]['t1FrigUse'], 10) + parseInt(dataUS[0]['factionFrigUse'], 10) + parseInt(dataUS[0]['t2FrigUse'], 10);
+  var totalDestAU = parseInt(dataUS[0]['t1DestroyerUse'], 10) + parseInt(dataUS[0]['factionDestroyerUse'], 10) + parseInt(dataUS[0]['t2DestroyerUse'], 10) + parseInt(dataUS[0]['t3DestroyerUse'], 10);
+  var totalCruiserAU = parseInt(dataUS[0]['t1CruiserUse'], 10) + parseInt(dataUS[0]['factionCruiserUse'], 10) + parseInt(dataUS[0]['t2CruiserUse'], 10) + parseInt(dataUS[0]['t3CruiserUse'], 10);
+  var totalBCAU = parseInt(dataUS[0]['t1BCUse'], 10) + parseInt(dataUS[0]['t2BCUse'], 10);
+  var totalBSAU = parseInt(dataUS[0]['t1BattleshipUse'], 10) + parseInt(dataUS[0]['factionBattleshipUse'], 10) + parseInt(dataUS[0]['t2BattleshipUse'], 10);
+  var totalCapAU = parseInt(dataUS[0]['carrierUse'], 10) + parseInt(dataUS[0]['dreadUse'], 10) + parseInt(dataUS[0]['faxUse'], 10);
   var totalShipCountAU = totalFrigsAU + totalDestAU + totalCruiserAU + totalBCAU + totalBSUS + totalCapUS;
 
   var dataShipsAU = {
@@ -377,12 +377,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
             "rgba(252,205,229, 0.4)",
             "rgba(188,128,189, 0.5)",
           ],
-          data: [getPercent(totalShipCountAU, parseInt(dataAU[0]['t1FrigUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionFrigUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2FrigUse'])),
-                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1DestroyerUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2DestroyerUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t3DestroyerUse'])),
-                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1CruiserUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionCruiserUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2CruiserUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t3CruiserUse'])),
-                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1BCUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2BCUse'])),
-                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1BattleshipUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionBattleshipUse'])), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2BattleshipUse'])),
-                 getPercent(totalShipCountAU, parseInt(dataAU[0]['totalCapEU']))
+          data: [getPercent(totalShipCountAU, parseInt(dataAU[0]['t1FrigUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionFrigUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2FrigUse'], 10)),
+                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1DestroyerUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2DestroyerUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t3DestroyerUse'], 10)),
+                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1CruiserUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionCruiserUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2CruiserUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t3CruiserUse'], 10)),
+                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1BCUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2BCUse'], 10)),
+                 getPercent(totalShipCountAU, parseInt(dataAU[0]['t1BattleshipUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['factionBattleshipUse'], 10)), getPercent(totalShipCountAU, parseInt(dataAU[0]['t2BattleshipUse'], 10)),
+                 getPercent(totalShipCountAU, parseInt(dataAU[0]['totalCapEU'], 10))
                 ]
         }
       ]
@@ -397,12 +397,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxShipsAU = dataAU[0]['whKills'] != 0 ? new Chart($('#chartShipsAU'), dataShipsAU) : $('#chartShipsAU').parent().html("No Data!");
 
-  var totalFrigsRU = parseInt(dataRU[0]['t1FrigUse']) + parseInt(dataRU[0]['factionFrigUse']) + parseInt(dataRU[0]['t2FrigUse']);
-  var totalDestRU = parseInt(dataRU[0]['t1DestroyerUse']) + parseInt(dataRU[0]['factionDestroyerUse']) + parseInt(dataRU[0]['t2DestroyerUse']) + parseInt(dataRU[0]['t3DestroyerUse']);
-  var totalCruiserRU = parseInt(dataRU[0]['t1CruiserUse']) + parseInt(dataRU[0]['factionCruiserUse']) + parseInt(dataRU[0]['t2CruiserUse']) + parseInt(dataRU[0]['t3CruiserUse']);
-  var totalBCRU = parseInt(dataRU[0]['t1BCUse']) + parseInt(dataRU[0]['t2BCUse']);
-  var totalBSRU = parseInt(dataRU[0]['t1BattleshipUse']) + parseInt(dataRU[0]['factionBattleshipUse']) + parseInt(dataRU[0]['t2BattleshipUse']);
-  var totalCapRU = parseInt(dataRU[0]['carrierUse']) + parseInt(dataRU[0]['dreadUse']) + parseInt(dataRU[0]['faxUse']);
+  var totalFrigsRU = parseInt(dataRU[0]['t1FrigUse'], 10) + parseInt(dataRU[0]['factionFrigUse'], 10) + parseInt(dataRU[0]['t2FrigUse'], 10);
+  var totalDestRU = parseInt(dataRU[0]['t1DestroyerUse'], 10) + parseInt(dataRU[0]['factionDestroyerUse'], 10) + parseInt(dataRU[0]['t2DestroyerUse'], 10) + parseInt(dataRU[0]['t3DestroyerUse'], 10);
+  var totalCruiserRU = parseInt(dataRU[0]['t1CruiserUse'], 10) + parseInt(dataRU[0]['factionCruiserUse'], 10) + parseInt(dataRU[0]['t2CruiserUse'], 10) + parseInt(dataRU[0]['t3CruiserUse'], 10);
+  var totalBCRU = parseInt(dataRU[0]['t1BCUse'], 10) + parseInt(dataRU[0]['t2BCUse'], 10);
+  var totalBSRU = parseInt(dataRU[0]['t1BattleshipUse'], 10) + parseInt(dataRU[0]['factionBattleshipUse'], 10) + parseInt(dataRU[0]['t2BattleshipUse'], 10);
+  var totalCapRU = parseInt(dataRU[0]['carrierUse'], 10) + parseInt(dataRU[0]['dreadUse'], 10) + parseInt(dataRU[0]['faxUse'], 10);
   var totalShipCountRU = totalFrigsRU + totalDestRU + totalCruiserRU + totalBCRU + totalBSRU + totalCapRU;
 
   var dataShipsRU = {
@@ -428,12 +428,12 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
             "rgba(252,205,229, 0.4)",
             "rgba(188,128,189, 0.5)",
           ],
-          data: [getPercent(totalShipCountRU, parseInt(dataRU[0]['t1FrigUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionFrigUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2FrigUse'])),
-                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1DestroyerUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2DestroyerUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t3DestroyerUse'])),
-                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1CruiserUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionCruiserUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2CruiserUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t3CruiserUse'])),
-                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1BCUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2BCUse'])),
-                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1BattleshipUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionBattleshipUse'])), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2BattleshipUse'])),
-                 getPercent(totalShipCountRU, parseInt(dataRU[0]['totalCapEU']))
+          data: [getPercent(totalShipCountRU, parseInt(dataRU[0]['t1FrigUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionFrigUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2FrigUse'], 10)),
+                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1DestroyerUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2DestroyerUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t3DestroyerUse'], 10)),
+                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1CruiserUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionCruiserUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2CruiserUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t3CruiserUse'], 10)),
+                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1BCUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2BCUse'], 10)),
+                 getPercent(totalShipCountRU, parseInt(dataRU[0]['t1BattleshipUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['factionBattleshipUse'], 10)), getPercent(totalShipCountRU, parseInt(dataRU[0]['t2BattleshipUse'], 10)),
+                 getPercent(totalShipCountRU, parseInt(dataRU[0]['totalCapEU'], 10))
                 ]
         }
       ]
@@ -448,11 +448,11 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxShipsRU = dataRU[0]['whKills'] != 0 ? new Chart($('#chartShipsRU'), dataShipsRU) : $('#chartShipsRU').parent().html("No Data!");
 
-  var faxTotal = parseInt(dataEU[0]['faxUse']) + parseInt(dataUS[0]['faxUse']) + parseInt(dataAU[0]['faxUse']) + parseInt(dataRU[0]['faxUse']);
-  var apostleTotal = parseInt(dataEU[0]['apostleUse']) + parseInt(dataUS[0]['apostleUse']) + parseInt(dataAU[0]['apostleUse']) + parseInt(dataRU[0]['apostleUse']);
-  var ninazuTotal = parseInt(dataEU[0]['ninazuUse']) + parseInt(dataUS[0]['ninazuUse']) + parseInt(dataAU[0]['ninazuUse']) + parseInt(dataRU[0]['ninazuUse']);
-  var lifTotal = parseInt(dataEU[0]['lifUse']) + parseInt(dataUS[0]['lifUse']) + parseInt(dataAU[0]['lifUse']) + parseInt(dataRU[0]['lifUse']);
-  var minTotal = parseInt(dataEU[0]['minokawaUse']) + parseInt(dataUS[0]['minokawaUse']) + parseInt(dataAU[0]['minokawaUse']) + parseInt(dataRU[0]['minokawaUse']);
+  var faxTotal = parseInt(dataEU[0]['faxUse'], 10) + parseInt(dataUS[0]['faxUse'], 10) + parseInt(dataAU[0]['faxUse'], 10) + parseInt(dataRU[0]['faxUse'], 10);
+  var apostleTotal = parseInt(dataEU[0]['apostleUse'], 10) + parseInt(dataUS[0]['apostleUse'], 10) + parseInt(dataAU[0]['apostleUse'], 10) + parseInt(dataRU[0]['apostleUse'], 10);
+  var ninazuTotal = parseInt(dataEU[0]['ninazuUse'], 10) + parseInt(dataUS[0]['ninazuUse'], 10) + parseInt(dataAU[0]['ninazuUse'], 10) + parseInt(dataRU[0]['ninazuUse'], 10);
+  var lifTotal = parseInt(dataEU[0]['lifUse'], 10) + parseInt(dataUS[0]['lifUse'], 10) + parseInt(dataAU[0]['lifUse'], 10) + parseInt(dataRU[0]['lifUse'], 10);
+  var minTotal = parseInt(dataEU[0]['minokawaUse'], 10) + parseInt(dataUS[0]['minokawaUse'], 10) + parseInt(dataAU[0]['minokawaUse'], 10) + parseInt(dataRU[0]['minokawaUse'], 10);
 
   var dataFAX = {
     type: 'pie',
@@ -478,11 +478,11 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxFAX = faxTotal != 0 ? new Chart($('#chartFAX'), dataFAX) : $('#chartFAX').parent().html("No Data!");
 
-  var dreadTotal = parseInt(dataEU[0]['dreadUse']) + parseInt(dataUS[0]['dreadUse']) + parseInt(dataAU[0]['dreadUse']) + parseInt(dataRU[0]['dreadUse']);
-  var revTotal = parseInt(dataEU[0]['revUse']) + parseInt(dataUS[0]['revUse']) + parseInt(dataAU[0]['revUse']) + parseInt(dataRU[0]['revUse']);
-  var morosTotal = parseInt(dataEU[0]['morosUse']) + parseInt(dataUS[0]['morosUse']) + parseInt(dataAU[0]['morosUse']) + parseInt(dataRU[0]['morosUse']);
-  var nagTotal = parseInt(dataEU[0]['nagUse']) + parseInt(dataUS[0]['nagUse']) + parseInt(dataAU[0]['nagUse']) + parseInt(dataRU[0]['nagUse']);
-  var phoenixTotal = parseInt(dataEU[0]['phoenixUse']) + parseInt(dataUS[0]['phoenixUse']) + parseInt(dataAU[0]['phoenixUse']) + parseInt(dataRU[0]['phoenixUse']);
+  var dreadTotal = parseInt(dataEU[0]['dreadUse'], 10) + parseInt(dataUS[0]['dreadUse'], 10) + parseInt(dataAU[0]['dreadUse'], 10) + parseInt(dataRU[0]['dreadUse'], 10);
+  var revTotal = parseInt(dataEU[0]['revUse'], 10) + parseInt(dataUS[0]['revUse'], 10) + parseInt(dataAU[0]['revUse'], 10) + parseInt(dataRU[0]['revUse'], 10);
+  var morosTotal = parseInt(dataEU[0]['morosUse'], 10) + parseInt(dataUS[0]['morosUse'], 10) + parseInt(dataAU[0]['morosUse'], 10) + parseInt(dataRU[0]['morosUse'], 10);
+  var nagTotal = parseInt(dataEU[0]['nagUse'], 10) + parseInt(dataUS[0]['nagUse'], 10) + parseInt(dataAU[0]['nagUse'], 10) + parseInt(dataRU[0]['nagUse'], 10);
+  var phoenixTotal = parseInt(dataEU[0]['phoenixUse'], 10) + parseInt(dataUS[0]['phoenixUse'], 10) + parseInt(dataAU[0]['phoenixUse'], 10) + parseInt(dataRU[0]['phoenixUse'], 10);
 
   var dataDread = {
     type: 'pie',
@@ -508,11 +508,11 @@ function updateCharts(dataEU, dataUS, dataAU, dataRU) {
   };
   var ctxDread = dreadTotal != 0 ? new Chart($('#chartDreads'), dataDread) : $('#chartDreads').parent().html("No Data!");
 
-  var carrierTotal = parseInt(dataEU[0]['carrierUse']) + parseInt(dataUS[0]['carrierUse']) + parseInt(dataAU[0]['carrierUse']) + parseInt(dataRU[0]['carrierUse']);
-  var archonTotal = parseInt(dataEU[0]['archonUse']) + parseInt(dataUS[0]['archonUse']) + parseInt(dataAU[0]['archonUse']) + parseInt(dataRU[0]['archonUse']);
-  var thanatosTotal = parseInt(dataEU[0]['thanatosUse']) + parseInt(dataUS[0]['thanatosUse']) + parseInt(dataAU[0]['thanatosUse']) + parseInt(dataRU[0]['thanatosUse']);
-  var nidTotal = parseInt(dataEU[0]['nidUse']) + parseInt(dataUS[0]['nidUse']) + parseInt(dataAU[0]['nidUse']) + parseInt(dataRU[0]['nidUse']);
-  var chimeraTotal = parseInt(dataEU[0]['chimeraUse']) + parseInt(dataUS[0]['chimeraUse']) + parseInt(dataAU[0]['chimeraUse']) + parseInt(dataRU[0]['chimeraUse']);
+  var carrierTotal = parseInt(dataEU[0]['carrierUse'], 10) + parseInt(dataUS[0]['carrierUse'], 10) + parseInt(dataAU[0]['carrierUse'], 10) + parseInt(dataRU[0]['carrierUse'], 10);
+  var archonTotal = parseInt(dataEU[0]['archonUse'], 10) + parseInt(dataUS[0]['archonUse'], 10) + parseInt(dataAU[0]['archonUse'], 10) + parseInt(dataRU[0]['archonUse'], 10);
+  var thanatosTotal = parseInt(dataEU[0]['thanatosUse'], 10) + parseInt(dataUS[0]['thanatosUse'], 10) + parseInt(dataAU[0]['thanatosUse'], 10) + parseInt(dataRU[0]['thanatosUse'], 10);
+  var nidTotal = parseInt(dataEU[0]['nidUse'], 10) + parseInt(dataUS[0]['nidUse'], 10) + parseInt(dataAU[0]['nidUse'], 10) + parseInt(dataRU[0]['nidUse'], 10);
+  var chimeraTotal = parseInt(dataEU[0]['chimeraUse'], 10) + parseInt(dataUS[0]['chimeraUse'], 10) + parseInt(dataAU[0]['chimeraUse'], 10) + parseInt(dataRU[0]['chimeraUse'], 10);
 
   var dataCarrier = {
     type: 'pie',

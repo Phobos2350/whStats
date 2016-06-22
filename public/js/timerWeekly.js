@@ -80,7 +80,7 @@ function updateCharts(data) {
       //remove canvas
       $('#'+childCanvasId).remove();
       // append new canvas to the parent again
-      $(this).append('<canvas id="'+childCanvasId+'"></canvas>');
+      $(this).append('<canvas id="'+childCanvasId+'" width="300" height="300"></canvas>');
   });
   // TOTALS
   var dataTotal = {

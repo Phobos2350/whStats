@@ -268,17 +268,17 @@ function updateCharts(data) {
     }
   };
   var ctxHourC1 = (data[0]['hourKills'] - data[0]['citadelKillsHour'] - data[0]['structureKillsHour']) == 0 ?
-    $('#chartHourC1').parent().css('height', $('#chartHourC1').parent().parent().next().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC1'), dataHourC1);
+    $('#chartHourC1').parent().html('No Ship Kills!') : new Chart($('#chartHourC1'), dataHourC1);
   var ctxHourC2 = (data[1]['hourKills'] - data[1]['citadelKillsHour'] - data[1]['structureKillsHour']) == 0 ?
-    $('#chartHourC2').parent().css('height', $('#chartHourC2').parent().parent().prev().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC2'), dataHourC2);
+    $('#chartHourC2').parent().html('No Ship Kills!') : new Chart($('#chartHourC2'), dataHourC2);
   var ctxHourC3 = (data[2]['hourKills'] - data[2]['citadelKillsHour'] - data[2]['structureKillsHour']) == 0 ?
-    $('#chartHourC3').parent().css('height', $('#chartHourC3').parent().parent().prev().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC3'), dataHourC3);
+    $('#chartHourC3').parent().html('No Ship Kills!') : new Chart($('#chartHourC3'), dataHourC3);
   var ctxHourC4 = (data[3]['hourKills'] - data[3]['citadelKillsHour'] - data[3]['structureKillsHour']) == 0 ?
-    $('#chartHourC4').parent().css('height', $('#chartHourC4').parent().parent().prev().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC4'), dataHourC4);
+    $('#chartHourC4').parent().html('No Ship Kills!') : new Chart($('#chartHourC4'), dataHourC4);
   var ctxHourC5 = (data[4]['hourKills'] - data[4]['citadelKillsHour'] - data[4]['structureKillsHour']) == 0 ?
-    $('#chartHourC5').parent().css('height', $('#chartHourC5').parent().parent().prev().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC5'), dataHourC5);
+    $('#chartHourC5').parent().html('No Ship Kills!') : new Chart($('#chartHourC5'), dataHourC5);
   var ctxHourC6 = (data[5]['hourKills'] - data[5]['citadelKillsHour'] - data[5]['structureKillsHour']) == 0 ?
-    $('#chartHourC6').parent().css('height', $('#chartHourC6').parent().parent().prev().children('.small-chart-holder').css('height')).html('No Ship Kills!') : new Chart($('#chartHourC6'), dataHourC6);
+    $('#chartHourC6').parent().html('No Ship Kills!') : new Chart($('#chartHourC6'), dataHourC6);
 
   // Fleet Fights
   var dataFleetC1 = {

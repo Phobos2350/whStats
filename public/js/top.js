@@ -8,16 +8,16 @@ $(document).ready(function () {
   }
 
   if(tz == "eu") {
-    $('#pageTitle').html("EU Stats (1800-0000)");
+    $('#pageTitle').html('EU Stats (1800-0000) <span class="span_h2"> updated every 10 minutes </span>');
   }
   if(tz == "us") {
-    $('#pageTitle').html("US Stats (0000-0600)");
+    $('#pageTitle').html('US Stats (0000-0600) <span class="span_h2"> updated every 10 minutes </span>');
   }
   if(tz == "au") {
-    $('#pageTitle').html("AU Stats (0600-1200)");
+    $('#pageTitle').html('AU Stats (0600-1200) <span class="span_h2"> updated every 10 minutes </span>');
   }
   if(tz == "ru") {
-    $('#pageTitle').html("RU Stats (1200-1800)");
+    $('#pageTitle').html('RU Stats (1200-1800) <span class="span_h2"> updated every 10 minutes </span>');
   }
 
   $.getJSON('/api/entity/whkills/'+tz+'/', function(json) {

@@ -29,3 +29,12 @@ $container['db'] = function ($c) {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     return $pdo;
 };
+// Register component on container
+$container['view'] = function ($c) {
+    $settings = $c->get('settings');
+    $view = new \Slim\Views\Twig($settings['view']['template_path'], $settings['view']['twig']);
+    $view->addExtension(new \Slim\Views\TwigExtension($c->get('router'),$c->get('request')->getUri()));
+    $view->addExtension(new Twig_Extension_Debug());
+
+    return $view;
+};

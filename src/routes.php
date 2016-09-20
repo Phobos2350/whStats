@@ -1,103 +1,151 @@
 <?php
-// Routes
+require_once 'rethinkQueries.php';
 
+//Routes
 $app->get('/', function ($request, $response, $args) {
-    // Sample log message
     $this->logger->info("Slim-Skeleton '/' route");
+    //Maint-page
+    //return $this->renderer->render($response, 'maint.html', $args);
+    return $this->view->render($response, 'index.html', $args);
+})->setName('index');
 
-    // Render index view
-    return $this->renderer->render($response, 'index.html', $args);
+$app->get('/entities', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $this->logger->info("Slim-Skeleton '/entities' route");
+    return $this->view->render($response, 'entities.html', $args);
+})->setName('entities');
+
+$app->get('/api/rethink/year/{year}/month/{month}/entity/{id}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $id = (int)strval($args['id']);
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/$id' route");
+    $returnArray = $rethinkQueries->getEntityTopKillers($year, $month, $id);
+    return json_encode($returnArray);
 });
 
-$app->get('/daily', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/daily' route");
-
-    // Render index view
-    return $this->renderer->render($response, 'daily.html', $args);
+$app->get('/api/rethink/year/{year}/month/{month}/char/{id}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $id = (int)strval($args['id']);
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/char/$id' route");
+    $returnArray = $rethinkQueries->getCharShipUsage($year, $month, $id);
+    return json_encode($returnArray);
 });
 
-$app->get('/weekly', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/weekly' route");
-
-    // Render index view
-    return $this->renderer->render($response, 'weekly.html', $args);
-});
-
-$app->get('/monthly', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/monthly' route");
-
-    // Render index view
-    return $this->renderer->render($response, 'monthly.html', $args);
-});
-
-$app->get('/api/{period}[/]', function ($request, $response, $args) {
+$app->get('/api/rethink/limit/{limit}/period/{period}/page/{page}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
     $period = strval($args['period']);
-    $this->logger->info("Slim-Skeleton '/api/$period' route");
-
-    if ($period == "hourly") {
-        $stats = $this->db->prepare("SELECT * FROM totalkills");
-        $stats->execute();
-        $result = $stats->fetchAll();
-        return json_encode($result);
-    }
-    if ($period == "daily") {
-        $stats = $this->db->prepare("SELECT * FROM dailykills");
-        $stats->execute();
-        $result = $stats->fetchAll();
-        return json_encode($result);
-    }
-    if ($period == "weekly") {
-        $stats = $this->db->prepare("SELECT * FROM weeklykills");
-        $stats->execute();
-        $result = $stats->fetchAll();
-        return json_encode($result);
-    }
-    if ($period == "monthly") {
-        $stats = $this->db->prepare("SELECT * FROM monthlykills");
-        $stats->execute();
-        $result = $stats->fetchAll();
-        return json_encode($result);
-    }
-    if ($period == "total") {
-        $stats = $this->db->prepare("SELECT * FROM totalkills");
-        $stats->execute();
-        $result = $stats->fetchAll();
-        return json_encode($result);
-    }
+    $page = intval($args['page'], 10)-1;
+    $limit = intval($args['limit'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/$period' route");
+    $returnArray = $rethinkQueries->getPeriodKills($limit, $period, $page);
+    return json_encode($returnArray);
 });
 
-$app->get('/api/entity/{sort}/{tz}/[{id}/]', function ($request, $response, $args) {
-    $sort = strval($args['sort']);
+$app->get('/api/rethink/limit/{limit}/year/{year}/month/{month}/page/{page}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $page = intval($args['page'], 10)-1;
+    $limit = intval($args['limit'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/month/$year/$month' route");
+    $returnArray = $rethinkQueries->getMonthKills($limit, $year, $month, $page);
+    return json_encode($returnArray);
+});
+
+$app->get('/api/rethink/ship/{id}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $id = (int)strval($args['id']);
+    $this->logger->info("Slim-Skeleton '/api/rethink/ship/$id' route");
+    $returnArray = $rethinkQueries->getShip($id);
+    return json_encode($returnArray);
+});
+
+$app->get('/api/rethink/stats/{period}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $period = strval($args['period']);
+    $key = md5(strtoupper('periodStats_'.$period));
+    $data = array('period' => $period);
+    $cachedStats = $rethinkQueries->getCache('periodStats', $key, 5);
+    if($cachedStats['refreshDue']) {
+      $rethinkQueries->queueTask('getStatsPeriod', 'periodStats', $key, $data);
+    }
+    $returnArray = $cachedStats['statsArray']['stats'];
+    if($returnArray != null) {
+      return json_encode($returnArray);
+    } else {
+      $rethinkQueries->queueTask('getStatsPeriod', 'periodStats', $key, $data);
+      return $this->view->render($response, 'noMonth.html', ['year' => $period, 'month' => '']);
+    }
+    $this->logger->info("Slim-Skeleton '/api/rethink/stats/$period' route");
+});
+
+$app->get('/api/rethink/stats/year/{year}/month/{month}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $key = md5(strtoupper('periodStats_'.$year.'_'.$month));
+    $data = array('year' => $year, 'month' => $month);
+    $cachedStats = $rethinkQueries->getCache('periodStats', $key, 30);
+    //if($cachedStats['refreshDue']) {
+    //  $rethinkQueries->queueTask('getStatsMonth', 'periodStats', $key, $data);
+    //}
+    $returnArray = $cachedStats['statsArray']['stats'];
+    if($returnArray != null) {
+      return json_encode($returnArray);
+    } else {
+      $rethinkQueries->queueTask('getStatsMonth', 'periodStats', $key, $data);
+      return $this->view->render($response, 'noMonth.html', ['year' => $year, 'month' => $month]);
+    }
+    $this->logger->info("Slim-Skeleton '/api/rethink/stats/year/$year/month/$month' route");
+});
+
+$app->get('/api/rethink/entities/tz/{tz}/period/{period}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $conn = r\connect('localhost', 28015, 'stats');
     $tz = strval($args['tz']);
-    $id = strval($args['id']);
-    $sort != "" ? $sortQuery = " ORDER BY {$sort}" : $sortQuery = "";
-    $id != "" ? $idQuery = " WHERE entityID = {$id}" : $idQuery = "";
-    $this->logger->info("Slim-Skeleton '/entity/:tz' route where tz = $tz");
-    $entity = $this->db->prepare("SELECT * FROM entitystats{$tz}{$idQuery}{$sortQuery}");
-    $entity->execute();
-    $result = $entity->fetchAll();
-    return json_encode(array_reverse($result));
+    $period = strval($args['period']);
+    $key = md5(strtoupper('entityStats_'.$tz.'_'.$period));
+    $data = array('tz' => $tz, 'period' => $period);
+    $cachedStats = $rethinkQueries->getCache('entityStats', $key, 10);
+    if($cachedStats['refreshDue']) {
+      $rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', $key, $data);
+    }
+    $returnArray = $cachedStats['statsArray'];
+    if($returnArray != null) {
+      return json_encode($returnArray);
+    } else {
+      $rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', $key, $data);
+      return $this->view->render($response, 'noMonth.html', ['year' => $tz, 'month' => $period]);
+    }
 });
 
-$app->get('/top/{tz}[/]', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/top' route");
-    $tzQuery = strtoupper(strval($args['tz']));
-    // Render index view
-    return $this->renderer->render($response, 'top.html', $args);
-});
-
-$app->get('/entity/{id}[/]', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/entity' route");
-    // $id = strval($args['id']);
-    // // Render index view
-    // $entity = $this->db->prepare("SELECT * FROM entitystatseu WHERE entityID = {$id}");
-    // $entity->execute();
-    // $result = $entity->fetchAll();
-    // $statsEU = json_encode($result);
-    return $this->renderer->render($response, 'entityStats.html', $args);
+$app->get('/api/rethink/entities/tz/{tz}/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $tz = strval($args['tz']);
+    $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
+    $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
+    $thisMonth = date("m");
+    $thisYear = date("Y");
+    if($year == intval($thisYear, 10) && $month == intval($thisMonth, 10)) {
+      $cachedStats = $rethinkQueries->getCache('entityStats', $key, 30);
+    } else {
+      $cachedStats = $rethinkQueries->getCache('entityStats', $key, 10080);
+    }
+    //if($cachedStats['refreshDue']) {
+    //  $rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+    //}
+    $returnArray = $cachedStats['statsArray'];
+    if($returnArray != null) {
+      return json_encode($returnArray);
+    } else {
+      $rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+      return $this->view->render($response, 'noMonth.html', ['year' => $year, 'month' => $month]);
+    }
+    return $this->view->render($response, 'noMonth.html', ['year' => $year, 'month' => $month]);
 });

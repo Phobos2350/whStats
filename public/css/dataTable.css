@@ -247,8 +247,8 @@ div.material-table table td:nth-child(3) {
   padding: 0 0 0 12px;
 }
 
-div.material-table table th:nth-child(7),
-div.material-table table td:nth-child(7) {
+div.material-table table th:nth-child(10),
+div.material-table table td:nth-child(10) {
   width: 75px;
   padding: 0 0 0 12px;
 }
@@ -257,4 +257,3 @@ div.material-table table th:last-child,
 div.material-table table td:last-child {
   padding: 0 14px 0 0;
 }
-

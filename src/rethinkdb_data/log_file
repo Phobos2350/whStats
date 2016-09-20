@@ -1,0 +1,10 @@
+2016-09-09T19:52:01.241709897 0.111292s notice: Recursively removing directory /home/stats_v2/src/rethinkdb_data/tmp
+2016-09-09T19:52:01.311884574 0.181477s notice: Initializing directory /home/stats_v2/src/rethinkdb_data
+2016-09-09T19:52:01.322646473 0.192229s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/stats_v2/src/rethinkdb_data' did not already exist or is empty.)
+2016-09-09T19:52:01.329305791 0.198890s notice: Running rethinkdb 2.3.5~0trusty (GCC 4.8.2)...
+2016-09-09T19:52:01.502413319 0.372317s notice: Running on Linux 3.13.0-51-generic x86_64
+2016-09-09T19:52:01.506386782 0.375967s notice: Loading data from directory /home/stats_v2/src/rethinkdb_data
+2016-09-09T19:52:02.009499188 0.879082s info: Automatically using cache size of 100 MB
+2016-09-09T19:52:02.097900112 0.967495s warn: Cache size is larger than available memory.
+2016-09-09T19:52:02.097931672 0.967511s warn: Cache size is very low and may impact performance.
+2016-09-09T19:52:02.129049381 0.998630s error: TCP socket creation failed for port 29015: Address already in use.

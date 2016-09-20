@@ -5,35 +5,125 @@
  * Thanks for MaterializeCSS.com
  */
 
-.default_color{background-color: #2196F3 !important}
+.default_color{background-color: #546e7a !important}
 
-.default_color_text{color: #2196F3 !important}
+.default_color_text{color: #546e7a !important}
 
 .icon-block {
     padding: 0 15px;
 }
 
 
-#dropdown1, .dropdown-content li>a, .dropdown-content li>span {
-    color: #2196F3;
+.dropdown-content li>a, .dropdown-content li>span {
+    color: #546e7a;
 }
 
-#intro, #work, #team {padding-top: 4rem;}
+#intro, #essentialStats, #bigGraphs, #breakdowns, #rawStats {padding-top: 4rem;}
 
+#intro, #bigGraphs, #rawStats {background: #F7F7F7;}
+
+#essentialStats, #breakdowns {background-color: #eceff1;}
 
 #index-banner {
     min-height: 632px;
     max-height: 864px;
     position: relative;
     background-image: url("../img/OptimizedNebula.png");
-    background-color: #2196F3;
+    background-color: #546e7a;
+}
+
+#index-banner-maint {
+    min-height: 100%;
+    position: relative;
+    background-image: url("../img/OptimizedNebula.png");
+    background-color: #546e7a;
+}
+
+.main-nav {
+  z-index: 100;
+}
+
+.kill-card {
+  text-align: center;
+}
+
+.kill-content {
+    display: inline-block;
+    margin: 0 0 10px 0;
+    text-align: center;
+    vertical-align: middle;
+    width: 95%;
+}
+
+.kill-title {
+  display: inline-block;
+  padding: 10px 10px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.kill-line {
+  text-align: justify;
+}
+
+.kill-text {
+    margin:10px;
+    font-weight: 100;
+    color: #F7F7F7;
+    text-align: justify;
+    float: left;
+    text-overflow: ellipsis;
+}
+
+.kill-text:hover {
+    color: #000;
+}
+
+.eveimage {
+    background-color: #222;
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
+    font-size: 0.1px;
+    vertical-align:middle;
+    float: left;
+    margin-left: 10px;
+}
+
+.img-rounded {
+    border-radius: 6px;
+    height: 40px;
+    width: 40px;
+}
+
+.splash {
+  height: 100%;
+}
+
+#modal1 {
+  text-align: center;
+  width: 90%;
+  height: 200px;
+  margin: auto;
 }
 
 #nav_f{
-    box-shadow: none !important;
     -webkit-box-shadow:none !important;
+    -moz-box-shadow:none !important;
+    box-shadow: none !important;
 }
 
+.totalKills, .totalISK {
+  padding-left: 50px;
+  color: #78909c;
+}
+
+.monthLinks {
+  font-weight: 100;
+}
+.period {
+  font-weight: 100;
+}
 .text_h {
     padding: 15% 0;
     font-size: 6.0em;
@@ -54,22 +144,20 @@
 
 .text_h2 {font-weight: 100;margin-bottom: 4%; line-height: 4.5rem;}
 
-.span_h2 {font-weight: 300;color: #2196F3;}
+.span_h2 {font-weight: 300;color: #546e7a;}
 
-.text_b{color: #2196F3;}
+.text_b{color: #546e7a;}
 
 .in{font-weight: 400 !important; font-style: normal !important;}
 
 .promo i {
-    color: #2196F3;
+    color: #546e7a;
     font-size: 7rem;
     display: block;
 }
-.card-content a {color: #2196F3;}
+.card-content a {color: #546e7a;}
 
-.card-content a:hover {color: #2196F3;}
-
-#work, #team{background: rgb(247, 247, 247);}
+.card-content a:hover {color: #546e7a;}
 
 .text_pink{color:#EF9A9A;}
 
@@ -79,7 +167,7 @@ nav ul a {
     letter-spacing: 2px;
     display: block;
     font-weight: 300;
-    padding: 0px 15px;
+    padding: 0 15px;
 }
 
 .cd-headline.type .cd-words-wrapper {
@@ -118,14 +206,14 @@ nav ul a {
 }
 
 .cd-headline.type .cd-words-wrapper.selected b {
-    color: #2196F3;
+    color: #546e7a;
 }
 
 .cd-headline.type b {
     visibility: hidden;
 }
 
-.cd-headline.type b.is-visible {
+.cd-headline.type .is-visible {
     visibility: visible;
 }
 
@@ -141,28 +229,34 @@ nav ul a {
 @-webkit-keyframes cd-pulse {
     0% {
         -webkit-transform: translateY(-50%) scale(1);
+        transform: translateY(-50%) scale(1);
         opacity: 1;
     }
     40% {
         -webkit-transform: translateY(-50%) scale(0.9);
+        transform: translateY(-50%) scale(0.9);
         opacity: 0;
     }
     100% {
         -webkit-transform: translateY(-50%) scale(0);
+        transform: translateY(-50%) scale(0);
         opacity: 0;
     }
 }
 @-moz-keyframes cd-pulse {
     0% {
         -moz-transform: translateY(-50%) scale(1);
+        transform: translateY(-50%) scale(1);
         opacity: 1;
     }
     40% {
         -moz-transform: translateY(-50%) scale(0.9);
+        transform: translateY(-50%) scale(0.9);
         opacity: 0;
     }
     100% {
         -moz-transform: translateY(-50%) scale(0);
+        transform: translateY(-50%) scale(0);
         opacity: 0;
     }
 }
@@ -231,7 +325,7 @@ input, textarea {
     border-bottom: 1px solid #fff;
 }
 
-nav a.button-collapse {
+nav .button-collapse {
     left: -25px;
 }
 
@@ -251,7 +345,7 @@ nav a.button-collapse {
 }
 
 .card .card-content p {
-    margin: 15px 0px;
+    margin: 15px 0;
 }
 
 .card-avatar .card-content i {
@@ -266,68 +360,8 @@ nav a.button-collapse {
     max-height: 400px;
 }
 
-footer.page-footer {
-    margin-top: 0px !important;
-}
-
-.ct-series .ct-bar {
-  /* The width of your bars */
-  stroke-width: 40px;
-}
-
-.ct-series-a {
-  stroke: #f0f9e8;
-}
-
-.ct-series-b {
-  stroke: #ccebc5;
-}
-
-.ct-series-c {
-  stroke: #a8ddb5;
-}
-
-.ct-series-d {
-  stroke: #7bccc4;
-}
-
-.ct-series-e {
-  stroke: #43a2ca;
-}
-
-.ct-series-f {
-  stroke: #0868ac;
-}
-
-/* Chat Labels */
-$ct-series-colors: (#d70206, #F4C63D, #F05B4F, #453D3F) !default;
-
-#chartHourlyLegend {
-    padding: 0;
-    font-family: sans-serif;
-
-    li {
-        position: relative;
-        padding-left: 1.3em;
-        margin-bottom: 0.3em;
-        list-style-type: none;
-    }
-
-    li::before {
-        height: 1em;
-        width: 1em;
-        position: absolute;
-        top: 0.1em;
-        left: 0;
-        content: '';
-        border-radius: 1em;
-    }
-
-     @for $i from 0 to length($ct-series-colors) {
-          .ct-series-#{$i}::before {
-            background-color: nth($ct-series-colors, $i + 1);
-        }
-    }
+.page-footer {
+    margin-top: 0;
 }
 
 .tooltip {
@@ -362,9 +396,49 @@ $ct-series-colors: (#d70206, #F4C63D, #F05B4F, #453D3F) !default;
   height: 400px;
 }
 
+.breakdowns-holder {
+  height: 1000px;
+}
+
 .small-chart-holder {
   height: 200px;
   width: 200px;
   max-height: 250px;
   max-width: 250px;
+}
+
+.periodLinks {
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.periodLinks:hover {
+  color: #F2F2F2;
+  background-color: #546e7a;
+}
+
+.periodLinks-active {
+  display: inline-block;
+  color: #F2F2F2;
+  background-color: #546e7a;
+}
+
+.tzLinks {
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.tzLinks:hover {
+  color: #F2F2F2;
+  background-color: #546e7a;
+}
+
+.tzLinks-active {
+  color: #F2F2F2;
+  background-color: #546e7a;
+}
+
+.disabled {
+  color: #bdbdbd;
+  text-decoration: line-through;
 }

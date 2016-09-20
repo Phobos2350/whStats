@@ -1,0 +1,59 @@
+2016-07-09T15:38:24.496599246 0.169991s notice: Recursively removing directory /home/stats/logs/rethinkdb_data/tmp
+2016-07-09T15:38:24.501396707 0.174789s notice: Initializing directory /home/stats/logs/rethinkdb_data
+2016-07-09T15:38:24.501706308 0.175091s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/stats/logs/rethinkdb_data' did not already exist or is empty.)
+2016-07-09T15:38:24.501761357 0.175146s notice: Running rethinkdb 2.3.4~0trusty (GCC 4.8.2)...
+2016-07-09T15:38:24.505884479 0.179271s notice: Running on Linux 3.13.0-51-generic x86_64
+2016-07-09T15:38:24.506048586 0.179433s notice: Loading data from directory /home/stats/logs/rethinkdb_data
+2016-07-09T15:38:24.560384217 0.233771s info: Automatically using cache size of 100 MB
+2016-07-09T15:38:24.560974853 0.234359s warn: Cache size is larger than available memory.
+2016-07-09T15:38:24.560983010 0.234367s warn: Cache size is very low and may impact performance.
+2016-07-09T15:38:24.563433071 0.236817s notice: Listening for intracluster connections on port 29015
+2016-07-09T15:38:24.566543118 0.239927s notice: Listening for client driver connections on port 28015
+2016-07-09T15:38:24.566920692 0.240305s notice: Listening for administrative HTTP connections on port 8080
+2016-07-09T15:38:24.566924193 0.240308s notice: Listening on cluster addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:24.566928996 0.240313s notice: Listening on driver addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:24.566932378 0.240316s notice: Listening on http addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:24.566936193 0.240320s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2016-07-09T15:38:24.566939930 0.240324s notice: Server ready, "limited_power_co_uk_i6w" 4268e1b1-7233-4714-862f-32edc6c5ef88
+2016-07-09T15:38:49.803355361 25.476745s notice: Server got SIGINT from pid 0, uid 0; shutting down...
+2016-07-09T15:38:49.803818527 25.477203s notice: Shutting down client connections...
+2016-07-09T15:38:49.805627466 25.479012s notice: All client connections closed.
+2016-07-09T15:38:49.805640091 25.479024s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2016-07-09T15:38:49.810707448 25.484092s notice: Storage engine shut down.
+2016-07-09T15:38:57.529838669 0.103438s notice: Running rethinkdb 2.3.4~0trusty (GCC 4.8.2)...
+2016-07-09T15:38:57.538761002 0.112356s notice: Running on Linux 3.13.0-51-generic x86_64
+2016-07-09T15:38:57.539023252 0.112615s notice: Loading data from directory /home/stats/logs/rethinkdb_data
+2016-07-09T15:38:57.568356207 0.141952s info: Automatically using cache size of 100 MB
+2016-07-09T15:38:57.568830002 0.142422s warn: Cache size is larger than available memory.
+2016-07-09T15:38:57.568840765 0.142432s warn: Cache size is very low and may impact performance.
+2016-07-09T15:38:57.570633928 0.144226s notice: Listening for intracluster connections on port 29015
+2016-07-09T15:38:57.575336850 0.148929s notice: Listening for client driver connections on port 28015
+2016-07-09T15:38:57.577842159 0.151434s notice: Listening for administrative HTTP connections on port 8080
+2016-07-09T15:38:57.577847731 0.151439s notice: Listening on cluster addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:57.577856099 0.151448s notice: Listening on driver addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:57.577860039 0.151451s notice: Listening on http addresses: 127.0.0.1, 127.0.1.1, ::1
+2016-07-09T15:38:57.577866571 0.151458s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2016-07-09T15:38:57.577872796 0.151464s notice: Server ready, "limited_power_co_uk_i6w" 4268e1b1-7233-4714-862f-32edc6c5ef88
+2016-07-09T15:40:22.362561571 84.936157s notice: Server got SIGINT from pid 0, uid 0; shutting down...
+2016-07-09T15:40:22.364642476 84.938234s notice: Shutting down client connections...
+2016-07-09T15:40:22.366070612 84.939662s notice: All client connections closed.
+2016-07-09T15:40:22.366073369 84.939665s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2016-07-09T15:40:22.379741511 84.953335s notice: Storage engine shut down.
+2016-07-09T15:40:23.285498469 0.059645s notice: Running rethinkdb 2.3.4~0trusty (GCC 4.8.2)...
+2016-07-09T15:40:23.291965147 0.066103s notice: Running on Linux 3.13.0-51-generic x86_64
+2016-07-09T15:40:23.292260982 0.066394s notice: Loading data from directory /home/stats/logs/rethinkdb_data
+2016-07-09T15:40:23.321842433 0.095980s info: Automatically using cache size of 100 MB
+2016-07-09T15:40:23.322385613 0.096519s warn: Cache size is larger than available memory.
+2016-07-09T15:40:23.322399219 0.096532s warn: Cache size is very low and may impact performance.
+2016-07-09T15:40:23.376630883 0.150765s notice: Listening for intracluster connections on port 29015
+2016-07-09T15:40:23.379478164 0.153611s notice: Listening for client driver connections on port 28015
+2016-07-09T15:40:23.380281561 0.154415s notice: Listening for administrative HTTP connections on port 8080
+2016-07-09T15:40:23.388399260 0.162533s notice: Listening on cluster addresses: 127.0.0.1, 127.0.1.1, 10.16.0.5, 178.62.98.9, 10.131.204.141, ::1, 2a03:b0c0:1:d0::290:7001, fe80::601:39ff:feef:4401%2, fe80::601:39ff:feef:4402%3
+2016-07-09T15:40:23.401552937 0.175687s notice: Listening on driver addresses: 127.0.0.1, 127.0.1.1, 10.16.0.5, 178.62.98.9, 10.131.204.141, ::1, 2a03:b0c0:1:d0::290:7001, fe80::601:39ff:feef:4401%2, fe80::601:39ff:feef:4402%3
+2016-07-09T15:40:23.411203474 0.185337s notice: Listening on http addresses: 127.0.0.1, 127.0.1.1, 10.16.0.5, 178.62.98.9, 10.131.204.141, ::1, 2a03:b0c0:1:d0::290:7001, fe80::601:39ff:feef:4401%2, fe80::601:39ff:feef:4402%3
+2016-07-09T15:40:23.411461399 0.185595s notice: Server ready, "limited_power_co_uk_i6w" 4268e1b1-7233-4714-862f-32edc6c5ef88
+2016-07-09T15:43:58.779816745 215.553956s notice: Server got SIGINT from pid 0, uid 0; shutting down...
+2016-07-09T15:43:58.784982110 215.559116s notice: Shutting down client connections...
+2016-07-09T15:43:58.786831251 215.560965s notice: All client connections closed.
+2016-07-09T15:43:58.787095551 215.561229s notice: Shutting down storage engine... (This may take a while if you had a lot of unflushed data in the writeback cache.)
+2016-07-09T15:43:58.806644311 215.580778s notice: Storage engine shut down.

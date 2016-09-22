@@ -2,5 +2,6 @@
 /logs/*
 /rethinkdb_data/
 /cache/
+/src/settings.php
 -rethinkCert.pem
 !/logs/README.md

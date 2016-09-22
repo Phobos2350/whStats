@@ -261,8 +261,6 @@ function getKillsPeriod($startDate)
 
         $content = file_get_contents($url);
         $json = json_decode($content, true);
-        print_r($json);
-        exit();
 
         if($json == null) {
           printf("Sleeping...\n");
@@ -275,14 +273,13 @@ function getKillsPeriod($startDate)
         if ($output !== null) {
             //printf("Kills found, analysing...\n");
             foreach($output as $kill) {
-              print_r($kill);
-              exit();
               $killExists = r\table('whKills')->get($killID)->run($conn);
 
               if ($killExists !== null) {
                   //printf("xxx Seen kill - $killID xxx\n");
                   continue;
               }
+              $kill = json_decode(file_get_contents("https://zkillboard.com/api/killID/{$killID}/"), true);
               $killID = $kill["killID"];
               $killTime = $kill["killTime"];
               isset($kill["solarSystemID"]) ? $systemID = $kill["solarSystemID"] : $systemID = 0;

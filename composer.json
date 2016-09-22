@@ -1,14 +1,14 @@
 {
-    "name": "slim/slim-skeleton",
-    "description": "A Slim Framework skeleton application for rapid development",
-    "keywords": ["microframework","rest","router", "psr7"],
-    "homepage": "http://github.com/slimphp/Slim-Skeleton",
+    "name": "TurnLeftAtThePossum/whStats",
+    "description": "Stats for EVE Online Wormhole Space based on the Slim Framework",
+    "keywords": ["microframework","rest","router", "psr7", "EVE Online", "Wormhole"],
+    "homepage": "http://stats.limited-power.co.uk",
     "license": "MIT",
     "authors": [
         {
-            "name": "Josh Lockhart",
-            "email": "info@joshlockhart.com",
-            "homepage": "http://www.joshlockhart.com/"
+            "name": "TurnLeftAtThePossum",
+            "email": "limitedpowerinc@gmail.com",
+            "homepage": "http://stats.limited-power.co.uk"
         }
     ],
     "require": {

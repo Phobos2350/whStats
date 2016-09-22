@@ -1,3 +1,5 @@
 /vendor/
 /logs/*
+/rethinkdb_data/
+/cache/
 !/logs/README.md

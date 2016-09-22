@@ -1,5 +1,5 @@
 <?php
-require_once("/home/stats/vendor/danielmewes/php-rql/rdb/rdb.php");
+require_once(dirname(__FILE__)."../../vendor/danielmewes/php-rql/rdb/rdb.php");
 date_default_timezone_set('Etc/GMT');
 
 foreach ($argv as $i => $arg) {

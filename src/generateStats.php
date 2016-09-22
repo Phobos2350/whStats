@@ -33,13 +33,13 @@ class GenerateStats {
           $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
           $this->rethinkQueries->queueTask('genStats', '', '', $data);
           $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_all_hour')), array('tz' => 'all', 'period' => 'hour'));
-          if (date("H") >= 0 && date("H") < 8) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_hour')), array('tz' => 'us', 'period' => 'hour'));
-          } elseif (date("H") >= 8 && date("H") < 16) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_hour')), array('tz' => 'au', 'period' => 'hour'));
-          } elseif (date("H") >= 16 && date("H") < 24) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_hour')), array('tz' => 'eu', 'period' => 'hour'));
-          }
+          // if (date("H") >= 0 && date("H") < 8) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_hour')), array('tz' => 'us', 'period' => 'hour'));
+          // } elseif (date("H") >= 8 && date("H") < 16) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_hour')), array('tz' => 'au', 'period' => 'hour'));
+          // } elseif (date("H") >= 16 && date("H") < 24) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_hour')), array('tz' => 'eu', 'period' => 'hour'));
+          // }
           $lastCheck = strtotime("now");
         }
       }
@@ -50,15 +50,15 @@ class GenerateStats {
           $data = array('period' => 'day', 'year' => 0, 'month' => 0);
           $this->rethinkQueries->queueTask('genStats', '', '', $data);
           $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_all_day')), array('tz' => 'all', 'period' => 'day'));
-          if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_day')), array('tz' => 'us', 'period' => 'day'));
-          }
-          if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_day')), array('tz' => 'au', 'period' => 'day'));
-          }
-          if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_day')), array('tz' => 'eu', 'period' => 'day'));
-          }
+          // if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_day')), array('tz' => 'us', 'period' => 'day'));
+          // }
+          // if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_day')), array('tz' => 'au', 'period' => 'day'));
+          // }
+          // if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_day')), array('tz' => 'eu', 'period' => 'day'));
+          // }
           $lastDayCheck = strtotime("now");
         }
       }
@@ -69,15 +69,15 @@ class GenerateStats {
           $data = array('period' => 'week', 'year' => 0, 'month' => 0);
           $this->rethinkQueries->queueTask('genStats', '', '', $data);
           $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_all_day')), array('tz' => 'all', 'period' => 'week'));
-          if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_week')), array('tz' => 'us', 'period' => 'week'));
-          }
-          if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_week')), array('tz' => 'au', 'period' => 'week'));
-          }
-          if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
-            $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_week')), array('tz' => 'eu', 'period' => 'week'));
-          }
+          // if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_us_week')), array('tz' => 'us', 'period' => 'week'));
+          // }
+          // if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_au_week')), array('tz' => 'au', 'period' => 'week'));
+          // }
+          // if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
+          //   $this->rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', md5(strtoupper('entityStats_eu_week')), array('tz' => 'eu', 'period' => 'week'));
+          // }
           $lastWeekCheck = strtotime("now");
         }
       }
@@ -93,24 +93,24 @@ class GenerateStats {
           $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
           $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
           $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
-          if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
-            $tz = 'us';
-            $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
-            $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
-            $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
-          }
-          if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
-            $tz = 'au';
-            $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
-            $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
-            $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
-          }
-          if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
-            $tz = 'eu';
-            $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
-            $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
-            $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
-          }
+          // if(intval(date('H', $killTime), 10) >= 0 && intval(date('H', $killTime), 10) < 8) {
+          //   $tz = 'us';
+          //   $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
+          //   $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
+          //   $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+          // }
+          // if(intval(date('H', $killTime), 10) >= 8 && intval(date('H', $killTime), 10) < 16) {
+          //   $tz = 'au';
+          //   $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
+          //   $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
+          //   $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+          // }
+          // if(intval(date('H', $killTime), 10) >= 16 && intval(date('H', $killTime), 10) < 24) {
+          //   $tz = 'eu';
+          //   $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
+          //   $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
+          //   $this->rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+          // }
           $lastMonthCheck = strtotime("now");
         }
       }

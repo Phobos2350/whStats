@@ -9,19 +9,34 @@ $app->get('/', function ($request, $response, $args) {
     return $this->view->render($response, 'index.html', $args);
 })->setName('index');
 
-$app->get('/entities', function ($request, $response, $args) {
-    $rethinkQueries = new RethinkQueries();
+$app->get('/entities[/]', function ($request, $response, $args) {
     $this->logger->info("Slim-Skeleton '/entities' route");
     return $this->view->render($response, 'entities.html', $args);
 })->setName('entities');
 
+$app->get('/entity/{id}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $this->logger->info("Slim-Skeleton '/entity/{$id}' route");
+    return $this->view->render($response, 'entity.html', $args);
+})->setName('entities');
+
 $app->get('/api/rethink/year/{year}/month/{month}/entity/{id}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
-    $id = (int)strval($args['id']);
+    $id = intval($args['id'], 10);
     $year = intval($args['year'], 10);
     $month = intval($args['month'], 10);
-    $this->logger->info("Slim-Skeleton '/api/rethink/$id' route");
+    $this->logger->info("Slim-Skeleton '/api/rethink/year/{$year}/month/{$month}/entity/{$id}' route");
     $returnArray = $rethinkQueries->getEntityTopKillers($year, $month, $id);
+    return json_encode($returnArray);
+});
+
+$app->get('/api/rethink/year/{year}/month/{month}/entityStats/{id}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $id = intval($args['id'], 10);
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/year/{$year}/month/{$month}/entityStats/{$id}' route");
+    $returnArray = $rethinkQueries->getEntityStatsMonthByID($id, $year, $month);
     return json_encode($returnArray);
 });
 

@@ -113,9 +113,12 @@
     box-shadow: none !important;
 }
 
-.totalKills, .totalISK {
-  padding-left: 50px;
+.totals {
   color: #78909c;
+}
+
+.totals-header {
+  padding-right: 50px;
 }
 
 .monthLinks {

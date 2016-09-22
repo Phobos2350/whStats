@@ -6,6 +6,7 @@ var month = new Date().getMonth()
 var year = new Date().getFullYear()
 var weekday = new Array(7)
 var table
+var killData
 weekday[0] = 'Sun'
 weekday[1] = 'Mon'
 weekday[2] = 'Tue'
@@ -29,6 +30,7 @@ $('.tzLinks').click(function () {
 })
 
 $('.periodLinks').click(function () {
+  killData = null
   setPeriod = $(this).text().toLowerCase()
   $('.periodLinks').parent().removeClass('active')
   $(this).parent().addClass('active')
@@ -90,7 +92,7 @@ $('.periodLinks').click(function () {
     var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
     $('.currMonth').text(currMonth.toLocaleString('en-gb', {
       month: 'long'
-    }))
+    }) + ' ' + currMonth.getFullYear())
     $('.periodStats').text('Kills During ' + currMonth.toLocaleString('en-gb', {
       month: 'long'
     }))
@@ -105,6 +107,7 @@ $('.periodLinks').click(function () {
 })
 
 $('.prevMonth').click(function () {
+  killData = null
   seconds = 119
   if (month === 0) {
     month = 11
@@ -118,7 +121,7 @@ $('.prevMonth').click(function () {
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
   $('.currMonth').text(currMonth.toLocaleString('en-gb', {
     month: 'long'
-  }))
+  }) + ' ' + currMonth.getFullYear())
   var prevMonth = new Date(year, month - 1, 1, 0, 0, 0, 0)
   $('.prevMonth').text('<< ' + prevMonth.toLocaleString('en-gb', {
     month: 'long'
@@ -130,8 +133,9 @@ $('.prevMonth').click(function () {
 })
 
 $('.nextMonth').click(function () {
+  killData = null
   seconds = 119
-  if (month === 13) {
+  if (month === 12) {
     month = 1
     year += 1
   } else {
@@ -143,7 +147,7 @@ $('.nextMonth').click(function () {
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
   $('.currMonth').text(currMonth.toLocaleString('en-gb', {
     month: 'long'
-  }))
+  }) + ' ' + currMonth.getFullYear())
   var prevMonth = new Date(year, month - 1, 1, 0, 0, 0, 0)
   $('.prevMonth').text('<< ' + prevMonth.toLocaleString('en-gb', {
     month: 'long'
@@ -162,56 +166,64 @@ $('.nextMonth').click(function () {
 function changePeriod (tz, period) {
   $('.modal-content-text').text('Loading Stats')
   $('#modal1').openModal()
-  $.getJSON('/api/rethink/entities/tz/' + tz + '/period/' + period + '/', function (json) {
-    // console.log(json);
-    if (json['stats'] === null) {
+  if(killData !== null) {
+    updateTable(killData)
+    setTimeout(function () {
+      $('#modal1').closeModal()
+    }, 500)
+  } else {
+    $.getJSON('/api/rethink/entities/tz/all/period/' + period + '/', function (json) {
+      killData = json['stats']
+      // console.log(json);
+      if (json['stats'] === null) {
+        $('.modal-content-text').text('No Data! A Task has been despatched! Try Again in a few moments')
+        setTimeout(function () {
+          $('#modal1').closeModal()
+        }, 1500)
+        return null
+      }
+      if (renderedOnce !== 0) {
+        table.destroy()
+      }
+      updateTable(killData)
+      table = $('#stats').DataTable({
+        "oLanguage": {
+          "sStripClasses": "",
+          "sSearch": "",
+          "sSearchPlaceholder": "Enter Keywords Here",
+          "sInfo": "_START_ -_END_ of _TOTAL_",
+          "sLengthMenu": '<span>Rows per page:</span><select class="browser-default">' +
+            '<option value="10">10</option>' +
+            '<option value="20">20</option>' +
+            '<option value="30">30</option>' +
+            '<option value="40">40</option>' +
+            '<option value="50">50</option>' +
+            '<option value="-1">All</option>' +
+            '</select></div>'
+        },
+        bAutoWidth: false,
+        bProcessing: true,
+        bDeferRender: true,
+        scrollY: '650px',
+        scrollX: true,
+        scrollCollapse: true,
+        fixedColumns: {
+          leftColumns: 2
+        }
+      })
+      renderedOnce = 1
+      setTimeout(function () {
+        $('#modal1').closeModal()
+      }, 500)
+    }).error(function (error) {
+      console.log(error)
+      $('#modal1').openModal()
       $('.modal-content-text').text('No Data! A Task has been despatched! Try Again in a few moments')
       setTimeout(function () {
         $('#modal1').closeModal()
       }, 1500)
-      return null
-    }
-    if (renderedOnce !== 0) {
-      table.destroy()
-    }
-    updateTable(json['stats'])
-    table = $('#stats').DataTable({
-      "oLanguage": {
-        "sStripClasses": "",
-        "sSearch": "",
-        "sSearchPlaceholder": "Enter Keywords Here",
-        "sInfo": "_START_ -_END_ of _TOTAL_",
-        "sLengthMenu": '<span>Rows per page:</span><select class="browser-default">' +
-          '<option value="10">10</option>' +
-          '<option value="20">20</option>' +
-          '<option value="30">30</option>' +
-          '<option value="40">40</option>' +
-          '<option value="50">50</option>' +
-          '<option value="-1">All</option>' +
-          '</select></div>'
-      },
-      bAutoWidth: false,
-      bProcessing: true,
-      bDeferRender: true,
-      scrollY: '650px',
-      scrollX: true,
-      scrollCollapse: true,
-      fixedColumns: {
-        leftColumns: 2
-      }
     })
-    renderedOnce = 1
-    setTimeout(function () {
-      $('#modal1').closeModal()
-    }, 500)
-  }).error(function (error) {
-    console.log(error)
-    $('#modal1').openModal()
-    $('.modal-content-text').text('No Data! A Task has been despatched! Try Again in a few moments')
-    setTimeout(function () {
-      $('#modal1').closeModal()
-    }, 1500)
-  })
+  }
 }
 
 function pad (n) {
@@ -230,6 +242,7 @@ function truncateString (str, length) {
 }
 
 function updateTable (data) {
+  data = data[setTz.toUpperCase()]
   var r = []
   var j = 0
   for(var key = 0, size = data.length; key < size; key++) {
@@ -246,7 +259,14 @@ function updateTable (data) {
       r[++j] = 'Corporation'
     }
     r[++j] = '</td><td>'
-    var isk = (data[key]['totalISK'] / 1000000000).toFixed(1, 10)+ ' bil'
+    var iskVal = (data[key]['totalISK'] / 1000000000).toFixed(1, 10)
+    var isk = ''
+    if (parseInt(iskVal, 10) >= 1000) {
+      iskVal = (iskVal / 1000).toFixed(1, 10)
+      isk = iskVal + 'T'
+    } else {
+      isk = iskVal + 'B'
+    }
     r[++j] = isk
     r[++j] = '</td><td>'
     r[++j] = data[key]['totalKills']

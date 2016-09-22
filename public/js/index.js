@@ -24,6 +24,10 @@ var ctxBreakdowns = null
 $(document).ready(function () {
   setPeriod = 'hour'
   $('.periodLinks-hour').trigger('click')
+  setTimeout(function(){
+    Materialize.toast('Welcome to 2.0 - Main Stats are done, Entities are 95% done and Pilot Stats are WIP!', 10000);
+  }, 2000);
+
 })
 
 $('.periodLinks').click(function () {
@@ -378,7 +382,8 @@ function updateCharts (data) {
       datasets: [{
         label: 'Total ISK Killed',
         backgroundColor: 'rgba(255,107,107,0.5)',
-        data: [dataTotalBillionsC1Hour, dataTotalBillionsC2Hour, dataTotalBillionsC3Hour, dataTotalBillionsC4Hour, dataTotalBillionsC5Hour, dataTotalBillionsC6Hour]
+        data: [dataTotalBillionsC1Hour.toFixed(2), dataTotalBillionsC2Hour.toFixed(2), dataTotalBillionsC3Hour.toFixed(2),
+               dataTotalBillionsC4Hour.toFixed(2), dataTotalBillionsC5Hour.toFixed(2), dataTotalBillionsC6Hour.toFixed(2)]
       }]
     },
     options: {

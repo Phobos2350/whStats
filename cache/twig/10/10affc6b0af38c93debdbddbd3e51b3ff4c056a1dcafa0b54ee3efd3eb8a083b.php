@@ -47,6 +47,7 @@ class __TwigTemplate_75d98b0aaa548ffd599be3215cff9dcceb5c911c8e61e8593b0f88ae543
 <div id=\"modal1\" class=\"modal\">
   <div class=\"modal-content\">
     <h4 class=\"modal-content-text\">Loading Stats</h4>
+    <i>This May Take A Few Seconds! Please Be Patient!</i><br>
     <div class=\"preloader-wrapper big active\">
       <div class=\"spinner-layer spinner-blue-only\">
         <div class=\"circle-clipper left\">
@@ -202,6 +203,7 @@ class __TwigTemplate_75d98b0aaa548ffd599be3215cff9dcceb5c911c8e61e8593b0f88ae543
 /* <div id="modal1" class="modal">*/
 /*   <div class="modal-content">*/
 /*     <h4 class="modal-content-text">Loading Stats</h4>*/
+/*     <i>This May Take A Few Seconds! Please Be Patient!</i><br>*/
 /*     <div class="preloader-wrapper big active">*/
 /*       <div class="spinner-layer spinner-blue-only">*/
 /*         <div class="circle-clipper left">*/

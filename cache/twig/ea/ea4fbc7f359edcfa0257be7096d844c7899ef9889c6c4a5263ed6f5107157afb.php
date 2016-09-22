@@ -75,10 +75,10 @@ class __TwigTemplate_b341154480e7c5547cc7b239a5a9451f7e8e48b8578d49a2e104b84297f
   <div class=\"container\">
     <div class=\"row center-align\">
       <div class=\"col s6 m6 14\">
-        <h5 class=\"promo-caption\">Total Kills <span class=\"totalKills\"></span></h5>
+        <h5 class=\"promo-caption totals-header\">Total Kills <span class=\"totals totalKills\"></span></h5>
       </div>
       <div class=\"col s6 m6 14\">
-        <h5 class=\"promo-caption\">Total ISK <span class=\"totalISK\"></span></h5>
+        <h5 class=\"promo-caption totals-header\">Total ISK <span class=\"totals totalISK\"></span></h5>
       </div>
     </div>
     <div class=\"row\">
@@ -362,10 +362,10 @@ class __TwigTemplate_b341154480e7c5547cc7b239a5a9451f7e8e48b8578d49a2e104b84297f
 /*   <div class="container">*/
 /*     <div class="row center-align">*/
 /*       <div class="col s6 m6 14">*/
-/*         <h5 class="promo-caption">Total Kills <span class="totalKills"></span></h5>*/
+/*         <h5 class="promo-caption totals-header">Total Kills <span class="totals totalKills"></span></h5>*/
 /*       </div>*/
 /*       <div class="col s6 m6 14">*/
-/*         <h5 class="promo-caption">Total ISK <span class="totalISK"></span></h5>*/
+/*         <h5 class="promo-caption totals-header">Total ISK <span class="totals totalISK"></span></h5>*/
 /*       </div>*/
 /*     </div>*/
 /*     <div class="row">*/

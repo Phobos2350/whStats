@@ -7,7 +7,7 @@ foreach ($argv as $i => $arg) {
       getKills();
     }
     if ($arg == "getKillsPeriod") {
-      getKillsPeriod($argv[1]);
+      getKillsPeriod($argv[2]);
     }
 }
 
@@ -244,7 +244,7 @@ function getKillsPeriod($startDate)
     $continue = true;
     $killID = 0;
     $loopCount = 0;
-    $url = "https://zkillboard.com/api/history/$startDate";
+    $url = "https://zkillboard.com/api/history/{$startDate}";
     $page = 1;
     // Connect to localhost
     $conn = r\connect('localhost', 28015, 'stats');
@@ -258,6 +258,7 @@ function getKillsPeriod($startDate)
         //printf("Time {$currentTime}\n");
         $json = null;
         $output = null;
+        $killNum = 0;
 
         $content = file_get_contents($url);
         $json = json_decode($content, true);
@@ -269,24 +270,26 @@ function getKillsPeriod($startDate)
         } else {
           $output = $json;
         }
-
+        print_r($output);
         if ($output !== null) {
             //printf("Kills found, analysing...\n");
-            foreach($output as $kill) {
+            foreach(array_keys($output) as $kill) {
+              printf("Kill Number - {$killNum}  -  ");
+              $killNum++;
+              $killID = $kill;
               $killExists = r\table('whKills')->get($killID)->run($conn);
-
               if ($killExists !== null) {
-                  //printf("xxx Seen kill - $killID xxx\n");
+                  printf("xxx Seen kill - $killID xxx\n");
                   continue;
               }
               $kill = json_decode(file_get_contents("https://zkillboard.com/api/killID/{$killID}/"), true);
-              $killID = $kill["killID"];
+              $kill = $kill[0];
               $killTime = $kill["killTime"];
               isset($kill["solarSystemID"]) ? $systemID = $kill["solarSystemID"] : $systemID = 0;
-
+              printf($systemID);
               if(null !== r\table('whSystems')->get($systemID)->run($conn)) {
 
-                //printf("ID: {$killID} | Time: {$killTime} | System: {$systemID}\n");
+                printf("ID: {$killID} | Time: {$killTime} | System: {$systemID}\n");
                 $killTime = DateTime::createFromFormat('Y-m-d H:i:s', $killTime);
                 $timeFormat = date_format($killTime, "Y-m-d\TH:i:sP");
                 $isoDate = r\ISO8601($timeFormat, ['default_timezone' => 'UTC']);
@@ -453,7 +456,7 @@ function getKillsPeriod($startDate)
                 $result = r\table("whKills")->insert($killFormatted)->run($conn);
                 echo "Insert result: {$killID}\n";
               } else {
-                //printf("Not a WH...\n");
+                printf("Not a WH...\n");
                 continue;
               }
           }

@@ -9,6 +9,7 @@ var ctxISK = null
 var ctxBreakdowns = null
 
 $(document).ready(function () {
+  $('.entitiesLink').parent().addClass('active')
   $('.period').addClass('hide')
   $('.periodLinks').addClass('disabled')
   $('.periodLinks-month').removeClass('disabled')
@@ -18,7 +19,6 @@ $(document).ready(function () {
 
 $('.periodLinks').click(function () {
   setPeriod = 'month'
-  date = new Date()
   $('.monthLinks').removeClass('hide')
   setPeriod = 'year/' + year + '/month/' + (month + 1) + '/entityStats/' + id
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
@@ -36,7 +36,6 @@ $('.periodLinks').click(function () {
 })
 
 $('.prevMonth').click(function () {
-  seconds = 119
   if (month === 0) {
     month = 11
     year -= 1
@@ -61,7 +60,6 @@ $('.prevMonth').click(function () {
 })
 
 $('.nextMonth').click(function () {
-  seconds = 119
   if (month === 13) {
     month = 1
     year += 1
@@ -92,8 +90,11 @@ $('.nextMonth').click(function () {
 function changePeriod (period) {
   $('#modal1').openModal()
   $.getJSON('../api/rethink/' + period + '/', function (json) {
-    $('#entityName').text(json['entityName'])
-    $('#entityName').attr('href', 'https://zkillboard.com/' + json['entityType'] + '/' + id + '/')
+    if (json === null) {
+      window.location.replace('../entity/noData/' + id + '/')
+    }
+    $('#entityName').text(json['statsArray']['entityName'])
+    $('#entityName').attr('href', 'https://zkillboard.com/' + json['statsArray']['entityType'] + '/' + id + '/')
     updateStats(json)
     updateCharts(json)
     setTimeout(function () {
@@ -101,12 +102,8 @@ function changePeriod (period) {
     }, 500)
   }).error(function (error) {
     console.log(error)
-    //window.location.replace('./api/rethink/stats/' + period + '/')
+    window.location.replace('../entity/noData/' + id + '/')
   })
-}
-
-function pad (n) {
-  return n < 10 ? '0' + n : n
 }
 
 function getNum (val) {
@@ -116,15 +113,9 @@ function getNum (val) {
   return val
 }
 
-function truncateString (str, length) {
-  if (str !== null) {
-    return str.length > length ? str.substring(0, length - 3) + '...' : str
-  } else {
-    return '...'
-  }
-}
-
 function updateStats (data) {
+  $('.lastCached').text(data['lastCached'])
+  data = data['statsArray']
   var killTotal = data['ALL']['totalKills']
   $('.totalKills').text(killTotal)
   var iskTotal = data['ALL']['totalISK']
@@ -135,6 +126,7 @@ function updateStats (data) {
 }
 
 function updateCharts (data) {
+  data = data['statsArray']
   if (renderedOnce === 1) {
     ctxKills != null ? ctxKills.destroy() : ctxKills = null
     ctxISK != null ? ctxISK.destroy() : ctxISK = null
@@ -227,7 +219,7 @@ function updateCharts (data) {
       }
     }
   }
-  ctxHour = new Chart($('#chartKills'), dataKills)
+  ctxKills = new Chart($('#chartKills'), dataKills)
 
   // ISK CHART
   var dataTotalBillionsUSHour = getNum(data['US']['totalISK'])
@@ -258,13 +250,13 @@ function updateCharts (data) {
     type: 'horizontalBar',
     data: {
       labels: [
-          'Dreadnoughts', 'Force Auxiliary', 'Carriers',
-          'T1 Battleships', 'Faction Battleships', 'Marauders', 'Black Ops',
-          'T1 Battlecruisers', 'Faction Battlecruisers', 'Command Ships',
-          'T1 Cruisers', 'Faction Cruisers', 'Recon Ships', 'Heavy Assault Cruisers', 'Heavy Interdictors', 'Logistics Cruisers', 'Strategic Cruisers',
-          'T1 Destroyers', 'Interdictors', 'Command Destroyers', 'Tactical Destroyers',
-          'T1 Frigates', 'Faction Frigates', 'Electronic Attack Frigates', 'Interceptors', 'Assault Frigates', 'Logistics Frigates', 'Covert Ops', 'Stealth Bombers',
-        ],
+        'Dreadnoughts', 'Force Auxiliary', 'Carriers',
+        'T1 Battleships', 'Faction Battleships', 'Marauders', 'Black Ops',
+        'T1 Battlecruisers', 'Faction Battlecruisers', 'Command Ships',
+        'T1 Cruisers', 'Faction Cruisers', 'Recon Ships', 'Heavy Assault Cruisers', 'Heavy Interdictors', 'Logistics Cruisers', 'Strategic Cruisers',
+        'T1 Destroyers', 'Interdictors', 'Command Destroyers', 'Tactical Destroyers',
+        'T1 Frigates', 'Faction Frigates', 'Electronic Attack Frigates', 'Interceptors', 'Assault Frigates', 'Logistics Frigates', 'Covert Ops', 'Stealth Bombers'
+      ],
       datasets: [{
         label: 'US',
         backgroundColor: 'rgba(153,204,255,0.5)',

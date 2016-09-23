@@ -23,11 +23,12 @@ var ctxBreakdowns = null
 
 $(document).ready(function () {
   setPeriod = 'hour'
+  $('.statsLink').parent().addClass('active')
   $('.periodLinks-hour').trigger('click')
-  setTimeout(function(){
-    Materialize.toast('Welcome to 2.0 - Main Stats are done, Entities are 95% done and Pilot Stats are WIP!', 10000);
-  }, 2000);
-
+  setTimeout(function () {
+    Materialize.toast('Welcome to 2.0 - Main Stats are done, Entities are 95% done and Pilot Stats are WIP!', 10000)
+    $('.periodLinks-hour').trigger('click')
+  }, 2000)
 })
 
 $('.periodLinks').click(function () {
@@ -185,6 +186,8 @@ function truncateString (str, length) {
 }
 
 function updateStats (data) {
+  $('.lastCached').text(data['lastCached'])
+  data = data['statsArray']['stats']
   var biggestNPCKill = 0
   var biggestSoloKill = 0
   var biggestTotalKill = 0
@@ -257,6 +260,7 @@ function updateStats (data) {
 }
 
 function updateCharts (data) {
+  data = data['statsArray']['stats']
   if (renderedOnce === 1) {
     ctxHour != null ? ctxHour.destroy() : ctxHour = null
     ctxISKHour != null ? ctxISKHour.destroy() : ctxISKHour = null
@@ -503,7 +507,7 @@ function updateCharts (data) {
   ? (ctxTotalDread = new Chart($('#chartTotalDread'), dataTotalDread), chartDreadDrawn = true) : (ctxTotalDread = document.getElementById('chartTotalDread').getContext('2d'), ctxTotalDread.font = '20px Arial', ctxTotalDread.fillText('No kills', 10, 50), chartDreadDrawn = false)
   getNum(data[0]['kills']['typeNames']['Force Auxiliary']) + getNum(data[1]['kills']['typeNames']['Force Auxiliary']) + getNum(data[2]['kills']['typeNames']['Force Auxiliary']) +
   getNum(data[3]['kills']['typeNames']['Force Auxiliary']) + getNum(data[4]['kills']['typeNames']['Force Auxiliary']) + getNum(data[5]['kills']['typeNames']['Force Auxiliary']) > 0
-  ? (ctxTotalFAX =  new Chart($('#chartTotalFAX'), dataTotalFAX), chartFAXDrawn = true): (ctxTotalFAX = document.getElementById('chartTotalFAX').getContext('2d'), ctxTotalFAX.font = '20px Arial', ctxTotalFAX.fillText('No kills', 10, 50), chartFAXDrawn = false)
+  ? (ctxTotalFAX = new Chart($('#chartTotalFAX'), dataTotalFAX), chartFAXDrawn = true) : (ctxTotalFAX = document.getElementById('chartTotalFAX').getContext('2d'), ctxTotalFAX.font = '20px Arial', ctxTotalFAX.fillText('No kills', 10, 50), chartFAXDrawn = false)
 
   var dataBreakdowns = {
     type: 'horizontalBar',

@@ -11,14 +11,14 @@ class RethinkQueries {
   public function getCache($tableName, $key, $expiry) {
     $conn = r\connect('localhost', 28015, 'stats');
     $result = r\table($tableName)->get($key)->run($conn);
-    if($result === null) {
-      return null;
+    if($result == null) {
+      return array('refreshDue' => true, 'statsArray' => null, 'lastCached' => null);
     }
     if($result['cacheTime'] > strtotime('-'.$expiry.' minutes')) {
-      return array('refreshDue' => false, 'statsArray' => $result['data']);
+      return array('refreshDue' => false, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
     } else {
       $update = r\table($tableName)->get($key)->replace(array('cacheTime' => time()))->run($conn);
-      return array('refreshDue' => true, 'statsArray' => $result['data']);
+      return array('refreshDue' => true, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', time()));
     }
   }
 

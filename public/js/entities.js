@@ -18,6 +18,7 @@ weekday[6] = 'Sat'
 $(document).ready(function () {
   setPeriod = 'hour'
   setTz = 'ALL'
+  $('.entitiesLink').parent().addClass('active')
   $('.periodLinks-hour').trigger('click')
   $('.tzLinks-all').addClass('tzLinks-active')
 })
@@ -34,7 +35,6 @@ $('.periodLinks').click(function () {
   setPeriod = $(this).text().toLowerCase()
   $('.periodLinks').parent().removeClass('active')
   $(this).parent().addClass('active')
-  seconds = 119
   date = new Date()
   $('.period').removeClass('hide')
   $('#tzEU').removeClass('disabled')
@@ -108,7 +108,6 @@ $('.periodLinks').click(function () {
 
 $('.prevMonth').click(function () {
   killData = null
-  seconds = 119
   if (month === 0) {
     month = 11
     year -= 1
@@ -134,7 +133,6 @@ $('.prevMonth').click(function () {
 
 $('.nextMonth').click(function () {
   killData = null
-  seconds = 119
   if (month === 12) {
     month = 1
     year += 1
@@ -162,18 +160,17 @@ $('.nextMonth').click(function () {
   }
 })
 
-
 function changePeriod (tz, period) {
   $('.modal-content-text').text('Loading Stats')
   $('#modal1').openModal()
-  if(killData !== null) {
+  if (killData !== null) {
     updateTable(killData)
     setTimeout(function () {
       $('#modal1').closeModal()
     }, 500)
   } else {
     $.getJSON('/api/rethink/entities/tz/all/period/' + period + '/', function (json) {
-      killData = json['stats']
+      killData = json
       // console.log(json);
       if (json['stats'] === null) {
         $('.modal-content-text').text('No Data! A Task has been despatched! Try Again in a few moments')
@@ -187,12 +184,12 @@ function changePeriod (tz, period) {
       }
       updateTable(killData)
       table = $('#stats').DataTable({
-        "oLanguage": {
-          "sStripClasses": "",
-          "sSearch": "",
-          "sSearchPlaceholder": "Enter Keywords Here",
-          "sInfo": "_START_ -_END_ of _TOTAL_",
-          "sLengthMenu": '<span>Rows per page:</span><select class="browser-default">' +
+        'oLanguage': {
+          'sStripClasses': '',
+          'sSearch': '',
+          'sSearchPlaceholder': 'Enter Keywords Here',
+          'sInfo': '_START_ -_END_ of _TOTAL_',
+          'sLengthMenu': '<span>Rows per page:</span><select class="browser-default">' +
             '<option value="10">10</option>' +
             '<option value="20">20</option>' +
             '<option value="30">30</option>' +
@@ -230,26 +227,16 @@ function pad (n) {
   return n < 10 ? '0' + n : n
 }
 
-function getNum (val) {
-  if (isNaN(val) || val == null) {
-    return 0
-  }
-  return val
-}
-
-function truncateString (str, length) {
-  return str.length > length ? str.substring(0, length - 3) + '...' : str
-}
-
 function updateTable (data) {
-  data = data[setTz.toUpperCase()]
+  $('.lastCached').text(data['lastCached'])
+  data = data['statsArray']['stats'][setTz.toUpperCase()]
   var r = []
   var j = 0
-  for(var key = 0, size = data.length; key < size; key++) {
+  for (var key = 0, size = data.length; key < size; key++) {
     r[++j] = '<tr><td>'
     r[++j] = key + 1
     r[++j] = '</td><td>'
-    if(data[key]['isAlliance']) {
+    if (data[key]['isAlliance']) {
       r[++j] = '<a target="_blank" href="http://stats.limited-power.co.uk/entity/' + data[key]['entityID'] + '">' + data[key]['entityName'] + '</a>'
       r[++j] = '</td><td>'
       r[++j] = 'Alliance'

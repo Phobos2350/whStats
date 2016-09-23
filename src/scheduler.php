@@ -67,6 +67,13 @@ class QueueListener
         $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
         printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - getEntityStatsMonth - ".$decodedMsg['data']['tz'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
         break;
+      case 'getEntityStatsMonthByID':
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - getEntityStatsMonthByID - ".$decodedMsg['data']['id'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        $newTask = $this->rethinkQueries->getEntityStatsMonthByID($decodedMsg['data']['id'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        $this->rethinkQueries->setCache($decodedMsg['tableName'], $decodedMsg['key'], $newTask);
+        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - getEntityStatsMonthByID - ".$decodedMsg['data']['id'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        break;
       default:
         break;
     }

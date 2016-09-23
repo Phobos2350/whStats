@@ -7,7 +7,8 @@
 <div id="modal1" class="modal">
   <div class="modal-content">
     <h4 class="modal-content-text">Loading Stats</h4>
-    <i>This May Take A Few Seconds! Please Be Patient!</i><br>
+    <i>This May Take A Few Seconds! Please Be Patient!<br>
+       If this entity has not been fetched before, it will need additional time to cache</i><br>
     <div class="preloader-wrapper big active">
       <div class="spinner-layer spinner-blue-only">
         <div class="circle-clipper left">
@@ -28,6 +29,7 @@
       <div class="row">
         <div  class="col s12">
           <h2 class="center header text_h2"><a href="" target="_blank" id="entityName"></a></h2>
+          <div class="col s12 center"><i>Last Cached - <span class="lastCached"></span></i></div>
         </div>
       </div>
       <div class="row center-align">

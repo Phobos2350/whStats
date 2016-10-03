@@ -27,9 +27,9 @@ $(document).ready(function () {
   setPeriod = 'hour'
   $('.statsLink').parent().addClass('active')
   $('.periodLinks-hour').trigger('click')
-  setTimeout(function () {
-    Materialize.toast('Welcome to 2.0 - Reddit Stats Summary for September is Under Construction, AT Permitting!', 10000)
-  }, 2000)
+  // setTimeout(function () {
+  //   Materialize.toast('Welcome to 2.0 - Reddit Stats Summary for September is Under Construction, AT Permitting!', 10000)
+  // }, 2000)
 })
 
 $('.info-text').click(function () {

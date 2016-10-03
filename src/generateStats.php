@@ -70,7 +70,7 @@ class GenerateStats {
           $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
           $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
         }
-        if($killTime >= strtotime('-1 week') && $killTime < strtotime('-1 day') || strtotime("-15 minutes") >= $lastWeekCheck) {
+        if($killTime >= strtotime('-1 week') && $killTime < strtotime('-1 day') || strtotime("-30 minutes") >= $lastWeekCheck) {
           $lastWeekCheck = strtotime("now");
           $killTimeFormatted = date('Y.m.d H:i:s', $killTime);
           printf("[W] Called - ID: {$change['new_val']['killID']} | Time: {$killTimeFormatted}\n");

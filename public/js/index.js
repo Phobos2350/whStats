@@ -1,5 +1,7 @@
-var seconds = 119
+var seconds = 120
+var refreshPeriod = 120
 var refresh = false
+var lastCached = 0
 var setPeriod = 0
 var renderedOnce = 0
 var chartCarrierDrawn = false; var chartDreadDrawn = false; var chartFAXDrawn = false
@@ -26,19 +28,24 @@ $(document).ready(function () {
   $('.statsLink').parent().addClass('active')
   $('.periodLinks-hour').trigger('click')
   setTimeout(function () {
-    Materialize.toast('Welcome to 2.0 - Main Stats are done, Entities are 95% done and Pilot Stats are WIP!', 10000)
-    $('.periodLinks-hour').trigger('click')
+    Materialize.toast('Welcome to 2.0 - Reddit Stats Summary for September is Under Construction, AT Permitting!', 10000)
   }, 2000)
+})
+
+$('.info-text').click(function () {
+  $('#modal2').openModal()
 })
 
 $('.periodLinks').click(function () {
   setPeriod = $(this).text().toLowerCase()
   $('.periodLinks').parent().removeClass('active')
   $(this).parent().addClass('active')
-  seconds = 119
+  seconds = 120
   date = new Date()
   $('.period').removeClass('hide')
   if (setPeriod === 'hour') {
+    refreshPeriod = 120
+    seconds = 120
     if (date.getHours() === 0) {
       date.setHours(23)
       date.setDate(date.getDate() - 1)
@@ -49,6 +56,8 @@ $('.periodLinks').click(function () {
     $('.periodStats').text('Kills Since - ' + weekday[date.getDay()] + ' ' + date.getDate() + ' @ ' + pad(date.getHours()) + ':' + pad(date.getMinutes()))
   }
   if (setPeriod === 'day') {
+    refreshPeriod = 300
+    seconds = 300
     if (date.getDay() === 0) {
       date.setDate(6)
     } else {
@@ -58,11 +67,15 @@ $('.periodLinks').click(function () {
     $('.periodStats').text('Kills Since - ' + weekday[date.getDay()] + ' ' + date.getDate() + ' @ ' + pad(date.getHours()) + ':' + pad(date.getMinutes()))
   }
   if (setPeriod === 'week') {
+    refreshPeriod = 900
+    seconds = 900
     date.setDate(date.getDate() - 7)
     $('.period').text('Kills Since - ' + weekday[date.getDay()] + ' ' + date.getDate() + ' @ ' + pad(date.getHours()) + ':' + pad(date.getMinutes()))
     $('.periodStats').text('Kills Since - ' + weekday[date.getDay()] + ' ' + date.getDate() + ' @ ' + pad(date.getHours()) + ':' + pad(date.getMinutes()))
   }
   if (setPeriod === 'month') {
+    refreshPeriod = 1800
+    seconds = 1800
     $('.period').addClass('hide')
     $('.monthLinks').removeClass('hide')
     setPeriod = 'year/' + year + '/month/' + (month + 1)
@@ -84,7 +97,8 @@ $('.periodLinks').click(function () {
 })
 
 $('.prevMonth').click(function () {
-  seconds = 119
+  refreshPeriod = 1800
+  seconds = 1800
   if (month === 0) {
     month = 11
     year -= 1
@@ -109,7 +123,8 @@ $('.prevMonth').click(function () {
 })
 
 $('.nextMonth').click(function () {
-  seconds = 119
+  refreshPeriod = 1800
+  seconds = 1800
   if (month === 13) {
     month = 1
     year += 1
@@ -138,18 +153,36 @@ $('.nextMonth').click(function () {
 })
 
 setInterval(function () {
-  seconds = pad(seconds)
   if (refresh) {
     $('#refreshText').text('Retrieving new kills... ')
     $('#countdown').text('Standby')
     changePeriod(setPeriod)
     refresh = false
-    seconds = 119
+    seconds = refreshPeriod
   } else {
+    var thisDate = new Date()
     $('#refreshText').text('Time until next refresh ')
-    $('#countdown').text(seconds)
+    if (setPeriod === 'hour') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 2) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    }
+    if (setPeriod === 'day') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 5) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    }
+    if (setPeriod === 'week') {
+      seconds  = (refreshPeriod - ((thisDate.getMinutes() % 15) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    }
+    if (setPeriod === 'month') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 30) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    }
   }
-  parseInt(seconds, 10) === 0 ? refresh = true : seconds--
 }, 1000)
 
 function changePeriod (period) {
@@ -177,6 +210,10 @@ function getNum (val) {
   return val
 }
 
+function fmtMSS (s) {
+  return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s
+}
+
 function truncateString (str, length) {
   if (str !== null) {
     return str.length > length ? str.substring(0, length - 3) + '...' : str
@@ -186,24 +223,25 @@ function truncateString (str, length) {
 }
 
 function updateStats (data) {
-  $('.lastCached').text(data['lastCached'])
+  lastCached = data['lastCached']
+  $('.lastCached').text(lastCached)
   data = data['statsArray']['stats']
   var biggestNPCKill = 0
   var biggestSoloKill = 0
   var biggestTotalKill = 0
   var iskText = ''
-  var killTotal = data[0]['totalKills'] + data[1]['totalKills'] + data[2]['totalKills'] + data[3]['totalKills'] + data[4]['totalKills'] + data[5]['totalKills']
+  var killTotal = data[1]['totalKills'] + data[2]['totalKills'] + data[3]['totalKills'] + data[4]['totalKills'] + data[5]['totalKills'] + data[6]['totalKills']
   $('.totalKills').text(killTotal)
-  var iskTotal = data[0]['totalISK'] + data[1]['totalISK'] + data[2]['totalISK'] + data[3]['totalISK'] + data[4]['totalISK'] + data[5]['totalISK']
+  var iskTotal = data[1]['totalISK'] + data[2]['totalISK'] + data[3]['totalISK'] + data[4]['totalISK'] + data[5]['totalISK'] + data[6]['totalISK']
   iskTotal /= Math.pow(10, 3)
   iskTotal > 1000 ? $('.totalISK').text((iskTotal / Math.pow(10, 3)).toFixed(2) + ' Trillion ISK') : $('.totalISK').text(iskTotal.toFixed(2) + ' Billion ISK')
 
-  for (var i = 0; i < 6; i++) {
+  for (var i = 1; i < 7; i++) {
     if (data[i]['biggestKill']['killID'] == null) {
-      $('.biggestC' + (i + 1) + 'Img').attr('src', '../img/blank_symbol.png')
-      $('.biggestC' + (i + 1) + 'Kill').text('No Kills!')
+      $('.biggestC' + (i) + 'Img').attr('src', '../img/blank_symbol.png')
+      $('.biggestC' + (i) + 'Kill').text('No Kills!')
     } else {
-      $('.biggestC' + (i + 1) + 'Img').attr('src', 'https://imageserver.eveonline.com/Type/' + data[i]['biggestKill']['typeID'] + '_64.png')
+      $('.biggestC' + (i) + 'Img').attr('src', 'https://imageserver.eveonline.com/Type/' + data[i]['biggestKill']['typeID'] + '_64.png')
       var iskValue = data[i]['biggestKill']['value']
       if (iskValue >= 1000) {
         iskValue /= Math.pow(10, 3)
@@ -211,8 +249,8 @@ function updateStats (data) {
       } else {
         iskText = iskValue.toFixed(0) + 'mil ISK'
       }
-      $('.biggestC' + (i + 1) + 'Kill').text(truncateString(data[i]['biggestKill']['shipName'], 16) + ' - ' + iskText)
-      $('.biggestC' + (i + 1) + 'Kill').attr('href', 'https://zkillboard.com/kill/' + data[i]['biggestKill']['killID'] + '/')
+      $('.biggestC' + (i) + 'Kill').text(truncateString(data[i]['biggestKill']['shipName'], 16) + ' - ' + iskText)
+      $('.biggestC' + (i) + 'Kill').attr('href', 'https://zkillboard.com/kill/' + data[i]['biggestKill']['killID'] + '/')
 
       if (parseInt(data[i]['biggestKill']['value'], 10) > biggestTotalKill) {
         biggestTotalKill = data[i]['biggestKill']['value']
@@ -278,56 +316,56 @@ function updateCharts (data) {
         label: 'Pod Kills',
         backgroundColor: 'rgba(255,0,0,0.5)',
         data: [
-          getNum(data[0]['kills']['shipTechs']['Capsule']),
           getNum(data[1]['kills']['shipTechs']['Capsule']),
           getNum(data[2]['kills']['shipTechs']['Capsule']),
           getNum(data[3]['kills']['shipTechs']['Capsule']),
           getNum(data[4]['kills']['shipTechs']['Capsule']),
-          getNum(data[5]['kills']['shipTechs']['Capsule'])
+          getNum(data[5]['kills']['shipTechs']['Capsule']),
+          getNum(data[6]['kills']['shipTechs']['Capsule'])
         ]
       }, {
         label: 'T1 Kills',
         backgroundColor: 'rgba(102,153,153,0.5)',
         data: [
-          getNum(data[0]['kills']['shipTechs']['T1']),
           getNum(data[1]['kills']['shipTechs']['T1']),
           getNum(data[2]['kills']['shipTechs']['T1']),
           getNum(data[3]['kills']['shipTechs']['T1']),
           getNum(data[4]['kills']['shipTechs']['T1']),
-          getNum(data[5]['kills']['shipTechs']['T1'])
+          getNum(data[5]['kills']['shipTechs']['T1']),
+          getNum(data[6]['kills']['shipTechs']['T1'])
         ]
       }, {
         label: 'Faction Kills',
         backgroundColor: 'rgba(51,153,102,0.5)',
         data: [
-          getNum(data[0]['kills']['shipTechs']['Faction']),
           getNum(data[1]['kills']['shipTechs']['Faction']),
           getNum(data[2]['kills']['shipTechs']['Faction']),
           getNum(data[3]['kills']['shipTechs']['Faction']),
           getNum(data[4]['kills']['shipTechs']['Faction']),
-          getNum(data[5]['kills']['shipTechs']['Faction'])
+          getNum(data[5]['kills']['shipTechs']['Faction']),
+          getNum(data[6]['kills']['shipTechs']['Faction'])
         ]
       }, {
         label: 'T2 Kills',
         backgroundColor: 'rgba(255,204,0,0.5)',
         data: [
-          getNum(data[0]['kills']['shipTechs']['T2']),
           getNum(data[1]['kills']['shipTechs']['T2']),
           getNum(data[2]['kills']['shipTechs']['T2']),
           getNum(data[3]['kills']['shipTechs']['T2']),
           getNum(data[4]['kills']['shipTechs']['T2']),
-          getNum(data[5]['kills']['shipTechs']['T2'])
+          getNum(data[5]['kills']['shipTechs']['T2']),
+          getNum(data[6]['kills']['shipTechs']['T2'])
         ]
       }, {
         label: 'T3 Kills',
         backgroundColor: 'rgba(255,102,0,0.5)',
         data: [
-          getNum(data[0]['kills']['shipTechs']['T3']),
           getNum(data[1]['kills']['shipTechs']['T3']),
           getNum(data[2]['kills']['shipTechs']['T3']),
           getNum(data[3]['kills']['shipTechs']['T3']),
           getNum(data[4]['kills']['shipTechs']['T3']),
-          getNum(data[5]['kills']['shipTechs']['T3'])
+          getNum(data[5]['kills']['shipTechs']['T3']),
+          getNum(data[6]['kills']['shipTechs']['T3'])
         ]
       }]
     },
@@ -366,17 +404,17 @@ function updateCharts (data) {
   ctxHour = new Chart($('#chartHour'), dataHour)
 
   // ISK CHART
-  var dataTotalBillionsC1Hour = getNum(data[0]['totalISK'])
+  var dataTotalBillionsC1Hour = getNum(data[1]['totalISK'])
   dataTotalBillionsC1Hour /= Math.pow(10, 3)
-  var dataTotalBillionsC2Hour = getNum(data[1]['totalISK'])
+  var dataTotalBillionsC2Hour = getNum(data[2]['totalISK'])
   dataTotalBillionsC2Hour /= Math.pow(10, 3)
-  var dataTotalBillionsC3Hour = getNum(data[2]['totalISK'])
+  var dataTotalBillionsC3Hour = getNum(data[3]['totalISK'])
   dataTotalBillionsC3Hour /= Math.pow(10, 3)
-  var dataTotalBillionsC4Hour = getNum(data[3]['totalISK'])
+  var dataTotalBillionsC4Hour = getNum(data[4]['totalISK'])
   dataTotalBillionsC4Hour /= Math.pow(10, 3)
-  var dataTotalBillionsC5Hour = getNum(data[4]['totalISK'])
+  var dataTotalBillionsC5Hour = getNum(data[5]['totalISK'])
   dataTotalBillionsC5Hour /= Math.pow(10, 3)
-  var dataTotalBillionsC6Hour = getNum(data[5]['totalISK'])
+  var dataTotalBillionsC6Hour = getNum(data[6]['totalISK'])
   dataTotalBillionsC6Hour /= Math.pow(10, 3)
 
   var dataISKHour = {
@@ -397,12 +435,12 @@ function updateCharts (data) {
   }
   ctxISKHour = new Chart($('#chartISKHour'), dataISKHour)
 
-  var c1Avg = data[0]['totalISK'] / data[0]['totalKills']
-  var c2Avg = data[1]['totalISK'] / data[1]['totalKills']
-  var c3Avg = data[2]['totalISK'] / data[2]['totalKills']
-  var c4Avg = data[3]['totalISK'] / data[3]['totalKills']
-  var c5Avg = data[4]['totalISK'] / data[4]['totalKills']
-  var c6Avg = data[5]['totalISK'] / data[5]['totalKills']
+  var c1Avg = data[1]['totalISK'] / data[1]['totalKills']
+  var c2Avg = data[2]['totalISK'] / data[2]['totalKills']
+  var c3Avg = data[3]['totalISK'] / data[3]['totalKills']
+  var c4Avg = data[4]['totalISK'] / data[4]['totalKills']
+  var c5Avg = data[5]['totalISK'] / data[5]['totalKills']
+  var c6Avg = data[6]['totalISK'] / data[6]['totalKills']
 
   $('#c1Avg').html(isNaN(c1Avg) ? ' No Data' : c1Avg.toFixed(1) + ' Million ISK')
   $('#c2Avg').html(isNaN(c2Avg) ? ' No Data' : c2Avg.toFixed(1) + ' Million ISK')
@@ -425,12 +463,12 @@ function updateCharts (data) {
           'rgba(204,0,0,0.5)'
         ],
         data: [
-          getNum(data[0]['kills']['typeNames']['Carriers']),
           getNum(data[1]['kills']['typeNames']['Carriers']),
           getNum(data[2]['kills']['typeNames']['Carriers']),
           getNum(data[3]['kills']['typeNames']['Carriers']),
           getNum(data[4]['kills']['typeNames']['Carriers']),
-          getNum(data[5]['kills']['typeNames']['Carriers'])
+          getNum(data[5]['kills']['typeNames']['Carriers']),
+          getNum(data[6]['kills']['typeNames']['Carriers'])
         ]
       }]
     },
@@ -454,12 +492,12 @@ function updateCharts (data) {
           'rgba(204,0,0,0.5)'
         ],
         data: [
-          getNum(data[0]['kills']['typeNames']['Dreadnoughts']),
           getNum(data[1]['kills']['typeNames']['Dreadnoughts']),
           getNum(data[2]['kills']['typeNames']['Dreadnoughts']),
           getNum(data[3]['kills']['typeNames']['Dreadnoughts']),
           getNum(data[4]['kills']['typeNames']['Dreadnoughts']),
-          getNum(data[5]['kills']['typeNames']['Dreadnoughts'])
+          getNum(data[5]['kills']['typeNames']['Dreadnoughts']),
+          getNum(data[6]['kills']['typeNames']['Dreadnoughts'])
         ]
       }]
     },
@@ -483,12 +521,12 @@ function updateCharts (data) {
           'rgba(204,0,0,0.5)'
         ],
         data: [
-          getNum(data[0]['kills']['typeNames']['Force Auxiliary']),
           getNum(data[1]['kills']['typeNames']['Force Auxiliary']),
           getNum(data[2]['kills']['typeNames']['Force Auxiliary']),
           getNum(data[3]['kills']['typeNames']['Force Auxiliary']),
           getNum(data[4]['kills']['typeNames']['Force Auxiliary']),
-          getNum(data[5]['kills']['typeNames']['Force Auxiliary'])
+          getNum(data[5]['kills']['typeNames']['Force Auxiliary']),
+          getNum(data[6]['kills']['typeNames']['Force Auxiliary'])
         ]
       }]
     },
@@ -499,14 +537,14 @@ function updateCharts (data) {
     }
   }
 
-  getNum(data[0]['kills']['typeNames']['Carriers']) + getNum(data[1]['kills']['typeNames']['Carriers']) + getNum(data[2]['kills']['typeNames']['Carriers']) +
-  getNum(data[3]['kills']['typeNames']['Carriers']) + getNum(data[4]['kills']['typeNames']['Carriers']) + getNum(data[5]['kills']['typeNames']['Carriers']) > 0
+  getNum(data[1]['kills']['typeNames']['Carriers']) + getNum(data[2]['kills']['typeNames']['Carriers']) + getNum(data[3]['kills']['typeNames']['Carriers']) +
+  getNum(data[4]['kills']['typeNames']['Carriers']) + getNum(data[5]['kills']['typeNames']['Carriers']) + getNum(data[6]['kills']['typeNames']['Carriers']) > 0
   ? (ctxTotalCarrier = new Chart($('#chartTotalCarrier'), dataTotalCarrier), chartCarrierDrawn = true) : (ctxTotalCarrier = document.getElementById('chartTotalCarrier').getContext('2d'), ctxTotalCarrier.font = '20px Arial', ctxTotalCarrier.fillText('No kills', 10, 50), chartCarrierDrawn = false)
-  getNum(data[0]['kills']['typeNames']['Dreadnoughts']) + getNum(data[1]['kills']['typeNames']['Dreadnoughts']) + getNum(data[2]['kills']['typeNames']['Dreadnoughts']) +
-  getNum(data[3]['kills']['typeNames']['Dreadnoughts']) + getNum(data[4]['kills']['typeNames']['Dreadnoughts']) + getNum(data[5]['kills']['typeNames']['Dreadnoughts']) > 0
+  getNum(data[1]['kills']['typeNames']['Dreadnoughts']) + getNum(data[2]['kills']['typeNames']['Dreadnoughts']) + getNum(data[3]['kills']['typeNames']['Dreadnoughts']) +
+  getNum(data[4]['kills']['typeNames']['Dreadnoughts']) + getNum(data[5]['kills']['typeNames']['Dreadnoughts']) + getNum(data[6]['kills']['typeNames']['Dreadnoughts']) > 0
   ? (ctxTotalDread = new Chart($('#chartTotalDread'), dataTotalDread), chartDreadDrawn = true) : (ctxTotalDread = document.getElementById('chartTotalDread').getContext('2d'), ctxTotalDread.font = '20px Arial', ctxTotalDread.fillText('No kills', 10, 50), chartDreadDrawn = false)
-  getNum(data[0]['kills']['typeNames']['Force Auxiliary']) + getNum(data[1]['kills']['typeNames']['Force Auxiliary']) + getNum(data[2]['kills']['typeNames']['Force Auxiliary']) +
-  getNum(data[3]['kills']['typeNames']['Force Auxiliary']) + getNum(data[4]['kills']['typeNames']['Force Auxiliary']) + getNum(data[5]['kills']['typeNames']['Force Auxiliary']) > 0
+  getNum(data[1]['kills']['typeNames']['Force Auxiliary']) + getNum(data[2]['kills']['typeNames']['Force Auxiliary']) + getNum(data[3]['kills']['typeNames']['Force Auxiliary']) +
+  getNum(data[4]['kills']['typeNames']['Force Auxiliary']) + getNum(data[5]['kills']['typeNames']['Force Auxiliary']) + getNum(data[6]['kills']['typeNames']['Force Auxiliary']) > 0
   ? (ctxTotalFAX = new Chart($('#chartTotalFAX'), dataTotalFAX), chartFAXDrawn = true) : (ctxTotalFAX = document.getElementById('chartTotalFAX').getContext('2d'), ctxTotalFAX.font = '20px Arial', ctxTotalFAX.fillText('No kills', 10, 50), chartFAXDrawn = false)
 
   var dataBreakdowns = {
@@ -524,45 +562,6 @@ function updateCharts (data) {
         label: 'C1',
         backgroundColor: 'rgba(102,255,204,0.5)',
         data: [
-          getNum(data[0]['kills']['typeNames']['Shuttle']),
-          getNum(data[0]['kills']['typeNames']['Rookie Ships']),
-          getNum(data[0]['kills']['typeNames']['Battleships']),
-          getNum(data[0]['kills']['typeNames']['Faction Battleships']),
-          getNum(data[0]['kills']['typeNames']['Marauders']),
-          getNum(data[0]['kills']['typeNames']['Black Ops']),
-          getNum(data[0]['kills']['typeNames']['Battlecruisers']) + getNum(data[0]['kills']['typeNames']['Battlecruisers (Attack)']),
-          getNum(data[0]['kills']['typeNames']['Faction Battlecruisers']),
-          getNum(data[0]['kills']['typeNames']['Command Ships']),
-          getNum(data[0]['kills']['typeNames']['Cruisers']),
-          getNum(data[0]['kills']['typeNames']['Faction Cruisers']),
-          getNum(data[0]['kills']['typeNames']['Recon Ships']),
-          getNum(data[0]['kills']['typeNames']['Heavy Assault Cruisers']),
-          getNum(data[0]['kills']['typeNames']['Heavy Interdictors']),
-          getNum(data[0]['kills']['typeNames']['Logistics Cruisers']),
-          getNum(data[0]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[0]['kills']['typeNames']['T1 Destroyers']),
-          getNum(data[0]['kills']['typeNames']['Interdictors']),
-          getNum(data[0]['kills']['typeNames']['Command Destroyers']),
-          getNum(data[0]['kills']['typeNames']['Tactical Destroyers']),
-          getNum(data[0]['kills']['typeNames']['Frigates']),
-          getNum(data[0]['kills']['typeNames']['Faction Frigates']),
-          getNum(data[0]['kills']['typeNames']['Electronic Attack Frigates']),
-          getNum(data[0]['kills']['typeNames']['Interceptors']),
-          getNum(data[0]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[0]['kills']['typeNames']['Logistics Frigates']),
-          getNum(data[0]['kills']['typeNames']['Covert Ops']),
-          getNum(data[0]['kills']['typeNames']['Stealth Bombers']),
-          getNum(data[0]['kills']['typeNames']['Mining Frigate']),
-          getNum(data[0]['kills']['typeNames']['Mining Barges']),
-          getNum(data[0]['kills']['typeNames']['Exhumer Barges']),
-          getNum(data[0]['kills']['typeNames']['Capital Industrial Ships']),
-          getNum(data[0]['kills']['typeNames']['Industrial Ships']),
-          getNum(data[0]['kills']['typeNames']['Transport Ships'])
-        ]
-      }, {
-        label: 'C2',
-        backgroundColor: 'rgba(153,204,255,0.5)',
-        data: [
           getNum(data[1]['kills']['typeNames']['Shuttle']),
           getNum(data[1]['kills']['typeNames']['Rookie Ships']),
           getNum(data[1]['kills']['typeNames']['Battleships']),
@@ -579,7 +578,7 @@ function updateCharts (data) {
           getNum(data[1]['kills']['typeNames']['Heavy Interdictors']),
           getNum(data[1]['kills']['typeNames']['Logistics Cruisers']),
           getNum(data[1]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[1]['kills']['typeNames']['T1 Destroyers']),
+          getNum(data[1]['kills']['typeNames']['Destroyers']),
           getNum(data[1]['kills']['typeNames']['Interdictors']),
           getNum(data[1]['kills']['typeNames']['Command Destroyers']),
           getNum(data[1]['kills']['typeNames']['Tactical Destroyers']),
@@ -588,7 +587,7 @@ function updateCharts (data) {
           getNum(data[1]['kills']['typeNames']['Electronic Attack Frigates']),
           getNum(data[1]['kills']['typeNames']['Interceptors']),
           getNum(data[1]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[1]['kills']['typeNames']['Logistics Frigates']),
+          getNum(data[1]['kills']['typeNames']['Logistics Frigate']),
           getNum(data[1]['kills']['typeNames']['Covert Ops']),
           getNum(data[1]['kills']['typeNames']['Stealth Bombers']),
           getNum(data[1]['kills']['typeNames']['Mining Frigate']),
@@ -599,8 +598,8 @@ function updateCharts (data) {
           getNum(data[1]['kills']['typeNames']['Transport Ships'])
         ]
       }, {
-        label: 'C3',
-        backgroundColor: 'rgba(0,51,204,0.5)',
+        label: 'C2',
+        backgroundColor: 'rgba(153,204,255,0.5)',
         data: [
           getNum(data[2]['kills']['typeNames']['Shuttle']),
           getNum(data[2]['kills']['typeNames']['Rookie Ships']),
@@ -618,7 +617,7 @@ function updateCharts (data) {
           getNum(data[2]['kills']['typeNames']['Heavy Interdictors']),
           getNum(data[2]['kills']['typeNames']['Logistics Cruisers']),
           getNum(data[2]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[2]['kills']['typeNames']['T1 Destroyers']),
+          getNum(data[2]['kills']['typeNames']['Destroyers']),
           getNum(data[2]['kills']['typeNames']['Interdictors']),
           getNum(data[2]['kills']['typeNames']['Command Destroyers']),
           getNum(data[2]['kills']['typeNames']['Tactical Destroyers']),
@@ -627,7 +626,7 @@ function updateCharts (data) {
           getNum(data[2]['kills']['typeNames']['Electronic Attack Frigates']),
           getNum(data[2]['kills']['typeNames']['Interceptors']),
           getNum(data[2]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[2]['kills']['typeNames']['Logistics Frigates']),
+          getNum(data[2]['kills']['typeNames']['Logistics Frigate']),
           getNum(data[2]['kills']['typeNames']['Covert Ops']),
           getNum(data[2]['kills']['typeNames']['Stealth Bombers']),
           getNum(data[2]['kills']['typeNames']['Mining Frigate']),
@@ -638,8 +637,8 @@ function updateCharts (data) {
           getNum(data[2]['kills']['typeNames']['Transport Ships'])
         ]
       }, {
-        label: 'C4',
-        backgroundColor: 'rgba(102,153,0,0.5)',
+        label: 'C3',
+        backgroundColor: 'rgba(0,51,204,0.5)',
         data: [
           getNum(data[3]['kills']['typeNames']['Shuttle']),
           getNum(data[3]['kills']['typeNames']['Rookie Ships']),
@@ -657,7 +656,7 @@ function updateCharts (data) {
           getNum(data[3]['kills']['typeNames']['Heavy Interdictors']),
           getNum(data[3]['kills']['typeNames']['Logistics Cruisers']),
           getNum(data[3]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[3]['kills']['typeNames']['T1 Destroyers']),
+          getNum(data[3]['kills']['typeNames']['Destroyers']),
           getNum(data[3]['kills']['typeNames']['Interdictors']),
           getNum(data[3]['kills']['typeNames']['Command Destroyers']),
           getNum(data[3]['kills']['typeNames']['Tactical Destroyers']),
@@ -666,7 +665,7 @@ function updateCharts (data) {
           getNum(data[3]['kills']['typeNames']['Electronic Attack Frigates']),
           getNum(data[3]['kills']['typeNames']['Interceptors']),
           getNum(data[3]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[3]['kills']['typeNames']['Logistics Frigates']),
+          getNum(data[3]['kills']['typeNames']['Logistics Frigate']),
           getNum(data[3]['kills']['typeNames']['Covert Ops']),
           getNum(data[3]['kills']['typeNames']['Stealth Bombers']),
           getNum(data[3]['kills']['typeNames']['Mining Frigate']),
@@ -677,8 +676,8 @@ function updateCharts (data) {
           getNum(data[3]['kills']['typeNames']['Transport Ships'])
         ]
       }, {
-        label: 'C5',
-        backgroundColor: 'rgba(255,102,0,0.5)',
+        label: 'C4',
+        backgroundColor: 'rgba(102,153,0,0.5)',
         data: [
           getNum(data[4]['kills']['typeNames']['Shuttle']),
           getNum(data[4]['kills']['typeNames']['Rookie Ships']),
@@ -696,7 +695,7 @@ function updateCharts (data) {
           getNum(data[4]['kills']['typeNames']['Heavy Interdictors']),
           getNum(data[4]['kills']['typeNames']['Logistics Cruisers']),
           getNum(data[4]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[4]['kills']['typeNames']['T1 Destroyers']),
+          getNum(data[4]['kills']['typeNames']['Destroyers']),
           getNum(data[4]['kills']['typeNames']['Interdictors']),
           getNum(data[4]['kills']['typeNames']['Command Destroyers']),
           getNum(data[4]['kills']['typeNames']['Tactical Destroyers']),
@@ -705,7 +704,7 @@ function updateCharts (data) {
           getNum(data[4]['kills']['typeNames']['Electronic Attack Frigates']),
           getNum(data[4]['kills']['typeNames']['Interceptors']),
           getNum(data[4]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[4]['kills']['typeNames']['Logistics Frigates']),
+          getNum(data[4]['kills']['typeNames']['Logistics Frigate']),
           getNum(data[4]['kills']['typeNames']['Covert Ops']),
           getNum(data[4]['kills']['typeNames']['Stealth Bombers']),
           getNum(data[4]['kills']['typeNames']['Mining Frigate']),
@@ -716,8 +715,8 @@ function updateCharts (data) {
           getNum(data[4]['kills']['typeNames']['Transport Ships'])
         ]
       }, {
-        label: 'C6',
-        backgroundColor: 'rgba(204,0,0,0.5)',
+        label: 'C5',
+        backgroundColor: 'rgba(255,102,0,0.5)',
         data: [
           getNum(data[5]['kills']['typeNames']['Shuttle']),
           getNum(data[5]['kills']['typeNames']['Rookie Ships']),
@@ -735,7 +734,7 @@ function updateCharts (data) {
           getNum(data[5]['kills']['typeNames']['Heavy Interdictors']),
           getNum(data[5]['kills']['typeNames']['Logistics Cruisers']),
           getNum(data[5]['kills']['typeNames']['Strategic Cruisers']),
-          getNum(data[5]['kills']['typeNames']['T1 Destroyers']),
+          getNum(data[5]['kills']['typeNames']['Destroyers']),
           getNum(data[5]['kills']['typeNames']['Interdictors']),
           getNum(data[5]['kills']['typeNames']['Command Destroyers']),
           getNum(data[5]['kills']['typeNames']['Tactical Destroyers']),
@@ -744,7 +743,7 @@ function updateCharts (data) {
           getNum(data[5]['kills']['typeNames']['Electronic Attack Frigates']),
           getNum(data[5]['kills']['typeNames']['Interceptors']),
           getNum(data[5]['kills']['typeNames']['Assault Frigates']),
-          getNum(data[5]['kills']['typeNames']['Logistics Frigates']),
+          getNum(data[5]['kills']['typeNames']['Logistics Frigate']),
           getNum(data[5]['kills']['typeNames']['Covert Ops']),
           getNum(data[5]['kills']['typeNames']['Stealth Bombers']),
           getNum(data[5]['kills']['typeNames']['Mining Frigate']),
@@ -753,6 +752,45 @@ function updateCharts (data) {
           getNum(data[5]['kills']['typeNames']['Capital Industrial Ships']),
           getNum(data[5]['kills']['typeNames']['Industrial Ships']),
           getNum(data[5]['kills']['typeNames']['Transport Ships'])
+        ]
+      }, {
+        label: 'C6',
+        backgroundColor: 'rgba(204,0,0,0.5)',
+        data: [
+          getNum(data[6]['kills']['typeNames']['Shuttle']),
+          getNum(data[6]['kills']['typeNames']['Rookie Ships']),
+          getNum(data[6]['kills']['typeNames']['Battleships']),
+          getNum(data[6]['kills']['typeNames']['Faction Battleships']),
+          getNum(data[6]['kills']['typeNames']['Marauders']),
+          getNum(data[6]['kills']['typeNames']['Black Ops']),
+          getNum(data[6]['kills']['typeNames']['Battlecruisers']) + getNum(data[6]['kills']['typeNames']['Battlecruisers (Attack)']),
+          getNum(data[6]['kills']['typeNames']['Faction Battlecruisers']),
+          getNum(data[6]['kills']['typeNames']['Command Ships']),
+          getNum(data[6]['kills']['typeNames']['Cruisers']),
+          getNum(data[6]['kills']['typeNames']['Faction Cruisers']),
+          getNum(data[6]['kills']['typeNames']['Recon Ships']),
+          getNum(data[6]['kills']['typeNames']['Heavy Assault Cruisers']),
+          getNum(data[6]['kills']['typeNames']['Heavy Interdictors']),
+          getNum(data[6]['kills']['typeNames']['Logistics Cruisers']),
+          getNum(data[6]['kills']['typeNames']['Strategic Cruisers']),
+          getNum(data[6]['kills']['typeNames']['Destroyers']),
+          getNum(data[6]['kills']['typeNames']['Interdictors']),
+          getNum(data[6]['kills']['typeNames']['Command Destroyers']),
+          getNum(data[6]['kills']['typeNames']['Tactical Destroyers']),
+          getNum(data[6]['kills']['typeNames']['Frigates']),
+          getNum(data[6]['kills']['typeNames']['Faction Frigates']),
+          getNum(data[6]['kills']['typeNames']['Electronic Attack Frigates']),
+          getNum(data[6]['kills']['typeNames']['Interceptors']),
+          getNum(data[6]['kills']['typeNames']['Assault Frigates']),
+          getNum(data[6]['kills']['typeNames']['Logistics Frigate']),
+          getNum(data[6]['kills']['typeNames']['Covert Ops']),
+          getNum(data[6]['kills']['typeNames']['Stealth Bombers']),
+          getNum(data[6]['kills']['typeNames']['Mining Frigate']),
+          getNum(data[6]['kills']['typeNames']['Mining Barges']),
+          getNum(data[6]['kills']['typeNames']['Exhumer Barges']),
+          getNum(data[6]['kills']['typeNames']['Capital Industrial Ships']),
+          getNum(data[6]['kills']['typeNames']['Industrial Ships']),
+          getNum(data[6]['kills']['typeNames']['Transport Ships'])
         ]
       }]
     },

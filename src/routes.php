@@ -79,8 +79,8 @@ $app->get('/api/rethink/stats/{period}[/]', function ($request, $response, $args
     $rethinkQueries = new RethinkQueries();
     $period = strval($args['period']);
     $this->logger->info("Slim-Skeleton '/api/rethink/stats/$period' route");
-    $key = md5(strtoupper('periodStats_'.$period));
-    $data = array('period' => $period);
+    $key = md5(strtoupper('periodStats_'.$period.'_0_0'));
+    $data = array('period' => $period, 'year' => 0, 'month' => 0);
     if($period == 'hour') {
       $cachedStats = $rethinkQueries->getCache('periodStats', $key, 2);
     } elseif($period == 'day') {
@@ -91,10 +91,10 @@ $app->get('/api/rethink/stats/{period}[/]', function ($request, $response, $args
     $returnArray['statsArray'] = $cachedStats['statsArray'];
     $returnArray['lastCached'] = $cachedStats['lastCached'];
     if($returnArray['statsArray'] == null) {
-      $rethinkQueries->queueTask('getStatsPeriod', 'periodStats', $key, $data);
-      return $this->view->render($response, 'noMonth.html', ['year' => $period, 'month' => '']);
+      $rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => $period, 'year' => 0, 'month' => 0]);
     } elseif($cachedStats['refreshDue']) {
-      $rethinkQueries->queueTask('getStatsPeriod', 'periodStats', $key, $data);
+      $rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
       return json_encode($returnArray);
     } else {
       return json_encode($returnArray);
@@ -106,30 +106,29 @@ $app->get('/api/rethink/stats/year/{year}/month/{month}[/]', function ($request,
     $year = intval($args['year'], 10);
     $month = intval($args['month'], 10);
     $this->logger->info("Slim-Skeleton '/api/rethink/stats/year/$year/month/$month' route");
-    $key = md5(strtoupper('periodStats_'.$year.'_'.$month));
-    $data = array('year' => $year, 'month' => $month);
+    $key = md5(strtoupper('periodStats_month_'.$year.'_'.$month));
+    $data = array('period' => 'month', 'year' => $year, 'month' => $month);
     $cachedStats = $rethinkQueries->getCache('periodStats', $key, 45);
     $returnArray['statsArray'] = $cachedStats['statsArray'];
     $returnArray['lastCached'] = $cachedStats['lastCached'];
     if($returnArray['statsArray'] == null) {
-      $rethinkQueries->queueTask('getStatsMonth', 'periodStats', $key, $data);
-      return $this->view->render($response, 'noMonth.html', ['year' => $year, 'month' => $month]);
+      $rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => 'month', 'year' => $year, 'month' => $month]);
     } elseif($cachedStats['refreshDue']) {
-      $rethinkQueries->queueTask('getStatsMonth', 'periodStats', $key, $data);
+      $rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
       return json_encode($returnArray);
     } else {
       return json_encode($returnArray);
     }
 });
 
-$app->get('/api/rethink/entities/tz/{tz}/period/{period}[/]', function ($request, $response, $args) {
+$app->get('/api/rethink/entities/period/{period}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
     $conn = r\connect('localhost', 28015, 'stats');
-    $tz = strval($args['tz']);
     $period = strval($args['period']);
-    $this->logger->info("Slim-Skeleton '/api/rethink/entities/tz/{$tz}/period/{$period}' route");
-    $key = md5(strtoupper('entityStats_'.$tz.'_'.$period));
-    $data = array('tz' => $tz, 'period' => $period);
+    $this->logger->info("Slim-Skeleton '/api/rethink/entities/period/{$period}' route");
+    $key = md5(strtoupper('entityStats_'.$period.'_0_0'));
+    $data = array('period' => $period, 'year' => 0, 'month' => 0);
     if($period == 'hour') {
       $cachedStats = $rethinkQueries->getCache('entityStats', $key, 5);
     } elseif($period == 'day') {
@@ -140,24 +139,25 @@ $app->get('/api/rethink/entities/tz/{tz}/period/{period}[/]', function ($request
     $returnArray['statsArray'] = $cachedStats['statsArray'];
     $returnArray['lastCached'] = $cachedStats['lastCached'];
     if($returnArray['statsArray'] == null) {
-      $rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', $key, $data);
-      return $this->view->render($response, 'noMonth.html', ['year' => $tz, 'month' => $period]);
+      $rethinkQueries->queueTask('genEntityStats', '', '', $data);
+      $rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => $period, 'year' => 0, 'month' => 0]);
     } elseif($cachedStats['refreshDue']) {
-      $rethinkQueries->queueTask('getEntityStatsPeriod', 'entityStats', $key, $data);
+      $rethinkQueries->queueTask('genEntityStats', '', '', $data);
+      $rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
       return json_encode($returnArray);
     } else {
       return json_encode($returnArray);
     }
 });
 
-$app->get('/api/rethink/entities/tz/{tz}/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
+$app->get('/api/rethink/entities/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
     $year = intval($args['year'], 10);
     $month = intval($args['month'], 10);
-    $tz = strval($args['tz']);
-    $this->logger->info("Slim-Skeleton '/api/rethink/entities/tz/{$tz}/period/year/{$year}/month/{$month}' route");
-    $key = md5(strtoupper('entityStats_'.$tz.'_'.$year.'_'.$month));
-    $data = array('tz' => $tz, 'year' => $year, 'month' => $month);
+    $this->logger->info("Slim-Skeleton '/api/rethink/entities/period/year/{$year}/month/{$month}' route");
+    $key = md5(strtoupper('entityStats_month_'.$year.'_'.$month));
+    $data = array('period' => 'month', 'year' => $year, 'month' => $month);
     $thisMonth = date("m");
     $thisYear = date("Y");
     if($year == intval($thisYear, 10) && $month == intval($thisMonth, 10)) {
@@ -168,10 +168,12 @@ $app->get('/api/rethink/entities/tz/{tz}/period/year/{year}/month/{month}[/]', f
     $returnArray['statsArray'] = $cachedStats['statsArray'];
     $returnArray['lastCached'] = $cachedStats['lastCached'];
     if($returnArray['statsArray'] == null) {
-      $rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
-      return $this->view->render($response, 'noMonth.html', ['year' => $year, 'month' => $month]);
+      $rethinkQueries->queueTask('genEntityStats', '', '', $data);
+      $rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => 'month', 'year' => $year, 'month' => $month]);
     } elseif($cachedStats['refreshDue']) {
-      $rethinkQueries->queueTask('getEntityStatsMonth', 'entityStats', $key, $data);
+      $rethinkQueries->queueTask('genEntityStats', '', '', $data);
+      $rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
       return json_encode($returnArray);
     } else {
       return json_encode($returnArray);

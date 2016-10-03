@@ -169,7 +169,7 @@ function changePeriod (tz, period) {
       $('#modal1').closeModal()
     }, 500)
   } else {
-    $.getJSON('/api/rethink/entities/tz/all/period/' + period + '/', function (json) {
+    $.getJSON('/api/rethink/entities/period/' + period + '/', function (json) {
       killData = json
       // console.log(json);
       if (json['stats'] === null) {

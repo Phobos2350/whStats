@@ -15,11 +15,14 @@ class RethinkQueries {
       return array('refreshDue' => true, 'statsArray' => null, 'lastCached' => null);
     }
     if($result['cacheTime'] > strtotime('-'.$expiry.' minutes')) {
-      return array('refreshDue' => false, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
+      $returnData = array('refreshDue' => false, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
+      return $returnData;
     } else {
+      $returnData = array('refreshDue' => true, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
       $update = r\table($tableName)->get($key)->replace(array('cacheTime' => time()))->run($conn);
-      return array('refreshDue' => true, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', time()));
+      return $returnData;
     }
+    $conn->close();
   }
 
   public function setCache($tableName, $key, $data) {
@@ -35,6 +38,7 @@ class RethinkQueries {
     } else {
       $result = r\table($tableName)->get($key)->replace($storageArray)->run($conn);
     }
+    $conn->close();
   }
 
   public function queueTask($jobType, $tableName, $key, $data) {
@@ -60,6 +64,7 @@ class RethinkQueries {
     $conn = r\connect('localhost', 28015, 'stats');
     $page -= 1;
     if($page < 0) {
+      $conn->close();
       return "Please Enter a Valid Page Value of 1 or Greater";
     }
     if ($period == "hour") {
@@ -85,6 +90,7 @@ class RethinkQueries {
       foreach($killExists as $kill) {
         $toEncode['kills'][] = $kill;
       }
+      $conn->close();
       return $toEncode;
     }
     if ($period == "day") {
@@ -110,6 +116,7 @@ class RethinkQueries {
       foreach($killExists as $kill) {
         $toEncode['kills'][] = $kill;
       }
+      $conn->close();
       return $toEncode;
     }
     if ($period == "week") {
@@ -135,6 +142,7 @@ class RethinkQueries {
       foreach($killExists as $kill) {
         $toEncode['kills'][] = $kill;
       }
+      $conn->close();
       return $toEncode;
     }
   }
@@ -143,6 +151,7 @@ class RethinkQueries {
     $conn = r\connect('localhost', 28015, 'stats');
     $page -= 1;
     if($page < 0) {
+      $conn->close();
       return "Please Enter a Valid Page of 1 or higher";
     }
     $endDay = 31;
@@ -178,6 +187,7 @@ class RethinkQueries {
     foreach($killExists as $kill) {
       $toEncode['kills'][] = $kill;
     }
+    $conn->close();
     return $toEncode;
   }
 
@@ -187,565 +197,51 @@ class RethinkQueries {
     foreach($killExists as $kill) {
       $toEncode[] = $kill;
     }
+    $conn->close();
     return $toEncode;
   }
 
-  public function getStatsPeriod($period) {
+  public function getStats($period, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
-    $key = md5(strtoupper('periodStats_'.$period));
+    $key = md5(strtoupper('periodStats_'.$period.'_'.$year.'_'.$month));
     $killExists = r\table('generatedStats')->get($key)->run($conn);
     if($killExists != null) {
-      foreach($killExists['stats'] as $kill) {
-        $kill['activeSystems'] = null;
-        $kill['items'] = null;
-        $toEncode['stats'][] = $kill;
-      }
-      return $toEncode;
+      $conn->close();
+      return $killExists;
     } else {
+      $conn->close();
       return null;
     }
   }
 
-  public function getStatsMonth($year, $month) {
+  public function cacheEntityStats($period, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
-    $key = md5(strtoupper('periodStats_'.$year.'_'.$month));
-    $killExists = r\table('generatedStats')->get($key)->run($conn);
+    $key = md5(strtoupper('entityStats_'.$period.'_'.$year.'_'.$month));
+    $killExists = r\table('generatedEntityStats')->get($key)->run($conn);
     if($killExists != null) {
-      foreach($killExists['stats'] as $kill) {
-        $kill['activeSystems'] = null;
-        $kill['items'] = null;
-        $toEncode['stats'][] = $kill;
-      }
+      $toEncode = $killExists;
+      usort($toEncode['stats']['ALL'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['US'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['AU'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['EU'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
+      $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
+      $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
+      $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
+      $conn->close();
       return $toEncode;
     } else {
+      $conn->close();
       return null;
     }
-  }
-
-  public function getEntityStatsPeriod($tz, $period) {
-    $conn = r\connect('localhost', 28015, 'stats');
-    $subValue = 0;
-    $toEncode['timezone'] = "UNKNOWN";
-    $continue = true;
-    $page = 0;
-    $limit = 10000;
-    $combinedResults = array();
-
-    if(strtoupper($tz) == "US") {
-      $toEncode['timezone'] = "US";
-      $fromHour = 0;
-      $toHour = 8;
-    }
-    if(strtoupper($tz) == "AU") {
-      $toEncode['timezone'] = "AU";
-      $fromHour = 8;
-      $toHour = 16;
-    }
-    if(strtoupper($tz) == "EU") {
-      $toEncode['timezone'] = "EU";
-      $fromHour = 16;
-      $toHour = 24;
-    }
-    if(strtoupper($tz) == "ALL") {
-      $toEncode['timezone'] = "ALL";
-      $fromHour = 0;
-      $toHour = 24;
-    }
-
-    if($period == 'hour') {
-      $subValue = 3600;
-    }
-    if($period == 'day') {
-      $subValue = 86400;
-    }
-    if($period == 'week') {
-      $subValue = 604800;
-    }
-
-    while($continue) {
-      $blockResults = r\table('whKills')
-      ->between(
-        r\now()->sub($subValue),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      // ->filter(function($aKill) use(&$fromHour, &$toHour){
-      //   return $aKill('killTime')->hours()->ge($fromHour)
-      //   ->rAnd(
-      //     $aKill('killTime')->hours()->lt($toHour)
-      //   );
-      // })
-      ->skip($page * $limit)
-      ->limit($limit)
-      ->concatMap(function($aKill) {
-        return $aKill('attackers')
-          ->map(function($each) {
-            return r\branch($each('allianceID')->eq(0),
-                    $each->merge(array('entityID' => $each('corporationID'), 'isAlliance' => false)),
-                    $each->merge(array('entityID' => $each('allianceID'), 'isAlliance' => true)));
-          })
-          ->map(function($attacker) use(&$aKill) {
-            return array(
-              'entityID' => $attacker('entityID'),
-              'corporationID' => $attacker('corporationID'),
-              'corporationName' => $attacker('corporationName'),
-              'allianceID' => $attacker('allianceID'),
-              'allianceName' => $attacker('allianceName'),
-              'killID' => $aKill('killID'),
-              'shipTypeID' => $attacker('shipTypeID'),
-              'weaponTypeID' => $attacker('weaponTypeID'),
-              'systemID' => $aKill('solarSystemID'),
-              'value' => $aKill('zkb')('totalValue'),
-              'killTime' => $aKill('killTime')
-            );
-          });
-        })
-      ->group('entityID')
-      ->ungroup()
-      ->merge(function($row) {
-        return array(
-          'entityID' => $row('group'),
-          'totalKills' => $row('reduction')('killID')->distinct()->count(),
-          'totalISK' => $row('reduction')('value')->distinct()->sum(),
-        );
-      })
-      ->map(function($each) {
-        return array(
-          'entityID' => $each('entityID'),
-          'totalISK' => $each('totalISK'),
-          'totalKills' => $each('totalKills'),
-          'killsArray' => $each('reduction')
-        );
-      })
-      ->orderBy(r\desc('totalISK'))
-      ->run($conn);
-
-      $combinedResults = array_merge_recursive($combinedResults, $blockResults);
-      if(count($blockResults) >= 1) {
-        $page++;
-      } else {
-        $continue = false;
-      }
-    }
-
-    usort($combinedResults, function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-
-    $combinedResults = array_slice($combinedResults, 0, 1000, true);
-
-    $toEncode['stats']['ALL'] = array();
-    $toEncode['stats']['US'] = array();
-    $toEncode['stats']['AU'] = array();
-    $toEncode['stats']['EU'] = array();
-
-    foreach($combinedResults as $entity) {
-      $entityID = $entity['entityID'];
-      if($entity['killsArray'][0]['allianceID'] == $entityID) {
-        $entity['isAlliance'] = true;
-        $entity['entityName'] = $entity['killsArray'][0]['allianceName'];
-      } else {
-        $entity['isAlliance'] = false;
-        $entity['entityName'] = $entity['killsArray'][0]['corporationName'];
-      }
-      if($entityID == 0) {
-        $entity['entityName'] = 'NPC';
-      }
-      // $entity['c1Kills'] = 0; $entity['c2Kills'] = 0; $entity['c3Kills'] = 0; $entity['c4Kills'] = 0; $entity['c5Kills'] = 0;
-      // $entity['c6Kills'] = 0; $entity['c7Kills'] = 0; $entity['c8Kills'] = 0; $entity['c9Kills'] = 0;
-      // $entity['totalKills'] = 0; $entity['totalISK'] = 0;
-
-      if(!isset($toEncode['stats']['ALL'][$entityID])) {
-        $toEncode['stats']['ALL'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['ALL'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['ALL'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['ALL'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['ALL'][$entityID]['totalISK'] = 0;
-        $toEncode['stats']['ALL'][$entityID]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['ALL'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['US'][$entityID])) {
-        $toEncode['stats']['US'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['US'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['US'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['US'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['US'][$entityID]['totalISK'] = 0;
-        $toEncode['stats']['US'][$entityID]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['US'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['AU'][$entityID])) {
-        $toEncode['stats']['AU'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['AU'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['AU'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['AU'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['AU'][$entityID]['totalISK'] = 0;
-        $toEncode['stats']['AU'][$entityID]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['AU'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['EU'][$entityID])) {
-        $toEncode['stats']['EU'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['EU'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['EU'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['EU'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['EU'][$entityID]['totalISK'] = 0;
-        $toEncode['stats']['EU'][$entityID]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['EU'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-
-      $killsSeen = array();
-
-      foreach($entity['killsArray'] as $kill) {
-        $killTime = $kill['killTime']->getTimestamp();
-        $killTimeHour = date('H', $killTime);
-        $killTimezone = null;
-        if($killTimeHour >= 0 && $killTimeHour < 8) {
-          $killTimezone = 'US';
-        } elseif($killTimeHour >= 8 && $killTimeHour < 16) {
-          $killTimezone = 'AU';
-        } elseif($killTimeHour >= 16 && $killTimeHour < 24) {
-          $killTimezone = 'EU';
-        }
-        $shipTypeID = $kill['shipTypeID'];
-        if($shipTypeID != 0) {
-          $shipType = $systemClass = r\table('shipTypes')->get($shipTypeID)->run($conn);
-          $shipClass = $shipType['shipType'];
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]['totalUses'] += 1;
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
-
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]['totalUses'] += 1;
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
-
-          // !isset($shipsUsed[$shipClass]) ? $shipsUsed[$shipClass]['totalUses'] = 1 : $shipsUsed[$shipClass]['totalUses'] += 1;
-          // !isset($shipsUsed[$shipClass][$shipTypeID]) ? $shipsUsed[$shipClass][$shipTypeID] = $shipType : null;
-          // !isset($shipsUsed[$shipClass][$shipTypeID]['numUses']) ? $shipsUsed[$shipClass][$shipTypeID]['numUses'] = 1 : $shipsUsed[$shipClass][$shipTypeID]['numUses'] += 1;
-        }
-        if(!in_array($kill['killID'], $killsSeen)) {
-          $systemID = $kill['systemID'];
-          $systemData = r\table('whSystems')->get($systemID)->run($conn);
-          $systemClass = $systemData['class'];
-          // Thera
-          if ($systemClass == 30) {
-              $systemClass = 7;
-          }
-          // Shattereds
-          if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-              $systemClass = 8;
-          }
-          // Frig Holes
-          if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-              $systemClass = 9;
-          }
-
-          if ($systemClass == 0 || $systemClass == null) {
-              continue;
-          }
-          $toEncode['stats']['ALL'][$entityID]['c'.$systemClass.'Kills'] += 1;
-          $toEncode['stats'][$killTimezone][$entityID]['c'.$systemClass.'Kills'] += 1;
-          $toEncode['stats']['ALL'][$entityID]['totalKills'] += 1;
-          $toEncode['stats'][$killTimezone][$entityID]['totalKills'] += 1;
-          $toEncode['stats']['ALL'][$entityID]['totalISK'] += $kill['value'];
-          $toEncode['stats'][$killTimezone][$entityID]['totalISK'] += $kill['value'];
-
-          // $entity['c'.$systemClass.'Kills'] += 1;
-          // $entity['totalKills'] += 1;
-          // $entity['totalISK'] += $kill['value'];
-          array_push($killsSeen, $kill['killID']);
-        }
-      }
-      // $entity['shipsUsed'] = $shipsUsed;
-      // if(!isset($toEncode['stats'][$entityID])) {
-      //   $entity['killsArray'] = null;
-      //   $toEncode['stats'][$entityID] = $entity;
-      // }
-    }
-
-    usort($toEncode['stats']['ALL'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['US'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['AU'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['EU'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
-    $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
-    $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
-    $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
-    return $toEncode;
-  }
-
-  public function getEntityStatsMonth($tz, $year, $month) {
-    $conn = r\connect('localhost', 28015, 'stats');
-    $toEncode['timezone'] = "UNKNOWN";
-    $continue = true;
-    $page = 0;
-    $limit = 5000;
-    $combinedResults = array();
-
-    if(strtoupper($tz) == "US") {
-      $toEncode['timezone'] = "US";
-      $fromHour = 0;
-      $toHour = 8;
-    }
-    if(strtoupper($tz) == "AU") {
-      $toEncode['timezone'] = "AU";
-      $fromHour = 8;
-      $toHour = 16;
-    }
-    if(strtoupper($tz) == "EU") {
-      $toEncode['timezone'] = "EU";
-      $fromHour = 16;
-      $toHour = 24;
-    }
-    if(strtoupper($tz) == "ALL") {
-      $toEncode['timezone'] = "ALL";
-      $fromHour = 0;
-      $toHour = 24;
-    }
-
-    $endDay = 31;
-    if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-      $endDay = 30;
-    }
-    if($month == 2) {
-      if(date('L', strtotime("{$year}-01-01")) === 1) {
-        $endDay = 29;
-      } else {
-        $endDay = 28;
-      }
-    }
-    while($continue) {
-      $blockResults = r\table('whKills')
-      ->between(
-        r\time($year, $month, 1, 0, 0, 0, 'Z'),
-        r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
-        array('index' => 'killTime')
-      )
-      // ->filter(function($aKill) use(&$fromHour, &$toHour){
-      //   return $aKill('killTime')->hours()->ge($fromHour)
-      //   ->rAnd(
-      //     $aKill('killTime')->hours()->lt($toHour)
-      //   );
-      // })
-      ->skip($page * $limit)
-      ->limit($limit)
-      ->concatMap(function($aKill) {
-        return $aKill('attackers')
-          ->map(function($each) {
-            return r\branch($each('allianceID')->eq(0),
-                    $each->merge(array('entityID' => $each('corporationID'), 'isAlliance' => false)),
-                    $each->merge(array('entityID' => $each('allianceID'), 'isAlliance' => true)));
-          })
-          ->map(function($attacker) use(&$aKill) {
-            return array(
-              'entityID' => $attacker('entityID'),
-              'corporationID' => $attacker('corporationID'),
-              'corporationName' => $attacker('corporationName'),
-              'allianceID' => $attacker('allianceID'),
-              'allianceName' => $attacker('allianceName'),
-              'killID' => $aKill('killID'),
-              'killTime' => $aKill('killTime'),
-              'shipTypeID' => $attacker('shipTypeID'),
-              'weaponTypeID' => $attacker('weaponTypeID'),
-              'systemID' => $aKill('solarSystemID'),
-              'value' => $aKill('zkb')('totalValue')
-            );
-          });
-        })
-      ->group('entityID')
-      ->ungroup()
-      ->merge(function($row) {
-        return array(
-          'entityID' => $row('group'),
-          'totalKills' => $row('reduction')('killID')->distinct()->count(),
-          'totalISK' => $row('reduction')('value')->distinct()->sum(),
-        );
-      })
-      ->map(function($each) {
-        return array(
-          'entityID' => $each('entityID'),
-          'totalISK' => $each('totalISK'),
-          'totalKills' => $each('totalKills'),
-          'killsArray' => $each('reduction')
-        );
-      })
-      ->run($conn);
-
-      $combinedResults = array_merge_recursive($combinedResults, $blockResults);
-      if(count($blockResults) >= 1) {
-        $page++;
-      } else {
-        $continue = false;
-      }
-    }
-
-    usort($combinedResults, function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-
-    $combinedResults = array_slice($combinedResults, 0, 1000, true);
-
-    $toEncode['stats']['ALL'] = array();
-    $toEncode['stats']['US'] = array();
-    $toEncode['stats']['AU'] = array();
-    $toEncode['stats']['EU'] = array();
-
-    foreach($combinedResults as $entity) {
-      $entityID = $entity['entityID'];
-      if($entity['killsArray'][0]['allianceID'] == $entityID) {
-        $entity['isAlliance'] = true;
-        $entity['entityName'] = $entity['killsArray'][0]['allianceName'];
-      } else {
-        $entity['isAlliance'] = false;
-        $entity['entityName'] = $entity['killsArray'][0]['corporationName'];
-      }
-      if($entityID == 0) {
-        $entity['entityName'] = 'NPC';
-      }
-
-      if(!isset($toEncode['stats']['ALL'][$entityID])) {
-        $toEncode['stats']['ALL'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['ALL'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['ALL'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['ALL'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['ALL'][$entityID]['totalISK'] = 0;
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['ALL'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['US'][$entityID])) {
-        $toEncode['stats']['US'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['US'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['US'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['US'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['US'][$entityID]['totalISK'] = 0;
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['US'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['AU'][$entityID])) {
-        $toEncode['stats']['AU'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['AU'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['AU'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['AU'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['AU'][$entityID]['totalISK'] = 0;
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['AU'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['EU'][$entityID])) {
-        $toEncode['stats']['EU'][$entityID]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['EU'][$entityID]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['EU'][$entityID]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['EU'][$entityID]['totalKills'] = 0;
-        $toEncode['stats']['EU'][$entityID]['totalISK'] = 0;
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['EU'][$entityID]['c'.$i.'Kills'] = 0;
-        }
-      }
-
-      $killsSeen = array();
-
-      foreach($entity['killsArray'] as $kill) {
-        $killTime = $kill['killTime']->getTimestamp();
-        $killTimeHour = date('H', $killTime);
-        $killTimezone = null;
-        if($killTimeHour >= 0 && $killTimeHour < 8) {
-          $killTimezone = 'US';
-        } elseif($killTimeHour >= 8 && $killTimeHour < 16) {
-          $killTimezone = 'AU';
-        } elseif($killTimeHour >= 16 && $killTimeHour < 24) {
-          $killTimezone = 'EU';
-        }
-        $shipTypeID = $kill['shipTypeID'];
-        if($shipTypeID != 0) {
-          $shipType = r\table('shipTypes')->get($shipTypeID)->run($conn);
-          $shipClass = $shipType['shipType'];
-
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass]['totalUses'] += 1;
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
-          !isset($toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode['stats']['ALL'][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
-
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass]['totalUses'] += 1;
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
-          !isset($toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode['stats'][$killTimezone][$entityID]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
-
-          // !isset($shipsUsed[$shipClass]) ? $shipsUsed[$shipClass]['totalUses'] = 1 : $shipsUsed[$shipClass]['totalUses'] += 1;
-          // !isset($shipsUsed[$shipClass][$shipTypeID]) ? $shipsUsed[$shipClass][$shipTypeID] = $shipType : null;
-          // !isset($shipsUsed[$shipClass][$shipTypeID]['numUses']) ? $shipsUsed[$shipClass][$shipTypeID]['numUses'] = 1 : $shipsUsed[$shipClass][$shipTypeID]['numUses'] += 1;
-        }
-        if(!in_array($kill['killID'], $killsSeen)) {
-          $systemID = $kill['systemID'];
-          $systemData = r\table('whSystems')->get($systemID)->run($conn);
-          $systemClass = $systemData['class'];
-          // Thera
-          if ($systemClass == 30) {
-              $systemClass = 7;
-          }
-          // Shattereds
-          if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-              $systemClass = 8;
-          }
-          // Frig Holes
-          if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-              $systemClass = 9;
-          }
-
-          if ($systemClass == 0 || $systemClass == null) {
-              continue;
-          }
-
-          $toEncode['stats']['ALL'][$entityID]['c'.$systemClass.'Kills'] += 1;
-          $toEncode['stats'][$killTimezone][$entityID]['c'.$systemClass.'Kills'] += 1;
-          $toEncode['stats']['ALL'][$entityID]['totalKills'] += 1;
-          $toEncode['stats'][$killTimezone][$entityID]['totalKills'] += 1;
-          $toEncode['stats']['ALL'][$entityID]['totalISK'] += $kill['value'];
-          $toEncode['stats'][$killTimezone][$entityID]['totalISK'] += $kill['value'];
-
-          //$entity['c'.$systemClass.'Kills'] += 1;
-          //$entity['totalKills'] += 1;
-          //$entity['totalISK'] += $kill['value'];
-          array_push($killsSeen, $kill['killID']);
-        }
-      }
-      // $entity['shipsUsed'] = $shipsUsed;
-      // if(!isset($toEncode['stats'][$entityID])) {
-      //   $entity['killsArray'] = null;
-      //   $toEncode['stats'][$entityID] = $entity;
-      // }
-    }
-
-    usort($toEncode['stats']['ALL'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['US'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['AU'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    usort($toEncode['stats']['EU'], function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
-    });
-    $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
-    $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
-    $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
-    $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
-    return $toEncode;
   }
 
   public function getEntityStatsMonthByID($id, $year, $month) {
@@ -900,6 +396,7 @@ class RethinkQueries {
       $toEncode['ALL']['totalPilotsOnKills'] += $kill['uniquePilots'];
       $toEncode[$killTimezone]['totalPilotsOnKills'] += $kill['uniquePilots'];
     }
+    $conn->close();
     return $toEncode;
   }
 
@@ -1063,6 +560,7 @@ class RethinkQueries {
     usort($returnArray, function ($item1, $item2) {
       return $item2['reduction'] <=> $item1['reduction'];
     });
+    $conn->close();
     return array_slice($returnArray, 0, 100, true);
   }
 
@@ -1092,6 +590,7 @@ class RethinkQueries {
     foreach($killExists as $kill) {
       $toEncode[] = $kill;
     }
+    $conn->close();
     return $toEncode;
   }
 }

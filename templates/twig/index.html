@@ -4,28 +4,54 @@
 {% block content %}
 
 <!-- Modal Structure -->
-  <div id="modal1" class="modal">
-    <div class="modal-content">
-      <h4>Loading Stats</h4>
-      <div class="preloader-wrapper big active">
-        <div class="spinner-layer spinner-blue-only">
-          <div class="circle-clipper left">
-            <div class="circle"></div>
-          </div><div class="gap-patch">
-            <div class="circle"></div>
-          </div><div class="circle-clipper right">
-            <div class="circle"></div>
-          </div>
+<div id="modal1" class="modal">
+  <div class="modal-content">
+    <h4>Loading Stats</h4>
+    <div class="preloader-wrapper big active">
+      <div class="spinner-layer spinner-blue-only">
+        <div class="circle-clipper left">
+          <div class="circle"></div>
+        </div><div class="gap-patch">
+          <div class="circle"></div>
+        </div><div class="circle-clipper right">
+          <div class="circle"></div>
         </div>
       </div>
     </div>
   </div>
+</div>
+<div id="modal2" class="modal">
+  <div class="modal-content">
+    <h4>WH Stats - Vital Info</h4>
+    <h5>Kill Listener</h5>
+    <p>
+      At its heart WH Stats listens to <a href="https://github.com/zKillboard/RedisQ" target="_blank">zKillboard's RedisQ</a> for new kills and pushes valid Wormhole kills
+      into the WH Stats local Database provided by <a href="https://www.rethinkdb.com/" target="_blank">RethinkDB</a>
+    </p>
+    <h5>Stats Generator</h5>
+    <p>
+      Using the power of realtime changefeeds from the WH Stats internal database, the <i>Stats Generator</i> decides when each new kill occurred and checks the last time it ran a
+      task for this period to prevent overloading of the system:
+      <ul>
+        <li><b>Hour</b> - Every 2 Minutes</li>
+        <li><b>Day</b> - Every 5 Minutes</li>
+        <li><b>Week</b> - Every 15 Minutes</li>
+        <li><b>Month</b> - Every 30 Minutes</li>
+      </ul>
+      So if it's particularly quiet and no kills have been detected for a good long while, the <i>Stats Generator</i> does not need to do any processing at all! On the other hand if kills
+      are coming in every few seconds, the <i>Stats Generator</i> will automatically set a threshold on its frequency of updates to average out the load on the system.
+    </p>
+  </div>
+</div>
 <!--Intro-->
 <div id="intro" class="section scrollspy">
   <div class="container">
     <div class="row">
       <div  class="col s12">
         <h2 class="center header text_h2"><span id="refreshText">Time until next refresh </span><span id="countdown" class="span_h2"></span></h2>
+      </div>
+      <div  class="col s12">
+        <h5 class="center header text_h2">How Does It Work?<span class="medium material-icons text_h2 info-text">&nbsp;info_outline</span></h5>
       </div>
     </div>
   </div>
@@ -43,7 +69,13 @@
     </div>
     <div class="row">
       <div class="col s12 center"><i>Excluding Structure Kills</i></div>
-      <div class="col s12 center"><i>Last Cached - <span class="lastCached"></span></i></div>
+      <div class="col s12 center"><i>Last Cached - <span class="lastCached"></span></i>
+        <i class="tiny material-icons tooltipped info-button" data-position="right" data-delay="50"
+           data-tooltip="Stats are updated and cached intelligently if a new kill has been detected since the latest update.
+                         If the Cached Time is older than expected, then no new kills have yet been recorded by WH Stats.">
+          &nbsp;info_outline
+        </i>
+      </div>
       <div class="col s12 m4 14">
         <div class="card kill-card blue-grey lighten-1">
           <div class="kill-content white-text">
@@ -253,7 +285,7 @@
 <footer id="contact" class="page-footer default_color scrollspy">
     <div class="footer-copyright default_color">
         <div class="container">
-            Made by <a class="white-text" href="https://discord.gg/0keRDoXN2Cxw6PIY" target="_blank">Aekro</a> of <a class="white-text" href="http://takeshis-castle.com/" target="_blank">[TAKSH]</a>. Thanks to <a class="white-text" href="http://materializecss.com/">materializecss</a>.
+            Made by <a class="white-text" href="https://discord.gg/0keRDoXN2Cxw6PIY" target="_blank">Aekro</a> of <a class="white-text" href="https://takeshis-castle.com/" target="_blank">[TAKSH]</a>. Thanks to <a class="white-text" href="https://materializecss.com/">materializecss</a>.
             Try <a class="white-text" href="http://eve-vippy.com/" target="_blank">Vippy</a> as your next WH Mapper!
         </div>
     </div>

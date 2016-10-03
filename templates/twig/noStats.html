@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#2196F3">
     <title>No Data!</title>
     <!--Import Google Icon Font-->
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 
@@ -20,7 +20,9 @@
   <div class="section no-pad-bot" id="index-banner-maint">
     <div class="container">
       <h1 class="text_h center header cd-headline">
-        <span>No Data For {{ year }} - {{month}}</span><br>
+        <span>No Data For Period: <br>
+          {{ period }} - {{ year }} - {{month}}
+        </span><br>
         <span>A Stats Generation Task Has Been Despatched!</span>
         <span>Please try again in a few moments</span>
       </h1>

@@ -234,6 +234,7 @@ function getKills()
             }
         }
     }
+    $conn->close();
     return 0;
 }
 
@@ -462,5 +463,6 @@ function getKillsPeriod($startDate)
           }
         }
     }
+    $conn->close();
     return 0;
 }

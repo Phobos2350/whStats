@@ -93,7 +93,11 @@ function changePeriod (period) {
     if (json === null) {
       window.location.replace('../entity/noData/' + id + '/')
     }
-    $('#entityName').text(json['statsArray']['entityName'])
+    if (parseInt(id, 10) === 0) {
+      $('#entityName').text('Sleepers/NPC')
+    } else {
+      $('#entityName').text(json['statsArray']['entityName'])
+    }
     $('#entityName').attr('href', 'https://zkillboard.com/' + json['statsArray']['entityType'] + '/' + id + '/')
     updateStats(json)
     updateCharts(json)
@@ -278,7 +282,7 @@ function updateCharts (data) {
           typeof data['US']['shipsUsed']['Heavy Interdictors'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Heavy Interdictors']['totalUses']),
           typeof data['US']['shipsUsed']['Logistics Cruisers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Logistics Cruisers']['totalUses']),
           typeof data['US']['shipsUsed']['Strategic Cruisers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Strategic Cruisers']['totalUses']),
-          typeof data['US']['shipsUsed']['T1 Destroyers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['T1 Destroyers']['totalUses']),
+          typeof data['US']['shipsUsed']['Destroyers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Destroyers']['totalUses']),
           typeof data['US']['shipsUsed']['Interdictors'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Interdictors']['totalUses']),
           typeof data['US']['shipsUsed']['Command Destroyers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Command Destroyers']['totalUses']),
           typeof data['US']['shipsUsed']['Tactical Destroyers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Tactical Destroyers']['totalUses']),
@@ -287,7 +291,7 @@ function updateCharts (data) {
           typeof data['US']['shipsUsed']['Electronic Attack Frigates'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Electronic Attack Frigates']['totalUses']),
           typeof data['US']['shipsUsed']['Interceptors'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Interceptors']['totalUses']),
           typeof data['US']['shipsUsed']['Assault Frigates'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Assault Frigates']['totalUses']),
-          typeof data['US']['shipsUsed']['Logistics Frigates'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Logistics Frigates']['totalUses']),
+          typeof data['US']['shipsUsed']['Logistics Frigate'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Logistics Frigate']['totalUses']),
           typeof data['US']['shipsUsed']['Covert Ops'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Covert Ops']['totalUses']),
           typeof data['US']['shipsUsed']['Stealth Bombers'] === 'undefined' ? 0 : getNum(data['US']['shipsUsed']['Stealth Bombers']['totalUses'])
         ]
@@ -312,7 +316,7 @@ function updateCharts (data) {
           typeof data['AU']['shipsUsed']['Heavy Interdictors'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Heavy Interdictors']['totalUses']),
           typeof data['AU']['shipsUsed']['Logistics Cruisers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Logistics Cruisers']['totalUses']),
           typeof data['AU']['shipsUsed']['Strategic Cruisers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Strategic Cruisers']['totalUses']),
-          typeof data['AU']['shipsUsed']['T1 Destroyers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['T1 Destroyers']['totalUses']),
+          typeof data['AU']['shipsUsed']['Destroyers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Destroyers']['totalUses']),
           typeof data['AU']['shipsUsed']['Interdictors'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Interdictors']['totalUses']),
           typeof data['AU']['shipsUsed']['Command Destroyers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Command Destroyers']['totalUses']),
           typeof data['AU']['shipsUsed']['Tactical Destroyers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Tactical Destroyers']['totalUses']),
@@ -321,7 +325,7 @@ function updateCharts (data) {
           typeof data['AU']['shipsUsed']['Electronic Attack Frigates'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Electronic Attack Frigates']['totalUses']),
           typeof data['AU']['shipsUsed']['Interceptors'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Interceptors']['totalUses']),
           typeof data['AU']['shipsUsed']['Assault Frigates'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Assault Frigates']['totalUses']),
-          typeof data['AU']['shipsUsed']['Logistics Frigates'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Logistics Frigates']['totalUses']),
+          typeof data['AU']['shipsUsed']['Logistics Frigate'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Logistics Frigate']['totalUses']),
           typeof data['AU']['shipsUsed']['Covert Ops'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Covert Ops']['totalUses']),
           typeof data['AU']['shipsUsed']['Stealth Bombers'] === 'undefined' ? 0 : getNum(data['AU']['shipsUsed']['Stealth Bombers']['totalUses'])
         ]
@@ -346,7 +350,7 @@ function updateCharts (data) {
           typeof data['EU']['shipsUsed']['Heavy Interdictors'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Heavy Interdictors']['totalUses']),
           typeof data['EU']['shipsUsed']['Logistics Cruisers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Logistics Cruisers']['totalUses']),
           typeof data['EU']['shipsUsed']['Strategic Cruisers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Strategic Cruisers']['totalUses']),
-          typeof data['EU']['shipsUsed']['T1 Destroyers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['T1 Destroyers']['totalUses']),
+          typeof data['EU']['shipsUsed']['Destroyers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Destroyers']['totalUses']),
           typeof data['EU']['shipsUsed']['Interdictors'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Interdictors']['totalUses']),
           typeof data['EU']['shipsUsed']['Command Destroyers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Command Destroyers']['totalUses']),
           typeof data['EU']['shipsUsed']['Tactical Destroyers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Tactical Destroyers']['totalUses']),
@@ -355,7 +359,7 @@ function updateCharts (data) {
           typeof data['EU']['shipsUsed']['Electronic Attack Frigates'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Electronic Attack Frigates']['totalUses']),
           typeof data['EU']['shipsUsed']['Interceptors'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Interceptors']['totalUses']),
           typeof data['EU']['shipsUsed']['Assault Frigates'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Assault Frigates']['totalUses']),
-          typeof data['EU']['shipsUsed']['Logistics Frigates'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Logistics Frigates']['totalUses']),
+          typeof data['EU']['shipsUsed']['Logistics Frigate'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Logistics Frigate']['totalUses']),
           typeof data['EU']['shipsUsed']['Covert Ops'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Covert Ops']['totalUses']),
           typeof data['EU']['shipsUsed']['Stealth Bombers'] === 'undefined' ? 0 : getNum(data['EU']['shipsUsed']['Stealth Bombers']['totalUses'])
         ]

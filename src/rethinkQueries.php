@@ -214,10 +214,40 @@ class RethinkQueries {
     }
   }
 
-  public function cacheEntityStats($period, $year, $month) {
+  public function getEntityStats($period, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
     $key = md5(strtoupper('entityStats_'.$period.'_'.$year.'_'.$month));
     $killExists = r\table('generatedEntityStats')->get($key)->run($conn);
+    if($killExists != null) {
+      $toEncode = $killExists;
+      usort($toEncode['stats']['ALL'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['US'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['AU'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      usort($toEncode['stats']['EU'], function($a, $b) {
+        return $b['totalISK'] <=> $a['totalISK'];
+      });
+      $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
+      $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
+      $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
+      $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
+      $conn->close();
+      return $toEncode;
+    } else {
+      $conn->close();
+      return null;
+    }
+  }
+
+  public function cachePilotStats($period, $year, $month) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $key = md5(strtoupper('pilotStats_'.$period.'_'.$year.'_'.$month));
+    $killExists = r\table('generatedPilotStats')->get($key)->run($conn);
     if($killExists != null) {
       $toEncode = $killExists;
       usort($toEncode['stats']['ALL'], function($a, $b) {
@@ -263,17 +293,6 @@ class RethinkQueries {
       $toEncode['entityType'] = 'corporation';
     }
 
-    $endDay = 31;
-    if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-      $endDay = 30;
-    }
-    if($month == 2) {
-      if(date('L', strtotime("{$year}-01-01")) === 1) {
-        $endDay = 29;
-      } else {
-        $endDay = 28;
-      }
-    }
     $combinedResults = r\table('whKills')->getAll($id, $queryType)
     ->filter(function($aKill) use(&$year, &$month){
       return $aKill('killTime')->year()->eq($year)
@@ -496,7 +515,7 @@ class RethinkQueries {
                             ->orderBy(r\desc('reduction'))
                             ->run($conn);
               foreach($flownShips as $ship) {
-                $shipName = $ship['shipTypeID'];
+                $shipName = strval($ship['shipTypeID']);
                 $shipType = $ship['shipType'];
                 if(!array_key_exists($shipName, $returnArray[$mainCharID])){
                   $returnArray[$mainCharID]['shipsFlown'][$shipName] = $ship['reduction'];
@@ -589,6 +608,126 @@ class RethinkQueries {
 
     foreach($killExists as $kill) {
       $toEncode[] = $kill;
+    }
+    $conn->close();
+    return $toEncode;
+  }
+
+  public function getPilotStatsMonthByID($id, $year, $month) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $combinedResults = array();
+    $toEncode = array();
+
+    $combinedResults = r\table('whKills')->getAll($id, array('index' => 'attacker_characterID'))
+    ->filter(function($aKill) use(&$year, &$month){
+      return $aKill('killTime')->year()->eq($year)
+      ->rAnd(
+        $aKill('killTime')->month()->eq($month)
+      );
+    })
+    ->concatMap(function($aKill) use(&$id){
+      return $aKill('attackers')
+        ->map(function($attacker) use(&$aKill) {
+          return array(
+            'characterID' => $attacker('characterID'),
+            'killID' => $aKill('killID'),
+            'killTime' => $aKill('killTime'),
+            'shipTypeID' => $attacker('shipTypeID'),
+            'systemID' => $aKill('solarSystemID'),
+            'value' => $aKill('zkb')('totalValue')
+          );
+        });
+      })
+    ->group('killID')
+    ->ungroup()
+    ->merge(function($row) {
+      return array(
+        'killID' => $row('group'),
+        'killTime' => $row('reduction')('killTime')->max(),
+        'systemID' => $row('reduction')('systemID')->max(),
+        'value' => $row('reduction')('value')->max(),
+      );
+    })
+    ->map(function($each) {
+      return array(
+        'killID' => $each('killID'),
+        'killTime' => $each('killTime'),
+        'systemID' => $each('systemID'),
+        'value' => $each('value'),
+        'killsArray' => $each('reduction')
+      );
+    })
+    ->run($conn);
+
+    for($i = 1; $i < 10; $i++) {
+      $toEncode['ALL']['c'.$i.'Kills'] = 0;
+      $toEncode['US']['c'.$i.'Kills'] = 0;
+      $toEncode['AU']['c'.$i.'Kills'] = 0;
+      $toEncode['EU']['c'.$i.'Kills'] = 0;
+      $toEncode['ALL']['totalKills'] = 0;
+      $toEncode['US']['totalKills'] = 0;
+      $toEncode['AU']['totalKills'] = 0;
+      $toEncode['EU']['totalKills'] = 0;
+      $toEncode['ALL']['totalISK'] = 0;
+      $toEncode['US']['totalISK'] = 0;
+      $toEncode['AU']['totalISK'] = 0;
+      $toEncode['EU']['totalISK'] = 0;
+      $toEncode['ALL']['shipsUsed'] = array();
+      $toEncode['US']['shipsUsed'] = array();
+      $toEncode['AU']['shipsUsed'] = array();
+      $toEncode['EU']['shipsUsed'] = array();
+    }
+
+    foreach($combinedResults as $kill) {
+      $killTime = $kill['killTime']->getTimestamp();
+      $killTimeHour = date('H', $killTime);
+      $killTimezone = null;
+      if($killTimeHour >= 0 && $killTimeHour < 8) {
+        $killTimezone = 'US';
+      } elseif($killTimeHour >= 8 && $killTimeHour < 16) {
+        $killTimezone = 'AU';
+      } elseif($killTimeHour >= 16 && $killTimeHour < 24) {
+        $killTimezone = 'EU';
+      }
+
+      foreach($kill['killsArray'] as $thisKill) {
+        $shipTypeID = $thisKill['shipTypeID'];
+        if($shipTypeID != 0) {
+          $shipType = r\table('shipTypes')->get($shipTypeID)->run($conn);
+          $shipClass = $shipType['shipType'];
+          !isset($toEncode['ALL']['shipsUsed'][$shipClass]) ? $toEncode['ALL']['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode['ALL']['shipsUsed'][$shipClass]['totalUses'] += 1;
+          !isset($toEncode[$killTimezone]['shipsUsed'][$shipClass]) ? $toEncode[$killTimezone]['shipsUsed'][$shipClass]['totalUses'] = 1 : $toEncode[$killTimezone]['shipsUsed'][$shipClass]['totalUses'] += 1;
+          !isset($toEncode['ALL']['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode['ALL']['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
+          !isset($toEncode[$killTimezone]['shipsUsed'][$shipClass][$shipTypeID]) ? $toEncode[$killTimezone]['shipsUsed'][$shipClass][$shipTypeID] = $shipType : null;
+          !isset($toEncode['ALL']['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode['ALL']['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode['ALL']['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
+          !isset($toEncode[$killTimezone]['shipsUsed'][$shipClass][$shipTypeID]['numUses']) ? $toEncode[$killTimezone]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] = 1 : $toEncode[$killTimezone]['shipsUsed'][$shipClass][$shipTypeID]['numUses'] += 1;
+        }
+      }
+      $systemID = $kill['systemID'];
+      $systemData = r\table('whSystems')->get($systemID)->run($conn);
+      $systemClass = $systemData['class'];
+      // Thera
+      if ($systemClass == 30) {
+          $systemClass = 7;
+      }
+      // Shattereds
+      if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
+          $systemClass = 8;
+      }
+      // Frig Holes
+      if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
+          $systemClass = 9;
+      }
+
+      if ($systemClass == 0 || $systemClass == null) {
+          continue;
+      }
+      $toEncode['ALL']['c'.$systemClass.'Kills'] += 1;
+      $toEncode[$killTimezone]['c'.$systemClass.'Kills'] += 1;
+      $toEncode['ALL']['totalKills'] += 1;
+      $toEncode[$killTimezone]['totalKills'] += 1;
+      $toEncode['ALL']['totalISK'] += $kill['value'];
+      $toEncode[$killTimezone]['totalISK'] += $kill['value'];
     }
     $conn->close();
     return $toEncode;

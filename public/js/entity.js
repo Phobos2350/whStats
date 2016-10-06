@@ -20,7 +20,7 @@ $(document).ready(function () {
 $('.periodLinks').click(function () {
   setPeriod = 'month'
   $('.monthLinks').removeClass('hide')
-  setPeriod = 'year/' + year + '/month/' + (month + 1) + '/entityStats/' + id
+  setPeriod = 'entityStats/' + id + '/period/year/' + year + '/month/' + (month + 1)
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
   $('.currMonth').text(currMonth.toLocaleString('en-gb', {
     month: 'long'
@@ -42,7 +42,7 @@ $('.prevMonth').click(function () {
   } else {
     month -= 1
   }
-  setPeriod = 'year/' + year + '/month/' + (month + 1) + '/entityStats/' + id
+  setPeriod = 'entityStats/' + id + '/period/year/' + year + '/month/' + (month + 1)
   changePeriod(setPeriod)
 
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)
@@ -66,7 +66,7 @@ $('.nextMonth').click(function () {
   } else {
     month += 1
   }
-  setPeriod = 'year/' + year + '/month/' + (month + 1) + '/entityStats/' + id
+  setPeriod = 'entityStats/' + id + '/period/year/' + year + '/month/' + (month + 1)
   changePeriod(setPeriod)
   var thisMonth = new Date().getMonth()
   var currMonth = new Date(year, month, 1, 0, 0, 0, 0)

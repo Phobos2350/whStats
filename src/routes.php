@@ -20,6 +20,17 @@ $app->get('/entity/{id}[/]', function ($request, $response, $args) {
     return $this->view->render($response, 'entity.html', $args);
 })->setName('entities');
 
+$app->get('/pilots[/]', function ($request, $response, $args) {
+    $this->logger->info("Slim-Skeleton '/pilots' route");
+    return $this->view->render($response, 'pilots.html', $args);
+})->setName('pilots');
+
+$app->get('/pilot/{id}[/]', function ($request, $response, $args) {
+    $id = intval($args['id'], 10);
+    $this->logger->info("Slim-Skeleton '/pilot/{$id}' route");
+    return $this->view->render($response, 'pilot.html', $args);
+})->setName('pilots');
+
 $app->get('/entity/noData/{id}[/]', function ($request, $response, $args) {
     $id = intval($args['id'], 10);
     $this->logger->info("Slim-Skeleton '/entity/noData/{$id}' route");
@@ -180,12 +191,12 @@ $app->get('/api/rethink/entities/period/year/{year}/month/{month}[/]', function 
     }
 });
 
-$app->get('/api/rethink/year/{year}/month/{month}/entityStats/{id}[/]', function ($request, $response, $args) {
+$app->get('/api/rethink/entityStats/{id}/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
     $id = intval($args['id'], 10);
     $year = intval($args['year'], 10);
     $month = intval($args['month'], 10);
-    $this->logger->info("Slim-Skeleton '/api/rethink/year/{$year}/month/{$month}/entityStats/{$id}' route");
+    $this->logger->info("Slim-Skeleton '/api/rethink/entityStats/{$id}/period/year/{$year}/month/{$month}' route");
     $key = md5(strtoupper('entityStatsID_'.$id.'_'.$year.'_'.$month));
     $data = array('id' => $id, 'year' => $year, 'month' => $month);
     $cachedStats = $rethinkQueries->getCache('entityStatsID', $key, 30);
@@ -196,6 +207,85 @@ $app->get('/api/rethink/year/{year}/month/{month}/entityStats/{id}[/]', function
       return null;
     } elseif($cachedStats['refreshDue']) {
       $rethinkQueries->queueTask('getEntityStatsMonthByID', 'entityStatsID', $key, $data);
+      return json_encode($returnArray);
+    } else {
+      return json_encode($returnArray);
+    }
+});
+
+$app->get('/api/rethink/pilots/period/{period}}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $period = strval($args['period']);
+    $this->logger->info("Slim-Skeleton '/api/rethink/pilots/period/{$period}' route");
+    $key = md5(strtoupper('pilotStats_'.$period.'_0_0'));
+    $data = array('period' => $period, 'year' => 0, 'month' => 0);
+    if($period == 'hour') {
+      $cachedStats = $rethinkQueries->getCache('pilotStats', $key, 5);
+    } elseif($period == 'day') {
+      $cachedStats = $rethinkQueries->getCache('pilotStats', $key, 10);
+    } elseif($period == 'week') {
+      $cachedStats = $rethinkQueries->getCache('pilotStats', $key, 30);
+    }
+    $returnArray['statsArray'] = $cachedStats['statsArray'];
+    $returnArray['lastCached'] = $cachedStats['lastCached'];
+    if($returnArray['statsArray'] == null) {
+      $rethinkQueries->queueTask('genPilotStats', '', '', $data);
+      $rethinkQueries->queueTask('getPilotStats', 'pilotStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => $period, 'year' => 0, 'month' => 0]);
+    } elseif($cachedStats['refreshDue']) {
+      $rethinkQueries->queueTask('genPilotStats', '', '', $data);
+      $rethinkQueries->queueTask('getPilotStats', 'pilotStats', $key, $data);
+      return json_encode($returnArray);
+    } else {
+      return json_encode($returnArray);
+    }
+});
+
+$app->get('/api/rethink/pilots/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/pilots/period/year/{$year}/month/{$month}' route");
+    $key = md5(strtoupper('pilotStats_month_'.$year.'_'.$month));
+    $data = array('period' => 'month', 'year' => $year, 'month' => $month);
+    $thisMonth = date("m");
+    $thisYear = date("Y");
+    if($year == intval($thisYear, 10) && $month == intval($thisMonth, 10)) {
+      $cachedStats = $rethinkQueries->getCache('pilotStats', $key, 45);
+    } else {
+      $cachedStats = $rethinkQueries->getCache('pilotStats', $key, 10080);
+    }
+    $returnArray['statsArray'] = $cachedStats['statsArray'];
+    $returnArray['lastCached'] = $cachedStats['lastCached'];
+    if($returnArray['statsArray'] == null) {
+      $rethinkQueries->queueTask('genPilotStats', '', '', $data);
+      $rethinkQueries->queueTask('getPilotStats', 'pilotStats', $key, $data);
+      return $this->view->render($response, 'noStats.html', ['period' => 'month', 'year' => $year, 'month' => $month]);
+    } elseif($cachedStats['refreshDue']) {
+      $rethinkQueries->queueTask('genPilotStats', '', '', $data);
+      $rethinkQueries->queueTask('getPilotStats', 'pilotStats', $key, $data);
+      return json_encode($returnArray);
+    } else {
+      return json_encode($returnArray);
+    }
+});
+
+$app->get('/api/rethink/pilotStats/{id}/period/year/{year}/month/{month}[/]', function ($request, $response, $args) {
+    $rethinkQueries = new RethinkQueries();
+    $id = intval($args['id'], 10);
+    $year = intval($args['year'], 10);
+    $month = intval($args['month'], 10);
+    $this->logger->info("Slim-Skeleton '/api/rethink/pilotStats/{$id}/period/year/{$year}/month/{$month}' route");
+    $key = md5(strtoupper('pilotStatsID_'.$id.'_'.$year.'_'.$month));
+    $data = array('id' => $id, 'year' => $year, 'month' => $month);
+    $cachedStats = $rethinkQueries->getCache('pilotStatsID', $key, 30);
+    $returnArray['statsArray'] = $cachedStats['statsArray'];
+    $returnArray['lastCached'] = $cachedStats['lastCached'];
+    if($returnArray['statsArray'] == null) {
+      $rethinkQueries->queueTask('getPilotStatsMonthByID', 'pilotStatsID', $key, $data);
+      return null;
+    } elseif($cachedStats['refreshDue']) {
+      $rethinkQueries->queueTask('getPilotStatsMonthByID', 'pilotStatsID', $key, $data);
       return json_encode($returnArray);
     } else {
       return json_encode($returnArray);

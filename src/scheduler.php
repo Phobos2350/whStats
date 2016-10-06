@@ -65,11 +65,37 @@ class QueueListener
         printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - addEntityStatsMonth - ".$decodedMsg['data']['kill']['killID'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
         break;
       case 'getEntityStats':
-        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - cacheEntityStats - ".$decodedMsg['data']['period'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
-        $newData = $this->rethinkQueries->cacheEntityStats($decodedMsg['data']['period'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - getEntityStats - ".$decodedMsg['data']['period'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        $newData = $this->rethinkQueries->getEntityStats($decodedMsg['data']['period'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
         $this->rethinkQueries->setCache($decodedMsg['tableName'], $decodedMsg['key'], $newData);
         $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - cacheEntityStats - ".$decodedMsg['data']['period'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - getEntityStats - ".$decodedMsg['data']['period'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        break;
+      case 'genPilotStats':
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - genPilotStats - ".$decodedMsg['data']['period']." - ".$decodedMsg['data']['year']." - ".$decodedMsg['data']['month']."\n");
+        $this->statsGenerator->genPilotStats($decodedMsg['data']['period'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - genPilotStats - ".$decodedMsg['data']['period']." - ".$decodedMsg['data']['year']." - ".$decodedMsg['data']['month']."\n");
+        break;
+      case 'addPilotStatsMonth':
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - addPilotStatsMonth - ".$decodedMsg['data']['kill']['killID'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        $this->statsGenerator->addPilotStatsMonth($decodedMsg['data']['kill'], $decodedMsg['data']['period'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - addPilotStatsMonth - ".$decodedMsg['data']['kill']['killID'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        break;
+      case 'getPilotStats':
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - getPilotStats - ".$decodedMsg['data']['period']." - ".$decodedMsg['data']['year']." - ".$decodedMsg['data']['month']."({$decodedMsg['key']})\n");
+        $newData = $this->rethinkQueries->cachePilotStats($decodedMsg['data']['period'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        $this->rethinkQueries->setCache($decodedMsg['tableName'], $decodedMsg['key'], $newData);
+        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - getPilotStats - ".$decodedMsg['data']['period']." - ".$decodedMsg['data']['year']." - ".$decodedMsg['data']['month']."({$decodedMsg['key']})\n");
+        break;
+      case 'getPilotStatsMonthByID':
+        printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - getPilotStatsMonthByID - ".$decodedMsg['data']['id'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
+        $newData = $this->rethinkQueries->getPilotStatsMonthByID($decodedMsg['data']['id'], $decodedMsg['data']['year'], $decodedMsg['data']['month']);
+        $this->rethinkQueries->setCache($decodedMsg['tableName'], $decodedMsg['key'], $newData);
+        $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+        printf("[x] ".date("Y-m-d H:i:s")." - TASK COMPLETE - getPilotStatsMonthByID - ".$decodedMsg['data']['id'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");
         break;
       case 'getEntityStatsMonthByID':
         printf("[ ] ".date("Y-m-d H:i:s")." - Running Task - getEntityStatsMonthByID - ".$decodedMsg['data']['id'].'_'.$decodedMsg['data']['year'].'_'.$decodedMsg['data']['month']." ({$decodedMsg['key']})\n");

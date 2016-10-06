@@ -204,7 +204,7 @@ function pad (n) {
 }
 
 function getNum (val) {
-  if (isNaN(val) || val == null) {
+  if (isNaN(val) || val === null) {
     return 0
   }
   return val
@@ -237,7 +237,7 @@ function updateStats (data) {
   iskTotal > 1000 ? $('.totalISK').text((iskTotal / Math.pow(10, 3)).toFixed(2) + ' Trillion ISK') : $('.totalISK').text(iskTotal.toFixed(2) + ' Billion ISK')
 
   for (var i = 1; i < 7; i++) {
-    if (data[i]['biggestKill']['killID'] == null) {
+    if (data[i]['biggestKill']['killID'] === null) {
       $('.biggestC' + (i) + 'Img').attr('src', '../img/blank_symbol.png')
       $('.biggestC' + (i) + 'Kill').text('No Kills!')
     } else {
@@ -300,12 +300,12 @@ function updateStats (data) {
 function updateCharts (data) {
   data = data['statsArray']['stats']
   if (renderedOnce === 1) {
-    ctxHour != null ? ctxHour.destroy() : ctxHour = null
-    ctxISKHour != null ? ctxISKHour.destroy() : ctxISKHour = null
-    ctxTotalCarrier != null && chartCarrierDrawn ? ctxTotalCarrier.destroy() : ctxTotalCarrier = null
-    ctxTotalDread != null && chartDreadDrawn ? ctxTotalDread.destroy() : ctxTotalDread = null
-    ctxTotalFAX != null && chartFAXDrawn ? ctxTotalFAX.destroy() : ctxTotalFAX = null
-    ctxBreakdowns != null ? ctxBreakdowns.destroy() : ctxBreakdowns = null
+    ctxHour !== null ? ctxHour.destroy() : ctxHour = null
+    ctxISKHour !== null ? ctxISKHour.destroy() : ctxISKHour = null
+    ctxTotalCarrier !== null && chartCarrierDrawn ? ctxTotalCarrier.destroy() : ctxTotalCarrier = null
+    ctxTotalDread !== null && chartDreadDrawn ? ctxTotalDread.destroy() : ctxTotalDread = null
+    ctxTotalFAX !== null && chartFAXDrawn ? ctxTotalFAX.destroy() : ctxTotalFAX = null
+    ctxBreakdowns !== null ? ctxBreakdowns.destroy() : ctxBreakdowns = null
   }
 
   var dataHour = {
@@ -828,6 +828,5 @@ function updateCharts (data) {
     }
   }
   ctxBreakdowns = new Chart($('#chartBreakdowns'), dataBreakdowns)
-
   renderedOnce = 1
 }

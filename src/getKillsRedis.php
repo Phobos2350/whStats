@@ -14,10 +14,8 @@ foreach ($argv as $i => $arg) {
 function getKills()
 {
     $currentTime = 0;
-    $fromHour = 0;
     $continue = true;
     $killID = 0;
-    $loopCount = 0;
     $url = "http://redisq.zkillboard.com/listen.php";
     // Connect to localhost
     $conn = r\connect('localhost', 28015, 'stats');
@@ -32,16 +30,15 @@ function getKills()
         $json = null;
         $output = null;
 
-        $content = file_get_contents("http://redisq.zkillboard.com/listen.php");
+        $content = file_get_contents($url);
         $json = json_decode($content, true);
 
         if($json == null) {
           printf("Sleeping...\n");
           sleep(15);
           continue;
-        } else {
-          $output = $json;
         }
+        $output = $json;
 
         if ($output["package"] !== null) {
             //printf("Kills found, analysing...\n");
@@ -62,7 +59,6 @@ function getKills()
                   printf("xxx Seen kill - $killID xxx\n");
                   continue;
               }
-
               $killTime = DateTime::createFromFormat('Y.m.d H:i:s', $killTime);
               $timeFormat = date_format($killTime, "Y-m-d\TH:i:sP");
               $isoDate = r\ISO8601($timeFormat, ['default_timezone' => 'UTC']);
@@ -241,13 +237,9 @@ function getKills()
 function getKillsPeriod($startDate)
 {
     $currentTime = 0;
-    $fromHour = 0;
     $continue = true;
     $killID = 0;
-    $loopCount = 0;
     $url = "https://zkillboard.com/api/history/{$startDate}";
-    $page = 1;
-    // Connect to localhost
     $conn = r\connect('localhost', 28015, 'stats');
 
     printf("\n\n---------------------------------------------------------------------------------------------------------\n");
@@ -256,7 +248,6 @@ function getKillsPeriod($startDate)
 
     while ($continue) {
         $currentTime = date('Y-m-d H:i:s', time());
-        //printf("Time {$currentTime}\n");
         $json = null;
         $output = null;
         $killNum = 0;
@@ -268,10 +259,9 @@ function getKillsPeriod($startDate)
           printf("Sleeping...\n");
           sleep(15);
           continue;
-        } else {
-          $output = $json;
         }
-        print_r($output);
+        $output = $json;
+
         if ($output !== null) {
             //printf("Kills found, analysing...\n");
             foreach(array_keys($output) as $kill) {
@@ -287,7 +277,6 @@ function getKillsPeriod($startDate)
               $kill = $kill[0];
               $killTime = $kill["killTime"];
               isset($kill["solarSystemID"]) ? $systemID = $kill["solarSystemID"] : $systemID = 0;
-              printf($systemID);
               if(null !== r\table('whSystems')->get($systemID)->run($conn)) {
 
                 printf("ID: {$killID} | Time: {$killTime} | System: {$systemID}\n");

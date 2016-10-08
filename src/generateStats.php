@@ -9,11 +9,11 @@ class GenerateStats {
     $this->rethinkQueries = new RethinkQueries();
   }
 
-  public function formatValue($n) {
-    if (!is_numeric($n)) {
+  public function formatValue($num) {
+    if (!is_numeric($num)) {
       return 0;
     }
-    return ceil(($n/1000000));
+    return ceil(($num/1000000));
   }
 
   public function listenForChanges() {
@@ -194,7 +194,6 @@ class GenerateStats {
     // $this->rethinkQueries->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2015, 'month' => 12);
     // $this->rethinkQueries->queueTask('genStats', '', '', $data);
-    $conn->close();
   }
 
   public function genStats($period, $year, $month) {
@@ -263,7 +262,6 @@ class GenerateStats {
         $pageQuery = $this->rethinkQueries->getPeriodKills($limit, $period, $page);
       }
       $killsArray = $pageQuery['kills'];
-      $activeSystemsArray = array();
 
       foreach ($killsArray as $kill) {
         $system = r\table('whSystems')->get($kill['solarSystemID'])->run($conn);
@@ -286,8 +284,7 @@ class GenerateStats {
             continue;
         }
         $ship = r\table('shipTypes')->get(intval($kill["victim"]["shipTypeID"], 10))->run($conn);
-        $itemsArray = $kill["items"];
-        $attackersArray = $kill["attackers"];
+        //$itemsArray = $kill["items"];
         if(!isset($statsArray[$class]['class'])) { $statsArray[$class]['class'] = $class; };
         !isset($statsArray[$class]['totalKills']) ? $statsArray[$class]['totalKills'] = 1 : $statsArray[$class]['totalKills'] += 1;
         if($ship['shipType'] == "Dreadnoughts" || $ship['shipType'] == "Carriers" || $ship['shipType'] == "Force Auxiliary" || $ship['shipType'] == "Capital Industrial Ships") {
@@ -421,7 +418,6 @@ class GenerateStats {
     $key = md5(strtoupper('periodStats_'.$period.'_'.$year.'_'.$month));
     $time = date('Y-m-d H:i');
     $conn = r\connect('localhost', 28015, 'stats');
-    $killsArray = array();
     $dummyArray = array(
       'activeSystems' => array(),
       'biggestKill' => array(
@@ -485,8 +481,7 @@ class GenerateStats {
         return null;
     }
     $ship = r\table('shipTypes')->get(intval($kill["victim"]["shipTypeID"], 10))->run($conn);
-    $itemsArray = $kill["items"];
-    $attackersArray = $kill["attackers"];
+    //$itemsArray = $kill["items"];
     if(!isset($statsArray[$class]['class'])) { $statsArray[$class]['class'] = $class; };
     !isset($statsArray[$class]['totalKills']) ? $statsArray[$class]['totalKills'] = 1 : $statsArray[$class]['totalKills'] += 1;
     if($ship['shipType'] == "Dreadnoughts" || $ship['shipType'] == "Carriers" || $ship['shipType'] == "Force Auxiliary" || $ship['shipType'] == "Capital Industrial Ships") {
@@ -765,8 +760,8 @@ class GenerateStats {
       }
     }
 
-    usort($combinedResults, function($a, $b) {
-      return $b['totalISK'] <=> $a['totalISK'];
+    usort($combinedResults, function($left, $right) {
+      return $right['totalISK'] <=> $left['totalISK'];
     });
 
     $combinedResults = array_slice($combinedResults, 0, 1000, true);

@@ -12,17 +12,18 @@ class RethinkQueries {
     $conn = r\connect('localhost', 28015, 'stats');
     $result = r\table($tableName)->get($key)->run($conn);
     if($result == null) {
+      $conn->close();
       return array('refreshDue' => true, 'statsArray' => null, 'lastCached' => null);
     }
     if($result['cacheTime'] > strtotime('-'.$expiry.' minutes')) {
       $returnData = array('refreshDue' => false, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
-      return $returnData;
-    } else {
-      $returnData = array('refreshDue' => true, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
-      $update = r\table($tableName)->get($key)->replace(array('cacheTime' => time()))->run($conn);
+      $conn->close();
       return $returnData;
     }
+    $returnData = array('refreshDue' => true, 'statsArray' => $result['data'], 'lastCached' => date('Y-m-d H:i:s', $result['cacheTime']));
+    r\table($tableName)->get($key)->replace(array('cacheTime' => time()))->run($conn);
     $conn->close();
+    return $returnData;
   }
 
   public function setCache($tableName, $key, $data) {
@@ -35,10 +36,12 @@ class RethinkQueries {
     $recordExists = r\table($tableName)->get($key)->run($conn);
     if($recordExists == null) {
       $result = r\table($tableName)->insert($storageArray)->run($conn);
-    } else {
-      $result = r\table($tableName)->get($key)->replace($storageArray)->run($conn);
+      $conn->close();
+      return true;
     }
+    $result = r\table($tableName)->get($key)->replace($storageArray)->run($conn);
     $conn->close();
+    return true;
   }
 
   public function queueTask($jobType, $tableName, $key, $data) {
@@ -159,10 +162,9 @@ class RethinkQueries {
       $endDay = 30;
     }
     if($month == 2) {
+      $endDay = 28;
       if(date('L', strtotime("{$year}-01-01")) === 1) {
         $endDay = 29;
-      } else {
-        $endDay = 28;
       }
     }
     $killExists = r\table('whKills')
@@ -191,9 +193,9 @@ class RethinkQueries {
     return $toEncode;
   }
 
-  public function getShip($id) {
+  public function getShip($shipID) {
     $conn = r\connect('localhost', 28015, 'stats');
-    $killExists = r\table('shipTypes')->get(intval($id))->run($conn);
+    $killExists = r\table('shipTypes')->get(intval($shipID))->run($conn);
     foreach($killExists as $kill) {
       $toEncode[] = $kill;
     }
@@ -208,10 +210,9 @@ class RethinkQueries {
     if($killExists != null) {
       $conn->close();
       return $killExists;
-    } else {
-      $conn->close();
-      return null;
     }
+    $conn->close();
+    return null;
   }
 
   public function getEntityStats($period, $year, $month) {
@@ -220,17 +221,17 @@ class RethinkQueries {
     $killExists = r\table('generatedEntityStats')->get($key)->run($conn);
     if($killExists != null) {
       $toEncode = $killExists;
-      usort($toEncode['stats']['ALL'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
+      usort($toEncode['stats']['ALL'], function($left, $right) {
+        return $right['totalISK'] <=> $left['totalISK'];
       });
-      usort($toEncode['stats']['US'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
+      usort($toEncode['stats']['US'], function($left, $right) {
+        return $right['totalISK'] <=> $left['totalISK'];
       });
-      usort($toEncode['stats']['AU'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
+      usort($toEncode['stats']['AU'], function($left, $right) {
+        return $right['totalISK'] <=> $left['totalISK'];
       });
-      usort($toEncode['stats']['EU'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
+      usort($toEncode['stats']['EU'], function($left, $right) {
+        return $right['totalISK'] <=> $left['totalISK'];
       });
       $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
       $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
@@ -238,21 +239,20 @@ class RethinkQueries {
       $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
       $conn->close();
       return $toEncode;
-    } else {
-      $conn->close();
-      return null;
     }
+    $conn->close();
+    return null;
   }
 
-  public function getEntityStatsMonthByID($id, $year, $month) {
+  public function getEntityStatsMonthByID($entityID, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
     $combinedResults = array();
     $toEncode = array();
-    $type = r\table('entities')->get($id)->run($conn);
+    $type = r\table('entities')->get($entityID)->run($conn);
     if($type == null) {
       $queryType = array('index' => 'attacker_allianceID');
       $entityType = 'allianceID';
-      $entityName = r\table('entities')->getAll($id, array('index' => 'allianceID'))->limit(1)->pluck('allianceName')->run($conn);
+      $entityName = r\table('entities')->getAll($entityID, array('index' => 'allianceID'))->limit(1)->pluck('allianceName')->run($conn);
       $entityName = $entityName->toArray();
       $toEncode['entityName'] = $entityName[0]['allianceName'];
       $toEncode['entityType'] = 'alliance';
@@ -263,17 +263,17 @@ class RethinkQueries {
       $toEncode['entityType'] = 'corporation';
     }
 
-    $combinedResults = r\table('whKills')->getAll($id, $queryType)
+    $combinedResults = r\table('whKills')->getAll($entityID, $queryType)
     ->filter(function($aKill) use(&$year, &$month){
       return $aKill('killTime')->year()->eq($year)
       ->rAnd(
         $aKill('killTime')->month()->eq($month)
       );
     })
-    ->concatMap(function($aKill) use(&$id, &$entityType){
+    ->concatMap(function($aKill) use(&$entityID, &$entityType){
       return $aKill('attackers')
-        ->filter(function($thisAttacker) use(&$id, &$entityType) {
-          return $thisAttacker($entityType)->eq($id);
+        ->filter(function($thisAttacker) use(&$entityID, &$entityType) {
+          return $thisAttacker($entityType)->eq($entityID);
         })
         ->map(function($attacker) use(&$aKill) {
           return array(
@@ -583,19 +583,19 @@ class RethinkQueries {
     return $toEncode;
   }
 
-  public function getPilotStatsMonthByID($id, $year, $month) {
+  public function getPilotStatsMonthByID($pilotID, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
     $combinedResults = array();
     $toEncode = array();
 
-    $combinedResults = r\table('whKills')->getAll($id, array('index' => 'attacker_characterID'))
+    $combinedResults = r\table('whKills')->getAll($pilotID, array('index' => 'attacker_characterID'))
     ->filter(function($aKill) use(&$year, &$month){
       return $aKill('killTime')->year()->eq($year)
       ->rAnd(
         $aKill('killTime')->month()->eq($month)
       );
     })
-    ->concatMap(function($aKill) use(&$id){
+    ->concatMap(function($aKill) use(&$pilotID){
       return $aKill('attackers')
         ->map(function($attacker) use(&$aKill) {
           return array(
@@ -703,7 +703,7 @@ class RethinkQueries {
     return $toEncode;
   }
 
-  public function getSystemStatsID($id) {
+  public function getSystemStatsID($systemID) {
     $conn = r\connect('localhost', 28015, 'stats');
     $killIDArray = array();
     $killTimesArray = array();
@@ -724,7 +724,7 @@ class RethinkQueries {
       'killTimes' => array()
     );
 
-    $systemDetails = r\table('whSystems')->getAll($id, array('index' => 'systemName'))->run($conn);
+    $systemDetails = r\table('whSystems')->getAll($systemID, array('index' => 'systemName'))->run($conn);
     $systemDetails = $systemDetails->toArray();
     if($systemDetails !== null) {
       $systemID = intval($systemDetails[0]['systemID'], 10);

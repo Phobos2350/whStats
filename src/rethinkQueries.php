@@ -244,36 +244,6 @@ class RethinkQueries {
     }
   }
 
-  public function cachePilotStats($period, $year, $month) {
-    $conn = r\connect('localhost', 28015, 'stats');
-    $key = md5(strtoupper('pilotStats_'.$period.'_'.$year.'_'.$month));
-    $killExists = r\table('generatedPilotStats')->get($key)->run($conn);
-    if($killExists != null) {
-      $toEncode = $killExists;
-      usort($toEncode['stats']['ALL'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
-      });
-      usort($toEncode['stats']['US'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
-      });
-      usort($toEncode['stats']['AU'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
-      });
-      usort($toEncode['stats']['EU'], function($a, $b) {
-        return $b['totalISK'] <=> $a['totalISK'];
-      });
-      $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
-      $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
-      $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
-      $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
-      $conn->close();
-      return $toEncode;
-    } else {
-      $conn->close();
-      return null;
-    }
-  }
-
   public function getEntityStatsMonthByID($id, $year, $month) {
     $conn = r\connect('localhost', 28015, 'stats');
     $combinedResults = array();
@@ -731,5 +701,194 @@ class RethinkQueries {
     }
     $conn->close();
     return $toEncode;
+  }
+
+  public function getSystemStatsID($id) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $killIDArray = array();
+    $killTimesArray = array();
+    $toEncode = array(
+      'iskHour' => 0,
+      'isk3Hours' => 0,
+      'iskDay' => 0,
+      'iskMonth' => 0,
+      'pvpKillsHour' => 0,
+      'pvpKills3Hour' => 0,
+      'pvpKillsDay' => 0,
+      'pvpKillsMonth' => 0,
+      'npcKillsHour' => 0,
+      'npcKills3Hour' => 0,
+      'npcKillsDay' => 0,
+      'npcKillsMonth' => 0,
+      'killIDs' => array(),
+      'killTimes' => array()
+    );
+
+    $systemDetails = r\table('whSystems')->getAll($id, array('index' => 'systemName'))->run($conn);
+    $systemDetails = $systemDetails->toArray();
+    if($systemDetails !== null) {
+      $systemID = intval($systemDetails[0]['systemID'], 10);
+      $year = intval(date("Y"),10);
+      $month = intval(date("m"),10);
+      $monthResults = r\table('whKills')->getAll($systemID, array('index' => 'solarSystemID'))
+      ->filter(function($aKill) use(&$year, &$month){
+        return $aKill('killTime')->year()->eq($year)
+        ->rAnd(
+          $aKill('killTime')->month()->eq($month)
+        );
+      })->run($conn);
+      foreach($monthResults as $kill) {
+        $killTime = $kill['killTime']->getTimestamp();
+        array_push($killIDArray, $kill['killID']);
+        array_push($killTimesArray, $kill['killTime']);
+        if($killTime > strtotime('-1 hour')) {
+          $toEncode['iskHour'] += $kill['zkb']['totalValue'];
+          if(count($kill['attackers']) == 1) {
+            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+              $toEncode['npcKillsHour'] += 1;
+            } else {
+              $toEncode['pvpKillsHour'] += 1;
+            }
+          } else {
+            $npcSeen = false;
+            foreach($kill['attackers'] as $attacker) {
+              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+                $npcSeen = true;
+              }
+            }
+            if($npcSeen) {
+              $toEncode['npcKillsHour'] += 1;
+            } else {
+              $toEncode['pvpKillsHour'] += 1;
+            }
+          }
+        }
+        if($killTime > strtotime('-3 hours')) {
+          $toEncode['isk3Hours'] += $kill['zkb']['totalValue'];
+          if(count($kill['attackers']) == 1) {
+            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+              $toEncode['npcKills3Hour'] += 1;
+            } else {
+              $toEncode['pvpKills3Hour'] += 1;
+            }
+          } else {
+            $npcSeen = false;
+            foreach($kill['attackers'] as $attacker) {
+              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+                $npcSeen = true;
+              }
+            }
+            if($npcSeen) {
+              $toEncode['npcKills3Hour'] += 1;
+            } else {
+              $toEncode['pvpKills3Hour'] += 1;
+            }
+          }
+        }
+        if($killTime > strtotime('-1 day')) {
+          $toEncode['iskDay'] += $kill['zkb']['totalValue'];
+          if(count($kill['attackers']) == 1) {
+            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+              $toEncode['npcKillsDay'] += 1;
+            } else {
+              $toEncode['pvpKillsDay'] += 1;
+            }
+          } else {
+            $npcSeen = false;
+            foreach($kill['attackers'] as $attacker) {
+              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+                $npcSeen = true;
+              }
+            }
+            if($npcSeen) {
+              $toEncode['npcKillsDay'] += 1;
+            } else {
+              $toEncode['pvpKillsDay'] += 1;
+            }
+          }
+        }
+        $toEncode['iskMonth'] += $kill['zkb']['totalValue'];
+        if(count($kill['attackers']) == 1) {
+          if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+            $toEncode['npcKillsMonth'] += 1;
+          } else {
+            $toEncode['pvpKillsMonth'] += 1;
+          }
+        } else {
+          $npcSeen = false;
+          foreach($kill['attackers'] as $attacker) {
+            if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+              $npcSeen = true;
+            }
+          }
+          if($npcSeen) {
+            $toEncode['npcKillsMonth'] += 1;
+          } else {
+            $toEncode['pvpKillsMonth'] += 1;
+          }
+        }
+      }
+      $conn->close();
+      $toEncode['killIDs'] = $killIDArray;
+      $toEncode['killTimes'] = $killTimesArray;
+      return $toEncode;
+    }
+    return null;
+  }
+
+  public function getSystemByName($name) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $query = "(?i)^{$name}";
+    $result = r\table('whSystems')->filter(function($system) use (&$query) {
+      return $system('systemName')->match($query);
+    })->run($conn);
+    $systemArray = array();
+    foreach($result as $system) {
+      array_push($systemArray, $system);
+    }
+    $conn->close();
+    return $systemArray;
+  }
+
+  public function getPilotByName($name) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $query = "(?i)^{$name}";
+    $result = r\table('characters')->filter(function($char) use (&$query) {
+      return $char('characterName')->match($query);
+    })->run($conn);
+    $pilotArray = array();
+    foreach($result as $pilot) {
+      array_push($pilotArray, $pilot);
+    }
+    $conn->close();
+    return $pilotArray;
+  }
+
+  public function getAllianceByName($name) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $query = "(?i)^{$name}";
+    $result = r\table('entities')->filter(function($entity) use (&$query) {
+      return $entity('allianceName')->match($query);
+    })->run($conn);
+    $allyArray = array();
+    foreach($result as $entity) {
+      array_push($allyArray, $entity);
+    }
+    $conn->close();
+    return $allyArray;
+  }
+
+  public function getCorpByName($name) {
+    $conn = r\connect('localhost', 28015, 'stats');
+    $query = "(?i)^{$name}";
+    $result = r\table('entities')->filter(function($entity) use (&$query) {
+      return $entity('corporationName')->match($query);
+    })->run($conn);
+    $corpArray = array();
+    foreach($result as $entity) {
+      array_push($corpArray, $entity);
+    }
+    $conn->close();
+    return $corpArray;
   }
 }

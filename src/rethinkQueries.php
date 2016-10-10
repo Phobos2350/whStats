@@ -608,79 +608,44 @@ class RethinkQueries {
         );
       })->run($conn);
       foreach($monthResults as $kill) {
+        $npcSeen = false;
         $killTime = $kill['killTime']->getTimestamp();
         array_push($killIDArray, $kill['killID']);
         array_push($killTimesArray, $kill['killTime']);
         if($killTime > strtotime('-1 hour')) {
           $toEncode['iskHour'] += $kill['zkb']['totalValue'];
-          if(count($kill['attackers']) == 1) {
-            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-              $toEncode['npcKillsHour'] += 1;
-            } else {
-              $toEncode['pvpKillsHour'] += 1;
-            }
-          } else {
-            $npcSeen = false;
-            foreach($kill['attackers'] as $attacker) {
-              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
-                $npcSeen = true;
-              }
-            }
-            $npcSeen ? $toEncode['npcKillsHour'] += 1 : $toEncode['pvpKillsHour'] += 1;
-          }
-        }
-        if($killTime > strtotime('-3 hours')) {
-          $toEncode['isk3Hours'] += $kill['zkb']['totalValue'];
-          if(count($kill['attackers']) == 1) {
-            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-              $toEncode['npcKills3Hour'] += 1;
-            } else {
-              $toEncode['pvpKills3Hour'] += 1;
-            }
-          } else {
-            $npcSeen = false;
-            foreach($kill['attackers'] as $attacker) {
-              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
-                $npcSeen = true;
-              }
-            }
-            $npcSeen ? $toEncode['npcKills3Hour'] += 1 : $toEncode['pvpKills3Hour'] += 1;
-          }
-        }
-        if($killTime > strtotime('-1 day')) {
-          $toEncode['iskDay'] += $kill['zkb']['totalValue'];
-          if(count($kill['attackers']) == 1) {
-            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-              $toEncode['npcKillsDay'] += 1;
-            } else {
-              $toEncode['pvpKillsDay'] += 1;
-            }
-          } else {
-            $npcSeen = false;
-            foreach($kill['attackers'] as $attacker) {
-              if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
-                $npcSeen = true;
-              }
-            }
-            $npcSeen ? $toEncode['npcKillsDay'] += 1 : $toEncode['pvpKillsDay'] += 1;
-          }
-        }
-        $toEncode['iskMonth'] += $kill['zkb']['totalValue'];
-        if(count($kill['attackers']) == 1) {
-          if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-            $toEncode['npcKillsMonth'] += 1;
-          } else {
-            $toEncode['pvpKillsMonth'] += 1;
-          }
-        } else {
-          $npcSeen = false;
           foreach($kill['attackers'] as $attacker) {
             if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
               $npcSeen = true;
             }
           }
-          $npcSeen ? $toEncode['npcKillsMonth'] += 1 : $toEncode['pvpKillsMonth'] += 1;
+          $npcSeen ? $toEncode['npcKillsHour'] += 1 : $toEncode['pvpKillsHour'] += 1;
         }
+        if($killTime > strtotime('-3 hours')) {
+          $toEncode['isk3Hours'] += $kill['zkb']['totalValue'];
+          foreach($kill['attackers'] as $attacker) {
+            if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+              $npcSeen = true;
+            }
+          }
+          $npcSeen ? $toEncode['npcKills3Hour'] += 1 : $toEncode['pvpKills3Hour'] += 1;
+        }
+        if($killTime > strtotime('-1 day')) {
+          $toEncode['iskDay'] += $kill['zkb']['totalValue'];
+          foreach($kill['attackers'] as $attacker) {
+            if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+              $npcSeen = true;
+            }
+          }
+          $npcSeen ? $toEncode['npcKillsDay'] += 1 : $toEncode['pvpKillsDay'] += 1;
+        }
+        $toEncode['iskMonth'] += $kill['zkb']['totalValue'];
+        foreach($kill['attackers'] as $attacker) {
+          if($attacker['factionName'] == "Unknown" || $attacker['factionName'] == "Drifters" || $attacker['factionName'] == "Serpentis") {
+            $npcSeen = true;
+          }
+        }
+        $npcSeen ? $toEncode['npcKillsMonth'] += 1 : $toEncode['pvpKillsMonth'] += 1;
       }
       $conn->close();
       $toEncode['killIDs'] = $killIDArray;

@@ -287,7 +287,6 @@ class GenerateStats {
         }
       }
       $pageQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, $page);
-
       $killsArray = $pageQuery['kills'];
 
       foreach ($killsArray as $kill) {
@@ -629,13 +628,9 @@ class GenerateStats {
         ->run($conn);
 
         $combinedResults = array_merge_recursive($combinedResults, $blockResults);
-        if(count($blockResults) >= 1) {
-          $page++;
-        } else {
-          $continue = false;
-        }
+        count($blockResults) >= 1 ? $page++ : $continue = false;
       }
-    } else {
+    } elseif($period == "month") {
       $endDay = intval(date("t", mktime(0,0,0,$month,1,$year)), 10);
       while($continue) {
         $blockResults = r\table('whKills')
@@ -689,11 +684,7 @@ class GenerateStats {
         ->run($conn);
 
         $combinedResults = array_merge_recursive($combinedResults, $blockResults);
-        if(count($blockResults) >= 1) {
-          $page++;
-        } else {
-          $continue = false;
-        }
+        count($blockResults) >= 1 ? $page++ : $continue = false;
       }
     }
 

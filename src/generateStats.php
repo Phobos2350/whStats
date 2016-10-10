@@ -13,6 +13,19 @@ class GenerateStats {
       "day" => 86400,
       "week" => 604800
     );
+    $this->classArray = array(
+      0 => 0,
+      30 => 7,
+      31 => 8,
+      32 => 8,
+      33 => 8,
+      34 => 8,
+      35 => 8,
+      36 => 8,
+      41 => 9,
+      42 => 9,
+      43 => 9
+    );
   }
 
   public function formatValue($num) {
@@ -23,18 +36,10 @@ class GenerateStats {
   }
 
   public function getClass($class) {
-    if ($class == 30) {
-        return $class = 7;
+    if($class > 0 && $class < 7) {
+      return $class;
     }
-    // Shattereds
-    if ($class == 31 || $class == 32 || $class == 33 || $class == 34 || $class == 35 || $class == 36) {
-        return $class = 8;
-    }
-    // Frig Holes
-    if ($class == 41 || $class == 42 || $class == 43) {
-        return $class = 9;
-    }
-    return $class;
+    return $this->classArray[$class];
   }
 
   public function listenForChanges() {

@@ -110,13 +110,6 @@ function changePeriod (period) {
   })
 }
 
-function getNum (val) {
-  if (isNaN(val) || val == null) {
-    return 0
-  }
-  return val
-}
-
 function updateStats (data) {
   $('.lastCached').text(data['lastCached'])
   data = data['statsArray']
@@ -399,6 +392,5 @@ function updateCharts (data) {
     }
   }
   ctxBreakdowns = new Chart($('#chartBreakdowns'), dataBreakdowns)
-
   renderedOnce = 1
 }

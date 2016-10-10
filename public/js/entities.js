@@ -223,10 +223,6 @@ function changePeriod (tz, period) {
   }
 }
 
-function pad (n) {
-  return n < 10 ? '0' + n : n
-}
-
 function updateTable (data) {
   $('.lastCached').text(data['lastCached'])
   data = data['statsArray']['stats'][setTz.toUpperCase()]

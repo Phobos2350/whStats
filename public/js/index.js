@@ -36,6 +36,36 @@ $('.info-text').click(function () {
   $('#modal2').openModal()
 })
 
+setInterval(function () {
+  if (refresh) {
+    $('#refreshText').text('Retrieving new kills... ')
+    $('#countdown').text('Standby')
+    changePeriod(setPeriod)
+    refresh = false
+    seconds = refreshPeriod
+  } else {
+    var thisDate = new Date()
+    $('#refreshText').text('Time until next refresh ')
+    if (setPeriod === 'hour') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 2) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    } else if (setPeriod === 'day') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 5) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    } else if (setPeriod === 'week') {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 15) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    } else {
+      seconds = (refreshPeriod - ((thisDate.getMinutes() % 30) * 60)) - (thisDate.getSeconds() % 60)
+      $('#countdown').text(fmtMSS(seconds))
+      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
+    }
+  }
+}, 1000)
+
 $('.periodLinks').click(function () {
   setPeriod = $(this).text().toLowerCase()
   $('.periodLinks').parent().removeClass('active')
@@ -152,39 +182,6 @@ $('.nextMonth').click(function () {
   }
 })
 
-setInterval(function () {
-  if (refresh) {
-    $('#refreshText').text('Retrieving new kills... ')
-    $('#countdown').text('Standby')
-    changePeriod(setPeriod)
-    refresh = false
-    seconds = refreshPeriod
-  } else {
-    var thisDate = new Date()
-    $('#refreshText').text('Time until next refresh ')
-    if (setPeriod === 'hour') {
-      seconds = (refreshPeriod - ((thisDate.getMinutes() % 2) * 60)) - (thisDate.getSeconds() % 60)
-      $('#countdown').text(fmtMSS(seconds))
-      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
-    }
-    if (setPeriod === 'day') {
-      seconds = (refreshPeriod - ((thisDate.getMinutes() % 5) * 60)) - (thisDate.getSeconds() % 60)
-      $('#countdown').text(fmtMSS(seconds))
-      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
-    }
-    if (setPeriod === 'week') {
-      seconds  = (refreshPeriod - ((thisDate.getMinutes() % 15) * 60)) - (thisDate.getSeconds() % 60)
-      $('#countdown').text(fmtMSS(seconds))
-      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
-    }
-    if (setPeriod === 'month') {
-      seconds = (refreshPeriod - ((thisDate.getMinutes() % 30) * 60)) - (thisDate.getSeconds() % 60)
-      $('#countdown').text(fmtMSS(seconds))
-      parseInt(seconds, 10) === 1 ? refresh = true : refresh = false
-    }
-  }
-}, 1000)
-
 function changePeriod (period) {
   $('#modal1').openModal()
   $.getJSON('./api/rethink/stats/' + period + '/', function (json) {
@@ -197,29 +194,6 @@ function changePeriod (period) {
     console.log(error)
     window.location.replace('./api/rethink/stats/' + period + '/')
   })
-}
-
-function pad (n) {
-  return n < 10 ? '0' + n : n
-}
-
-function getNum (val) {
-  if (isNaN(val) || val === null) {
-    return 0
-  }
-  return val
-}
-
-function fmtMSS (s) {
-  return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s
-}
-
-function truncateString (str, length) {
-  if (str !== null) {
-    return str.length > length ? str.substring(0, length - 3) + '...' : str
-  } else {
-    return '...'
-  }
 }
 
 function updateStats (data) {

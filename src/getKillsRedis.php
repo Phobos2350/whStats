@@ -17,7 +17,6 @@ function getKills()
     $continue = true;
     $killID = 0;
     $url = "http://redisq.zkillboard.com/listen.php";
-    // Connect to localhost
     $conn = r\connect('localhost', 28015, 'stats');
 
     printf("\n\n---------------------------------------------------------------------------------------------------------\n");
@@ -26,7 +25,6 @@ function getKills()
 
     while ($continue) {
         $currentTime = date('Y-m-d H:i:s', time());
-        //printf("Time {$currentTime}\n");
         $json = null;
         $output = null;
 
@@ -41,7 +39,6 @@ function getKills()
         $output = $json;
 
         if ($output["package"] !== null) {
-            //printf("Kills found, analysing...\n");
             $package = $output["package"];
             $kill = $package["killmail"];
             $killID = $kill["killID"];
@@ -105,7 +102,8 @@ function getKills()
                   'characterID' => $victimID,
                   'characterName' => $victimName,
                   'corporationID' => $victimCorpID,
-                  'corporationName' => $victimCorpName
+                  'corporationName' => $victimCorpName,
+                  'lastActive' => $kill["killTime"]
                 ), array('conflict' => 'replace'))->run($conn);
               } else {
                 $result = r\table("characters")->get($victimID)->update(array(
@@ -114,7 +112,8 @@ function getKills()
                   'characterID' => $victimID,
                   'characterName' => $victimName,
                   'corporationID' => $victimCorpID,
-                  'corporationName' => $victimCorpName
+                  'corporationName' => $victimCorpName,
+                  'lastActive' => $kill["killTime"]
                 ))->run($conn);
               }
 
@@ -124,14 +123,16 @@ function getKills()
                     'allianceID' => $victimAllianceID,
                     'allianceName' => $victimAllianceName,
                     'corporationID' => $victimCorpID,
-                    'corporationName' => $victimCorpName
+                    'corporationName' => $victimCorpName,
+                    'lastActive' => $kill["killTime"]
                   ), array('conflict' => 'replace'))->run($conn);
               } else {
                 $result = r\table("entities")->get($victimCorpID)->update(array(
                     'allianceID' => $victimAllianceID,
                     'allianceName' => $victimAllianceName,
                     'corporationID' => $victimCorpID,
-                    'corporationName' => $victimCorpName
+                    'corporationName' => $victimCorpName,
+                    'lastActive' => $kill["killTime"]
                   ))->run($conn);
               }
 
@@ -176,7 +177,8 @@ function getKills()
                       'characterID' => $attackerID,
                       'characterName' => $attackerName,
                       'corporationID' => $attackerCorpID,
-                      'corporationName' => $attackerCorpName
+                      'corporationName' => $attackerCorpName,
+                      'lastActive' => $kill["killTime"]
                     ), array('conflict' => 'replace'))->run($conn);
                   } else {
                     $result = r\table("characters")->get($attackerID)->update(array(
@@ -185,7 +187,8 @@ function getKills()
                       'characterID' => $attackerID,
                       'characterName' => $attackerName,
                       'corporationID' => $attackerCorpID,
-                      'corporationName' => $attackerCorpName
+                      'corporationName' => $attackerCorpName,
+                      'lastActive' => $kill["killTime"]
                     ))->run($conn);
                   }
                 }
@@ -226,7 +229,6 @@ function getKills()
               $result = r\table("whKills")->insert($killFormatted)->run($conn);
               echo "Insert result: {$killID}\n";
             } else {
-              //printf("Not a WH...\n");
               continue;
             }
         }

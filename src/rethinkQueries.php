@@ -6,7 +6,6 @@ date_default_timezone_set('Etc/GMT');
 
 class RethinkQueries {
 
-
   public function getKills($limit, $period, $year, $month, $page) {
     $conn = r\connect('localhost', 28015, 'stats');
     $subVal = 0;
@@ -49,44 +48,41 @@ class RethinkQueries {
       }
       $conn->close();
       return $toEncode;
-    } elseif($period == "month") {
-      $endDay = 31;
-      if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-        $endDay = 30;
+    }
+    $endDay = 31;
+    if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
+      $endDay = 30;
+    }
+    if($month == 2) {
+      $endDay = 28;
+      if(date('L', strtotime("{$year}-01-01")) === 1) {
+        $endDay = 29;
       }
-      if($month == 2) {
-        $endDay = 28;
-        if(date('L', strtotime("{$year}-01-01")) === 1) {
-          $endDay = 29;
-        }
-      }
-      $killExists = r\table('whKills')
-      ->between(
-        r\time($year, $month, 1, 0, 0, 0, 'Z'),
-        r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
-        array('index' => 'killTime')
-      )
-      ->skip($limit * $page)
-      ->limit($limit)
-      ->run($conn);
-      $count = r\table('whKills')
-      ->between(
-        r\time($year, $month, 1, 0, 0, 0, 'Z'),
-        r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
-        array('index' => 'killTime')
-      )
-      ->count()
-      ->run($conn);
-      $toEncode['totalKills'] = $count;
-      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-      foreach($killExists as $kill) {
-        $toEncode['kills'][] = $kill;
-      }
-      $conn->close();
-      return $toEncode;
+    }
+    $killExists = r\table('whKills')
+    ->between(
+      r\time($year, $month, 1, 0, 0, 0, 'Z'),
+      r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
+      array('index' => 'killTime')
+    )
+    ->skip($limit * $page)
+    ->limit($limit)
+    ->run($conn);
+    $count = r\table('whKills')
+    ->between(
+      r\time($year, $month, 1, 0, 0, 0, 'Z'),
+      r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
+      array('index' => 'killTime')
+    )
+    ->count()
+    ->run($conn);
+    $toEncode['totalKills'] = $count;
+    $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
+    foreach($killExists as $kill) {
+      $toEncode['kills'][] = $kill;
     }
     $conn->close();
-    return null;
+    return $toEncode;
   }
 
   public function getShip($shipID) {
@@ -153,6 +149,10 @@ class RethinkQueries {
     $combinedResults = array();
     $toEncode = array();
     $type = r\table('entities')->get($entityID)->run($conn);
+    $queryType = array('index' => 'attacker_corporationID');
+    $entityType = 'corporationID';
+    $toEncode['entityName'] = $type['corporationName'];
+    $toEncode['entityType'] = 'corporation';
     if($type == null) {
       $queryType = array('index' => 'attacker_allianceID');
       $entityType = 'allianceID';
@@ -160,11 +160,6 @@ class RethinkQueries {
       $entityName = $entityName->toArray();
       $toEncode['entityName'] = $entityName[0]['allianceName'];
       $toEncode['entityType'] = 'alliance';
-    } else {
-      $queryType = array('index' => 'attacker_corporationID');
-      $entityType = 'corporationID';
-      $toEncode['entityName'] = $type['corporationName'];
-      $toEncode['entityType'] = 'corporation';
     }
 
     $combinedResults = r\table('whKills')->getAll($entityID, $queryType)
@@ -391,14 +386,8 @@ class RethinkQueries {
               foreach($flownShips as $ship) {
                 $shipName = strval($ship['shipTypeID']);
                 $shipType = $ship['shipType'];
-                if(!array_key_exists($shipName, $returnArray[$mainCharID])){
-                  $returnArray[$mainCharID]['shipsFlown'][$shipName] = $ship['reduction'];
-                  $returnArray[$mainCharID]['shipTypes'][$shipType] = $ship['reduction'];
-                }
-                else {
-                  $returnArray[$mainCharID]['shipsFlown'][$shipName] += $ship['reduction'];
-                  $returnArray[$mainCharID]['shipTypes'][$shipType] += $ship['reduction'];
-                }
+                !array_key_exists($shipName, $returnArray[$mainCharID]) ? $returnArray[$mainCharID]['shipsFlown'][$shipName] = $ship['reduction'] : $returnArray[$mainCharID]['shipsFlown'][$shipName] += $ship['reduction'];
+                !array_key_exists($shipName, $returnArray[$mainCharID]) ? $returnArray[$mainCharID]['shipTypes'][$shipType] = $ship['reduction'] : $returnArray[$mainCharID]['shipTypes'][$shipType] += $ship['reduction'];
               }
               $returnArray[$mainCharID]['reduction'] += $kill['reduction'];
             }
@@ -437,17 +426,9 @@ class RethinkQueries {
         foreach($flownShips as $ship) {
           $shipName = $ship['shipTypeID'];
           $shipType = $ship['shipType'];
-          if(!array_key_exists($shipName, $returnArray[$kill['characterID']])){
-            $returnArray[$kill['characterID']]['shipsFlown'][$shipName] = $ship['reduction'];
-            $returnArray[$kill['characterID']]['shipTypes'][$shipType] = $ship['reduction'];
-          }
-          else {
-            $returnArray[$kill['characterID']]['shipsFlown'][$shipName] += $ship['reduction'];
-            $returnArray[$kill['characterID']]['shipTypes'][$shipType] += $ship['reduction'];
-
-          }
+          !array_key_exists($shipName, $returnArray[$kill['characterID']]) ? $returnArray[$kill['characterID']]['shipsFlown'][$shipName] = $ship['reduction'] : $returnArray[$kill['characterID']]['shipsFlown'][$shipName] += $ship['reduction'];
+          !array_key_exists($shipName, $returnArray[$kill['characterID']]) ? $returnArray[$kill['characterID']]['shipTypes'][$shipType] = $ship['reduction'] : $returnArray[$kill['characterID']]['shipTypes'][$shipType] += $ship['reduction'];
         }
-        //$returnArray[] = $kill;
       }
     }
     usort($returnArray, function ($item1, $item2) {
@@ -660,11 +641,7 @@ class RethinkQueries {
                 $npcSeen = true;
               }
             }
-            if($npcSeen) {
-              $toEncode['npcKillsHour'] += 1;
-            } else {
-              $toEncode['pvpKillsHour'] += 1;
-            }
+            $npcSeen ? $toEncode['npcKillsHour'] += 1 : $toEncode['pvpKillsHour'] += 1;
           }
         }
         if($killTime > strtotime('-3 hours')) {
@@ -682,11 +659,7 @@ class RethinkQueries {
                 $npcSeen = true;
               }
             }
-            if($npcSeen) {
-              $toEncode['npcKills3Hour'] += 1;
-            } else {
-              $toEncode['pvpKills3Hour'] += 1;
-            }
+            $npcSeen ? $toEncode['npcKills3Hour'] += 1 : $toEncode['pvpKills3Hour'] += 1;
           }
         }
         if($killTime > strtotime('-1 day')) {
@@ -704,11 +677,7 @@ class RethinkQueries {
                 $npcSeen = true;
               }
             }
-            if($npcSeen) {
-              $toEncode['npcKillsDay'] += 1;
-            } else {
-              $toEncode['pvpKillsDay'] += 1;
-            }
+            $npcSeen ? $toEncode['npcKillsDay'] += 1 : $toEncode['pvpKillsDay'] += 1;
           }
         }
         $toEncode['iskMonth'] += $kill['zkb']['totalValue'];
@@ -725,11 +694,7 @@ class RethinkQueries {
               $npcSeen = true;
             }
           }
-          if($npcSeen) {
-            $toEncode['npcKillsMonth'] += 1;
-          } else {
-            $toEncode['pvpKillsMonth'] += 1;
-          }
+          $npcSeen ? $toEncode['npcKillsMonth'] += 1 : $toEncode['pvpKillsMonth'] += 1;
         }
       }
       $conn->close();

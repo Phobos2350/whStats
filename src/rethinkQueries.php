@@ -65,89 +65,45 @@ class RethinkQueries {
 
   public function getPeriodKills($limit, $period, $page) {
     $conn = r\connect('localhost', 28015, 'stats');
+    $subVal = 0;
     $page -= 1;
     if($page < 0) {
       $conn->close();
       return "Please Enter a Valid Page Value of 1 or Greater";
     }
     if ($period == "hour") {
-      $killExists = r\table('whKills')
-      ->between(
-        r\now()->sub(3600),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->skip($limit * $page)
-      ->limit($limit)
-      ->run($conn);
-      $count = r\table('whKills')
-      ->between(
-        r\now()->sub(3600),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->count()
-      ->run($conn);
-      $toEncode['totalKills'] = $count;
-      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-      foreach($killExists as $kill) {
-        $toEncode['kills'][] = $kill;
-      }
-      $conn->close();
-      return $toEncode;
+      $subVal = 3600;
     }
     if ($period == "day") {
-      $killExists = r\table('whKills')
-      ->between(
-        r\now()->sub(86400),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->skip($limit * $page)
-      ->limit($limit)
-      ->run($conn);
-      $count = r\table('whKills')
-      ->between(
-        r\now()->sub(86400),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->count()
-      ->run($conn);
-      $toEncode['totalKills'] = $count;
-      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-      foreach($killExists as $kill) {
-        $toEncode['kills'][] = $kill;
-      }
-      $conn->close();
-      return $toEncode;
+      $subVal = 86400;
     }
     if ($period == "week") {
-      $killExists = r\table('whKills')
-      ->between(
-        r\now()->sub(604800),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->skip($limit * $page)
-      ->limit($limit)
-      ->run($conn);
-      $count = r\table('whKills')
-      ->between(
-        r\now()->sub(604800),
-        r\now(),
-        array('index' => 'killTime')
-      )
-      ->count()
-      ->run($conn);
-      $toEncode['totalKills'] = $count;
-      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-      foreach($killExists as $kill) {
-        $toEncode['kills'][] = $kill;
-      }
-      $conn->close();
-      return $toEncode;
+      $subVal = 604800;
     }
+    $killExists = r\table('whKills')
+    ->between(
+      r\now()->sub($subVal),
+      r\now(),
+      array('index' => 'killTime')
+    )
+    ->skip($limit * $page)
+    ->limit($limit)
+    ->run($conn);
+    $count = r\table('whKills')
+    ->between(
+      r\now()->sub($subVal),
+      r\now(),
+      array('index' => 'killTime')
+    )
+    ->count()
+    ->run($conn);
+    $toEncode['totalKills'] = $count;
+    $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
+    foreach($killExists as $kill) {
+      $toEncode['kills'][] = $kill;
+    }
+    $conn->close();
+    return $toEncode;
   }
 
   public function getMonthKills($limit, $year, $month, $page) {
@@ -322,23 +278,23 @@ class RethinkQueries {
       $toEncode['US']['c'.$i.'Kills'] = 0;
       $toEncode['AU']['c'.$i.'Kills'] = 0;
       $toEncode['EU']['c'.$i.'Kills'] = 0;
-      $toEncode['ALL']['totalKills'] = 0;
-      $toEncode['US']['totalKills'] = 0;
-      $toEncode['AU']['totalKills'] = 0;
-      $toEncode['EU']['totalKills'] = 0;
-      $toEncode['ALL']['totalISK'] = 0;
-      $toEncode['US']['totalISK'] = 0;
-      $toEncode['AU']['totalISK'] = 0;
-      $toEncode['EU']['totalISK'] = 0;
-      $toEncode['ALL']['shipsUsed'] = array();
-      $toEncode['US']['shipsUsed'] = array();
-      $toEncode['AU']['shipsUsed'] = array();
-      $toEncode['EU']['shipsUsed'] = array();
-      $toEncode['ALL']['totalPilotsOnKills'] = 0;
-      $toEncode['US']['totalPilotsOnKills'] = 0;
-      $toEncode['AU']['totalPilotsOnKills'] = 0;
-      $toEncode['EU']['totalPilotsOnKills'] = 0;
     }
+    $toEncode['ALL']['totalKills'] = 0;
+    $toEncode['US']['totalKills'] = 0;
+    $toEncode['AU']['totalKills'] = 0;
+    $toEncode['EU']['totalKills'] = 0;
+    $toEncode['ALL']['totalISK'] = 0;
+    $toEncode['US']['totalISK'] = 0;
+    $toEncode['AU']['totalISK'] = 0;
+    $toEncode['EU']['totalISK'] = 0;
+    $toEncode['ALL']['shipsUsed'] = array();
+    $toEncode['US']['shipsUsed'] = array();
+    $toEncode['AU']['shipsUsed'] = array();
+    $toEncode['EU']['shipsUsed'] = array();
+    $toEncode['ALL']['totalPilotsOnKills'] = 0;
+    $toEncode['US']['totalPilotsOnKills'] = 0;
+    $toEncode['AU']['totalPilotsOnKills'] = 0;
+    $toEncode['EU']['totalPilotsOnKills'] = 0;
 
     foreach($combinedResults as $kill) {
       $killTime = $kill['killTime']->getTimestamp();
@@ -642,19 +598,19 @@ class RethinkQueries {
       $toEncode['US']['c'.$i.'Kills'] = 0;
       $toEncode['AU']['c'.$i.'Kills'] = 0;
       $toEncode['EU']['c'.$i.'Kills'] = 0;
-      $toEncode['ALL']['totalKills'] = 0;
-      $toEncode['US']['totalKills'] = 0;
-      $toEncode['AU']['totalKills'] = 0;
-      $toEncode['EU']['totalKills'] = 0;
-      $toEncode['ALL']['totalISK'] = 0;
-      $toEncode['US']['totalISK'] = 0;
-      $toEncode['AU']['totalISK'] = 0;
-      $toEncode['EU']['totalISK'] = 0;
-      $toEncode['ALL']['shipsUsed'] = array();
-      $toEncode['US']['shipsUsed'] = array();
-      $toEncode['AU']['shipsUsed'] = array();
-      $toEncode['EU']['shipsUsed'] = array();
     }
+    $toEncode['ALL']['totalKills'] = 0;
+    $toEncode['US']['totalKills'] = 0;
+    $toEncode['AU']['totalKills'] = 0;
+    $toEncode['EU']['totalKills'] = 0;
+    $toEncode['ALL']['totalISK'] = 0;
+    $toEncode['US']['totalISK'] = 0;
+    $toEncode['AU']['totalISK'] = 0;
+    $toEncode['EU']['totalISK'] = 0;
+    $toEncode['ALL']['shipsUsed'] = array();
+    $toEncode['US']['shipsUsed'] = array();
+    $toEncode['AU']['shipsUsed'] = array();
+    $toEncode['EU']['shipsUsed'] = array();
 
     foreach($combinedResults as $kill) {
       $killTime = $kill['killTime']->getTimestamp();

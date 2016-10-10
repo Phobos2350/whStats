@@ -16,6 +16,21 @@ class GenerateStats {
     return ceil(($num/1000000));
   }
 
+  public function getClass($class) {
+    if ($class == 30) {
+        return $class = 7;
+    }
+    // Shattereds
+    if ($class == 31 || $class == 32 || $class == 33 || $class == 34 || $class == 35 || $class == 36) {
+        return $class = 8;
+    }
+    // Frig Holes
+    if ($class == 41 || $class == 42 || $class == 43) {
+        return $class = 9;
+    }
+    return $class;
+  }
+
   public function listenForChanges() {
     $conn = r\connect('localhost', 28015, 'stats');
     $feed = r\table('whKills')->changes()->run($conn);
@@ -99,37 +114,37 @@ class GenerateStats {
   }
 
   public function populateTables() {
-    $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genStats', '', '', $data);
-    $data = array('period' => 'day', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genStats', '', '', $data);
-    $data = array('period' => 'week', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genStats', '', '', $data);
-
-    $key = md5(strtoupper('entityStats_hour_0_0'));
-    $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
-    $key = md5(strtoupper('entityStats_day_0_0'));
-    $data = array('period' => 'day', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
-    $key = md5(strtoupper('entityStats_week_0_0'));
-    $data = array('period' => 'week', 'year' => 0, 'month' => 0);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
-
-    $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $key = md5(strtoupper('entityStats_month_2016_10'));
-    $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
-
-    $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $key = md5(strtoupper('entityStats_month_2016_9'));
-    $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $data = array('period' => 'day', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $data = array('period' => 'week', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    //
+    // $key = md5(strtoupper('entityStats_hour_0_0'));
+    // $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $key = md5(strtoupper('entityStats_day_0_0'));
+    // $data = array('period' => 'day', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $key = md5(strtoupper('entityStats_week_0_0'));
+    // $data = array('period' => 'week', 'year' => 0, 'month' => 0);
+    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    //
+    // $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
+    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $key = md5(strtoupper('entityStats_month_2016_10'));
+    // $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
+    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    //
+    // $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
+    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $key = md5(strtoupper('entityStats_month_2016_9'));
+    // $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
+    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 8);
     // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
@@ -266,25 +281,11 @@ class GenerateStats {
       foreach ($killsArray as $kill) {
         $system = r\table('whSystems')->get($kill['solarSystemID'])->run($conn);
         $time = date("H00", $kill['killTime']->getTimestamp());
-        $class = $system['class'];
-        // Thera
-        if ($class == 30) {
-            $class = 7;
-        }
-        // Shattereds
-        if ($class == 31 || $class == 32 || $class == 33 || $class == 34 || $class == 35 || $class == 36) {
-            $class = 8;
-        }
-        // Frig Holes
-        if ($class == 41 || $class == 42 || $class == 43) {
-            $class = 9;
-        }
-
+        $class = $this->getClass($system['class']);
         if ($class == 0 || $class == null) {
             continue;
         }
         $ship = r\table('shipTypes')->get(intval($kill["victim"]["shipTypeID"], 10))->run($conn);
-        //$itemsArray = $kill["items"];
         if(!isset($statsArray[$class]['class'])) { $statsArray[$class]['class'] = $class; };
         !isset($statsArray[$class]['totalKills']) ? $statsArray[$class]['totalKills'] = 1 : $statsArray[$class]['totalKills'] += 1;
         if($ship['shipType'] == "Dreadnoughts" || $ship['shipType'] == "Carriers" || $ship['shipType'] == "Force Auxiliary" || $ship['shipType'] == "Capital Industrial Ships") {
@@ -374,35 +375,13 @@ class GenerateStats {
             }
           }
         }
-
         !isset($statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']]) ? $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] = 1 : $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] += 1;
         !isset($statsArray[$class]['kills']['typeNames'][$ship['shipType']]) ? $statsArray[$class]['kills']['typeNames'][$ship['shipType']] = 1 : $statsArray[$class]['kills']['typeNames'][$ship['shipType']] += 1;
         !isset($statsArray[$class]['kills']['shipNames'][$ship['shipName']]) ? $statsArray[$class]['kills']['shipNames'][$ship['shipName']] = 1 : $statsArray[$class]['kills']['shipNames'][$ship['shipName']] += 1;
         !isset($statsArray[$class]['kills']['shipRaces'][$ship['shipRace']]) ? $statsArray[$class]['kills']['shipRaces'][$ship['shipRace']] = 1 : $statsArray[$class]['kills']['shipRaces'][$ship['shipRace']] += 1;
         !isset($statsArray[$class]['kills']['shipTechs'][$ship['shipTech']]) ? $statsArray[$class]['kills']['shipTechs'][$ship['shipTech']] = 1 : $statsArray[$class]['kills']['shipTechs'][$ship['shipTech']] += 1;
-
-        // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['systemID']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'] = $system['systemID'] : $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'];
-        // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['systemName']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['systemName'] = $system['systemName'] : $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'];
-        // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['totalKills']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['totalKills'] = 1 : $statsArray[$class]['activeSystems'][$system['systemID']]['totalKills'] += 1;
-
         !isset($statsArray[$class]['period'][$time]) ? $statsArray[$class]['period'][$time] = 1 : $statsArray[$class]['period'][$time] += 1;
-
-        // foreach($itemsArray as $item) {
-        //   !isset($statsArray[$class]['items'][$item['typeID']]) ? $statsArray[$class]['items'][$item['typeID']] = ($item["qtyDestroyed"] + $item["qtyDropped"]) : $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] += ($item["qtyDestroyed"] + $item["qtyDropped"]);
-        // }
       }
-      // foreach($statsArray as $classStats) {
-      //   $classID = $classStats['class'];
-      //   $topSystemKills = 0;
-      //   $topSystemID = null;
-      //   foreach($classStats['activeSystems'] as $activeSystem) {
-      //     if($activeSystem['totalKills'] > $topSystemKills) {
-      //       $topSystemKills = $activeSystem['totalKills'];
-      //       $topSystemID = $activeSystem['systemID'];
-      //     }
-      //   }
-      //   !isset($statsArray[$classID]['topSystem']) ? $statsArray[$classID]['topSystem'] = $topSystemID : $statsArray[$classID]['topSystem'] = $topSystemID;
-      // }
     }
     $record = array('key' => $key, 'stats' => $statsArray);
     $documentExists = r\table('generatedStats')->get($key)->run($conn);
@@ -463,25 +442,11 @@ class GenerateStats {
 
     $system = r\table('whSystems')->get($kill['solarSystemID'])->run($conn);
     $time = date("H00", strtotime($kill['killTime']['date']));
-    $class = $system['class'];
-    // Thera
-    if ($class == 30) {
-        $class = 7;
-    }
-    // Shattereds
-    if ($class == 31 || $class == 32 || $class == 33 || $class == 34 || $class == 35 || $class == 36) {
-        $class = 8;
-    }
-    // Frig Holes
-    if ($class == 41 || $class == 42 || $class == 43) {
-        $class = 9;
-    }
-
+    $class = $this->getClass($system['class']);
     if ($class == 0 || $class == null) {
         return null;
     }
     $ship = r\table('shipTypes')->get(intval($kill["victim"]["shipTypeID"], 10))->run($conn);
-    //$itemsArray = $kill["items"];
     if(!isset($statsArray[$class]['class'])) { $statsArray[$class]['class'] = $class; };
     !isset($statsArray[$class]['totalKills']) ? $statsArray[$class]['totalKills'] = 1 : $statsArray[$class]['totalKills'] += 1;
     if($ship['shipType'] == "Dreadnoughts" || $ship['shipType'] == "Carriers" || $ship['shipType'] == "Force Auxiliary" || $ship['shipType'] == "Capital Industrial Ships") {
@@ -577,28 +542,7 @@ class GenerateStats {
     !isset($statsArray[$class]['kills']['shipNames'][$ship['shipName']]) ? $statsArray[$class]['kills']['shipNames'][$ship['shipName']] = 1 : $statsArray[$class]['kills']['shipNames'][$ship['shipName']] += 1;
     !isset($statsArray[$class]['kills']['shipRaces'][$ship['shipRace']]) ? $statsArray[$class]['kills']['shipRaces'][$ship['shipRace']] = 1 : $statsArray[$class]['kills']['shipRaces'][$ship['shipRace']] += 1;
     !isset($statsArray[$class]['kills']['shipTechs'][$ship['shipTech']]) ? $statsArray[$class]['kills']['shipTechs'][$ship['shipTech']] = 1 : $statsArray[$class]['kills']['shipTechs'][$ship['shipTech']] += 1;
-
-    // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['systemID']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'] = $system['systemID'] : $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'];
-    // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['systemName']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['systemName'] = $system['systemName'] : $statsArray[$class]['activeSystems'][$system['systemID']]['systemID'];
-    // !isset($statsArray[$class]['activeSystems'][$system['systemID']]['totalKills']) ? $statsArray[$class]['activeSystems'][$system['systemID']]['totalKills'] = 1 : $statsArray[$class]['activeSystems'][$system['systemID']]['totalKills'] += 1;
-
     !isset($statsArray[$class]['period'][$time]) ? $statsArray[$class]['period'][$time] = 1 : $statsArray[$class]['period'][$time] += 1;
-
-    // foreach($itemsArray as $item) {
-    //   !isset($statsArray[$class]['items'][$item['typeID']]) ? $statsArray[$class]['items'][$item['typeID']] = ($item["qtyDestroyed"] + $item["qtyDropped"]) : $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] += ($item["qtyDestroyed"] + $item["qtyDropped"]);
-    // }
-    // foreach($statsArray as $classStats) {
-    //   $classID = $classStats['class'];
-    //   $topSystemKills = 0;
-    //   $topSystemID = null;
-    //   foreach($classStats['activeSystems'] as $activeSystem) {
-    //     if($activeSystem['totalKills'] > $topSystemKills) {
-    //       $topSystemKills = $activeSystem['totalKills'];
-    //       $topSystemID = $activeSystem['systemID'];
-    //     }
-    //   }
-    //   !isset($statsArray[$classID]['topSystem']) ? $statsArray[$classID]['topSystem'] = $topSystemID : $statsArray[$classID]['topSystem'] = $topSystemID;
-    // }
     $record = array('key' => $key, 'stats' => $statsArray);
     $documentExists = r\table('generatedStats')->get($key)->run($conn);
     if($documentExists != null) {
@@ -688,7 +632,6 @@ class GenerateStats {
         }
       }
     } else {
-
       $endDay = 31;
       if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
         $endDay = 30;
@@ -849,20 +792,7 @@ class GenerateStats {
         if(!in_array($kill['killID'], $killsSeen)) {
           $systemID = $kill['systemID'];
           $systemData = r\table('whSystems')->get($systemID)->run($conn);
-          $systemClass = $systemData['class'];
-          // Thera
-          if ($systemClass == 30) {
-              $systemClass = 7;
-          }
-          // Shattereds
-          if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-              $systemClass = 8;
-          }
-          // Frig Holes
-          if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-              $systemClass = 9;
-          }
-
+          $systemClass = $this->getClass($systemData['class']);
           if ($systemClass == 0 || $systemClass == null) {
               continue;
           }
@@ -918,19 +848,7 @@ class GenerateStats {
 
     $systemID = $kill['solarSystemID'];
     $systemData = r\table('whSystems')->get($systemID)->run($conn);
-    $systemClass = $systemData['class'];
-    // Thera
-    if ($systemClass == 30) {
-      $systemClass = 7;
-    }
-    // Shattereds
-    if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-      $systemClass = 8;
-    }
-    // Frig Holes
-    if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-      $systemClass = 9;
-    }
+    $systemClass = $this->getClass($systemData['class']);
     if ($systemClass == 0 || $systemClass == null) {
       return null;
     }

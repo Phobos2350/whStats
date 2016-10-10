@@ -61,21 +61,24 @@ $app->get('/api/rethink/year/{year}/month/{month}/char/{id}[/]', function ($requ
 $app->get('/api/rethink/limit/{limit}/period/{period}/page/{page}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
     $period = strval($args['period']);
+    $year = 0;
+    $month = 0;
     $page = intval($args['page'], 10)-1;
     $limit = intval($args['limit'], 10);
     $this->logger->info("Slim-Skeleton '/api/rethink/limit/{$limit}/period/{$period}/page/{$page}' route");
-    $returnArray = $rethinkQueries->getPeriodKills($limit, $period, $page);
+    $returnArray = $rethinkQueries->getKills($limit, $period, $year, $month, $page);
     return json_encode($returnArray);
 });
 
 $app->get('/api/rethink/limit/{limit}/year/{year}/month/{month}/page/{page}[/]', function ($request, $response, $args) {
     $rethinkQueries = new RethinkQueries();
+    $period = "month";
     $year = intval($args['year'], 10);
     $month = intval($args['month'], 10);
     $page = intval($args['page'], 10)-1;
     $limit = intval($args['limit'], 10);
     $this->logger->info("Slim-Skeleton '/api/rethink/limit/{$limit}/year/{$year}/month/{$month}/page/{$page}' route");
-    $returnArray = $rethinkQueries->getMonthKills($limit, $year, $month, $page);
+    $returnArray = $rethinkQueries->getKills($limit, $period, $year, $month, $page);
     return json_encode($returnArray);
 });
 

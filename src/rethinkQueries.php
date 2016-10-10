@@ -6,7 +6,8 @@ date_default_timezone_set('Etc/GMT');
 
 class RethinkQueries {
 
-  public function getPeriodKills($limit, $period, $page) {
+
+  public function getKills($limit, $period, $year, $month, $page) {
     $conn = r\connect('localhost', 28015, 'stats');
     $subVal = 0;
     $page -= 1;
@@ -14,82 +15,78 @@ class RethinkQueries {
       $conn->close();
       return "Please Enter a Valid Page Value of 1 or Greater";
     }
-    if ($period == "hour") {
-      $subVal = 3600;
-    }
-    if ($period == "day") {
-      $subVal = 86400;
-    }
-    if ($period == "week") {
-      $subVal = 604800;
-    }
-    $killExists = r\table('whKills')
-    ->between(
-      r\now()->sub($subVal),
-      r\now(),
-      array('index' => 'killTime')
-    )
-    ->skip($limit * $page)
-    ->limit($limit)
-    ->run($conn);
-    $count = r\table('whKills')
-    ->between(
-      r\now()->sub($subVal),
-      r\now(),
-      array('index' => 'killTime')
-    )
-    ->count()
-    ->run($conn);
-    $toEncode['totalKills'] = $count;
-    $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-    foreach($killExists as $kill) {
-      $toEncode['kills'][] = $kill;
-    }
-    $conn->close();
-    return $toEncode;
-  }
-
-  public function getMonthKills($limit, $year, $month, $page) {
-    $conn = r\connect('localhost', 28015, 'stats');
-    $page -= 1;
-    if($page < 0) {
-      $conn->close();
-      return "Please Enter a Valid Page of 1 or higher";
-    }
-    $endDay = 31;
-    if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-      $endDay = 30;
-    }
-    if($month == 2) {
-      $endDay = 28;
-      if(date('L', strtotime("{$year}-01-01")) === 1) {
-        $endDay = 29;
+    if ($period != "month") {
+      if ($period == "hour") {
+        $subVal = 3600;
       }
-    }
-    $killExists = r\table('whKills')
-    ->between(
-      r\time($year, $month, 1, 0, 0, 0, 'Z'),
-      r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
-      array('index' => 'killTime')
-    )
-    ->skip($limit * $page)
-    ->limit($limit)
-    ->run($conn);
-    $count = r\table('whKills')
-    ->between(
-      r\time($year, $month, 1, 0, 0, 0, 'Z'),
-      r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
-      array('index' => 'killTime')
-    )
-    ->count()
-    ->run($conn);
-    $toEncode['totalKills'] = $count;
-    $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
-    foreach($killExists as $kill) {
-      $toEncode['kills'][] = $kill;
+      if ($period == "day") {
+        $subVal = 86400;
+      }
+      if ($period == "week") {
+        $subVal = 604800;
+      }
+      $killExists = r\table('whKills')
+      ->between(
+        r\now()->sub($subVal),
+        r\now(),
+        array('index' => 'killTime')
+      )
+      ->skip($limit * $page)
+      ->limit($limit)
+      ->run($conn);
+      $count = r\table('whKills')
+      ->between(
+        r\now()->sub($subVal),
+        r\now(),
+        array('index' => 'killTime')
+      )
+      ->count()
+      ->run($conn);
+      $toEncode['totalKills'] = $count;
+      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
+      foreach($killExists as $kill) {
+        $toEncode['kills'][] = $kill;
+      }
+      $conn->close();
+      return $toEncode;
+    } elseif($period == "month") {
+      $endDay = 31;
+      if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
+        $endDay = 30;
+      }
+      if($month == 2) {
+        $endDay = 28;
+        if(date('L', strtotime("{$year}-01-01")) === 1) {
+          $endDay = 29;
+        }
+      }
+      $killExists = r\table('whKills')
+      ->between(
+        r\time($year, $month, 1, 0, 0, 0, 'Z'),
+        r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
+        array('index' => 'killTime')
+      )
+      ->skip($limit * $page)
+      ->limit($limit)
+      ->run($conn);
+      $count = r\table('whKills')
+      ->between(
+        r\time($year, $month, 1, 0, 0, 0, 'Z'),
+        r\time($year, $month, $endDay, 23, 59, 59, 'Z'),
+        array('index' => 'killTime')
+      )
+      ->count()
+      ->run($conn);
+      $toEncode['totalKills'] = $count;
+      $count > $limit ? $toEncode['numPages'] = ceil($count / $limit) : $toEncode['numPages'] = 1;
+      foreach($killExists as $kill) {
+        $toEncode['kills'][] = $kill;
+      }
+      $conn->close();
+      return $toEncode;
     }
     $conn->close();
-    return $toEncode;
+    return null;
   }
 
   public function getShip($shipID) {

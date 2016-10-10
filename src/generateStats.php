@@ -256,27 +256,28 @@ class GenerateStats {
       $statsArray[$i] = $dummyArray;
       $statsArray[$i]['class'] = $i;
     }
+
+    $year = 0;
+    $month = 0;
     if($period == "month") {
       if($year == "this" && $month == "this") {
       	$year = intval(date('Y'), 10);
       	$month = intval(date('m'), 10);
       }
-      $statsQuery = $this->rethinkQueries->getMonthKills($limit, $year, $month, 1);
     }
-    else {
-      $statsQuery = $this->rethinkQueries->getPeriodKills($limit, $period, 1);
-    }
+    $statsQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, 1);
+
     for($page = 1; $page <= $statsQuery['numPages']; $page++) {
+      $year = 0;
+      $month = 0;
       if($period == "month") {
         if($year == "this" && $month == "this") {
           $year = intval(date('Y'), 10);
           $month = intval(date('m'), 10);
         }
-        $pageQuery = $this->rethinkQueries->getMonthKills($limit, $year, $month, $page);
       }
-      else {
-        $pageQuery = $this->rethinkQueries->getPeriodKills($limit, $period, $page);
-      }
+      $pageQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, $page);
+
       $killsArray = $pageQuery['kills'];
 
       foreach ($killsArray as $kill) {

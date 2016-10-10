@@ -949,7 +949,14 @@ class GenerateStats {
         $entityName = 'NPC';
       }
       if(!in_array($entityID, $entityKillSeen)) {
-        $arrayKey = array_search($entityID, array_column($toEncode['stats']['ALL'], 'entityID'));
+        if(!isset($toEncode['stats']['ALL'])) {
+          $toEncode['stats']['ALL'] = array();
+        }
+        $columnResult = array_column($toEncode['stats']['ALL'], 'entityID');
+        $arrayKey = count($toEncode['stats']['ALL']);
+        if($columnResult != null) {
+          $arrayKey = array_search($entityID, $columnResult);
+        }
         if(!isset($toEncode['stats']['ALL'][$arrayKey])) {
           $toEncode['stats']['ALL'][$arrayKey] = array();
           $toEncode['stats']['ALL'][$arrayKey]['isAlliance'] = $entityAlliance;

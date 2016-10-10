@@ -221,22 +221,30 @@ class RethinkQueries {
     $killExists = r\table('generatedEntityStats')->get($key)->run($conn);
     if($killExists != null) {
       $toEncode = $killExists;
-      usort($toEncode['stats']['ALL'], function($left, $right) {
-        return $right['totalISK'] <=> $left['totalISK'];
-      });
-      usort($toEncode['stats']['US'], function($left, $right) {
-        return $right['totalISK'] <=> $left['totalISK'];
-      });
-      usort($toEncode['stats']['AU'], function($left, $right) {
-        return $right['totalISK'] <=> $left['totalISK'];
-      });
-      usort($toEncode['stats']['EU'], function($left, $right) {
-        return $right['totalISK'] <=> $left['totalISK'];
-      });
-      $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
-      $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
-      $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
-      $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
+      if(isset($toEncode['stats']['ALL'])) {
+        usort($toEncode['stats']['ALL'], function($left, $right) {
+          return $right['totalISK'] <=> $left['totalISK'];
+        });
+        $toEncode['stats']['ALL'] = array_slice($toEncode['stats']['ALL'], 0, 100, true);
+      }
+      if(isset($toEncode['stats']['US'])) {
+        usort($toEncode['stats']['US'], function($left, $right) {
+          return $right['totalISK'] <=> $left['totalISK'];
+        });
+        $toEncode['stats']['US'] = array_slice($toEncode['stats']['US'], 0, 100, true);
+      }
+      if(isset($toEncode['stats']['AU'])) {
+        usort($toEncode['stats']['AU'], function($left, $right) {
+          return $right['totalISK'] <=> $left['totalISK'];
+        });
+        $toEncode['stats']['AU'] = array_slice($toEncode['stats']['AU'], 0, 100, true);
+      }
+      if(isset($toEncode['stats']['EU'])) {
+        usort($toEncode['stats']['EU'], function($left, $right) {
+          return $right['totalISK'] <=> $left['totalISK'];
+        });
+        $toEncode['stats']['EU'] = array_slice($toEncode['stats']['EU'], 0, 100, true);
+      }
       $conn->close();
       return $toEncode;
     }

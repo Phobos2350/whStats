@@ -68,6 +68,7 @@ function getKills()
               $killFormatted['solarSystemID'] = $systemID;
               $killFormatted['killTime'] = $isoDate;
               $killFormatted['moonID'] = 0;
+              isset($kill['victim']['position']) ? $killFormatted['position'] = $kill['victim']['position'] : $killFormatted['position'] = null;
               $killFormatted['position'] = $kill['victim']['position'];
               $killFormatted['zkb'] = $package['zkb'];
 

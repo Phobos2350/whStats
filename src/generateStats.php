@@ -1,12 +1,13 @@
 <?php
 require_once 'rethinkQueries.php';
-//require_once 'simple_html_dom.php';
+require_once 'cacheManager.php';
 date_default_timezone_set('Etc/GMT');
 
 class GenerateStats {
 
   public function __construct(){
     $this->rethinkQueries = new RethinkQueries();
+    $this->cacheManager = new CacheManager();
   }
 
   public function formatValue($num) {
@@ -43,8 +44,8 @@ class GenerateStats {
     $year = intval(date('Y'), 10);
     $key = md5(strtoupper('entityStats_month_'.$year.'_'.$month));
     $data = array('period' => 'month', 'year' => $year, 'month' => $month);
-    $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+    $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     foreach($feed as $change) {
       $thisKillID = $change['new_val']['killID'];
       if($thisKillID != $currentKillID) {
@@ -55,11 +56,11 @@ class GenerateStats {
         $killYear = intval(date('Y', $killTime), 10);
         $data = array('kill' => $change['new_val'], 'period' => 'month', 'year' => $killYear, 'month' => $killMonth);
         $key =  md5(strtoupper('periodStats_month_'.$killYear.'_'.$killMonth));
-        $this->rethinkQueries->queueTask('addStats', '', '', $data);
-        $this->rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+        $this->cacheManager->queueTask('addStats', '', '', $data);
+        $this->cacheManager->queueTask('getStats', 'periodStats', $key, $data);
         $key = md5(strtoupper('entityStats_month_'.$killYear.'_'.$killMonth));
-        $this->rethinkQueries->queueTask('addEntityStatsMonth', '', '', $data);
-        $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+        $this->cacheManager->queueTask('addEntityStatsMonth', '', '', $data);
+        $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
 
         if($killTime >= strtotime('-1 hour') || strtotime("-2 minutes") >= $lastCheck) {
           $lastCheck = strtotime("now");
@@ -67,11 +68,11 @@ class GenerateStats {
           printf("[H] Called - ID: {$change['new_val']['killID']} | Time: {$killTimeFormatted}\n");
           $key = md5(strtoupper('periodStats_hour_0_0'));
           $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
-          $this->rethinkQueries->queueTask('genStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+          $this->cacheManager->queueTask('genStats', '', '', $data);
+          $this->cacheManager->queueTask('getStats', 'periodStats', $key, $data);
           $key = md5(strtoupper('entityStats_hour_0_0'));
-          $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+          $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+          $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
         }
         if($killTime >= strtotime('-1 day') && $killTime < strtotime('-1 hour') || strtotime("-5 minutes") >= $lastDayCheck) {
           $lastDayCheck = strtotime("now");
@@ -79,11 +80,11 @@ class GenerateStats {
           printf("[D] Called - ID: {$change['new_val']['killID']} | Time: {$killTimeFormatted}\n");
           $key = md5(strtoupper('periodStats_day_0_0'));
           $data = array('period' => 'day', 'year' => 0, 'month' => 0);
-          $this->rethinkQueries->queueTask('genStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+          $this->cacheManager->queueTask('genStats', '', '', $data);
+          $this->cacheManager->queueTask('getStats', 'periodStats', $key, $data);
           $key = md5(strtoupper('entityStats_day_0_0'));
-          $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+          $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+          $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
         }
         if($killTime >= strtotime('-1 week') && $killTime < strtotime('-1 day') || strtotime("-30 minutes") >= $lastWeekCheck) {
           $lastWeekCheck = strtotime("now");
@@ -91,11 +92,11 @@ class GenerateStats {
           printf("[W] Called - ID: {$change['new_val']['killID']} | Time: {$killTimeFormatted}\n");
           $key = md5(strtoupper('periodStats_week_0_0'));
           $data = array('period' => 'week', 'year' => 0, 'month' => 0);
-          $this->rethinkQueries->queueTask('genStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getStats', 'periodStats', $key, $data);
+          $this->cacheManager->queueTask('genStats', '', '', $data);
+          $this->cacheManager->queueTask('getStats', 'periodStats', $key, $data);
           $key = md5(strtoupper('entityStats_week_0_0'));
-          $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-          $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+          $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+          $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
         }
         // if($killTime >= strtotime('-1 month') && $killTime < strtotime('-1 week') || strtotime("-2 minutes") >= $lastMonthCheck) {
         //   $lastMonthCheck = strtotime("now");
@@ -105,8 +106,8 @@ class GenerateStats {
         //   $year = intval(date('Y'), 10);
         //   $key = md5(strtoupper('entityStats_month_'.$year.'_'.$month));
         //   $data = array('kill' => $change['new_val'], 'period' => 'month', 'year' => $year, 'month' => $month);
-        //   $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-        //   $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+        //   $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+        //   $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
         // }
       }
     }
@@ -115,100 +116,100 @@ class GenerateStats {
 
   public function populateTables() {
     // $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'day', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'week', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     //
     // $key = md5(strtoupper('entityStats_hour_0_0'));
     // $data = array('period' => 'hour', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $key = md5(strtoupper('entityStats_day_0_0'));
     // $data = array('period' => 'day', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $key = md5(strtoupper('entityStats_week_0_0'));
     // $data = array('period' => 'week', 'year' => 0, 'month' => 0);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     //
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_10'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 10);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     //
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 9);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 8);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 8);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 7);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 7);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 6);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 6);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 5);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 5);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 4);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 4);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 3);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 3);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 2);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 2);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 1);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 1);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
     // $data = array('period' => 'month', 'year' => 2015, 'month' => 12);
-    // $this->rethinkQueries->queueTask('genEntityStats', '', '', $data);
+    // $this->cacheManager->queueTask('genEntityStats', '', '', $data);
     // $key = md5(strtoupper('entityStats_month_2016_9'));
     // $data = array('period' => 'month', 'year' => 2015, 'month' => 12);
-    // $this->rethinkQueries->queueTask('getEntityStats', 'entityStats', $key, $data);
+    // $this->cacheManager->queueTask('getEntityStats', 'entityStats', $key, $data);
 
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 8);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 7);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 6);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 5);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 4);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 3);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 2);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2016, 'month' => 1);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
     // $data = array('period' => 'month', 'year' => 2015, 'month' => 12);
-    // $this->rethinkQueries->queueTask('genStats', '', '', $data);
+    // $this->cacheManager->queueTask('genStats', '', '', $data);
   }
 
   public function genStats($period, $year, $month) {

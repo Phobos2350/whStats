@@ -636,7 +636,7 @@ class GenerateStats {
         }
       }
     } else {
-      $endDay = date("t", mktime(0,0,0,$month,1,$year));
+      $endDay = intval(date("t", mktime(0,0,0,$month,1,$year)), 10);
       while($continue) {
         $blockResults = r\table('whKills')
         ->between(

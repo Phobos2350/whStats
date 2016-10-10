@@ -69,7 +69,7 @@ class RethinkQueries {
       $conn->close();
       return $toEncode;
     }
-    $endDay = date("t", mktime(0,0,0,$month,1,$year));
+    $endDay = intval(date("t", mktime(0,0,0,$month,1,$year)), 10);
     $killExists = r\table('whKills')
     ->between(
       r\time($year, $month, 1, 0, 0, 0, 'Z'),

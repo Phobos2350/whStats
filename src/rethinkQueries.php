@@ -6,6 +6,29 @@ date_default_timezone_set('Etc/GMT');
 
 class RethinkQueries {
 
+  public function __construct(){
+    $this->subValues = array(
+      "hour" => 3600,
+      "day" => 86400,
+      "week" => 604800
+    );
+  }
+
+  public function getClass($class) {
+    if ($class == 30) {
+        return $class = 7;
+    }
+    // Shattereds
+    if ($class == 31 || $class == 32 || $class == 33 || $class == 34 || $class == 35 || $class == 36) {
+        return $class = 8;
+    }
+    // Frig Holes
+    if ($class == 41 || $class == 42 || $class == 43) {
+        return $class = 9;
+    }
+    return $class;
+  }
+
   public function getKills($limit, $period, $year, $month, $page) {
     $conn = r\connect('localhost', 28015, 'stats');
     $subVal = 0;
@@ -15,15 +38,8 @@ class RethinkQueries {
       return "Please Enter a Valid Page Value of 1 or Greater";
     }
     if ($period != "month") {
-      if ($period == "hour") {
-        $subVal = 3600;
-      }
-      if ($period == "day") {
-        $subVal = 86400;
-      }
-      if ($period == "week") {
-        $subVal = 604800;
-      }
+      $subVal = $this->subValues[strval($period)];
+      printf("SubVal = {$subVal}");
       $killExists = r\table('whKills')
       ->between(
         r\now()->sub($subVal),
@@ -49,16 +65,7 @@ class RethinkQueries {
       $conn->close();
       return $toEncode;
     }
-    $endDay = 31;
-    if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-      $endDay = 30;
-    }
-    if($month == 2) {
-      $endDay = 28;
-      if(date('L', strtotime("{$year}-01-01")) === 1) {
-        $endDay = 29;
-      }
-    }
+    $endDay = date("t", mktime(0,0,0,$month,1,$year));
     $killExists = r\table('whKills')
     ->between(
       r\time($year, $month, 1, 0, 0, 0, 'Z'),
@@ -258,22 +265,9 @@ class RethinkQueries {
       }
       $systemID = $kill['systemID'];
       $systemData = r\table('whSystems')->get($systemID)->run($conn);
-      $systemClass = $systemData['class'];
-      // Thera
-      if ($systemClass == 30) {
-          $systemClass = 7;
-      }
-      // Shattereds
-      if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-          $systemClass = 8;
-      }
-      // Frig Holes
-      if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-          $systemClass = 9;
-      }
-
+      $systemClass = $this->getClass($systemData['class']);
       if ($systemClass == 0 || $systemClass == null) {
-          continue;
+        continue;
       }
       $toEncode['ALL']['c'.$systemClass.'Kills'] += 1;
       $toEncode[$killTimezone]['c'.$systemClass.'Kills'] += 1;
@@ -560,20 +554,7 @@ class RethinkQueries {
       }
       $systemID = $kill['systemID'];
       $systemData = r\table('whSystems')->get($systemID)->run($conn);
-      $systemClass = $systemData['class'];
-      // Thera
-      if ($systemClass == 30) {
-          $systemClass = 7;
-      }
-      // Shattereds
-      if ($systemClass == 31 || $systemClass == 32 || $systemClass == 33 || $systemClass == 34 || $systemClass == 35 || $systemClass == 36) {
-          $systemClass = 8;
-      }
-      // Frig Holes
-      if ($systemClass == 41 || $systemClass == 42 || $systemClass == 43) {
-          $systemClass = 9;
-      }
-
+      $systemClass = $this->getClass($systemData['class']);
       if ($systemClass == 0 || $systemClass == null) {
           continue;
       }

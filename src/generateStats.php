@@ -8,6 +8,11 @@ class GenerateStats {
   public function __construct(){
     $this->rethinkQueries = new RethinkQueries();
     $this->cacheManager = new CacheManager();
+    $this->subValues = array(
+      "hour" => 3600,
+      "day" => 86400,
+      "week" => 604800
+    );
   }
 
   public function formatValue($num) {
@@ -565,15 +570,7 @@ class GenerateStats {
     $combinedResults = array();
 
     if($period != 'month') {
-      if($period == 'hour') {
-        $subValue = 3600;
-      } elseif($period == 'day') {
-        $subValue = 86400;
-      } elseif($period == 'week') {
-        $subValue = 604800;
-      } else {
-        $subValue = 0;
-      }
+      $subVal = $this->subValues[strval($period)];
       while($continue) {
         $blockResults = r\table('whKills')
         ->between(
@@ -634,17 +631,7 @@ class GenerateStats {
         }
       }
     } else {
-      $endDay = 31;
-      if($month === 4 || $month === 6 || $month === 9 || $month === 11) {
-        $endDay = 30;
-      }
-      if($month == 2) {
-        if(date('L', strtotime("{$year}-01-01")) === 1) {
-          $endDay = 29;
-        } else {
-          $endDay = 28;
-        }
-      }
+      $endDay = date("t", mktime(0,0,0,$month,1,$year));
       while($continue) {
         $blockResults = r\table('whKills')
         ->between(

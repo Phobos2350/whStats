@@ -352,7 +352,7 @@ class GenerateStats {
     $time = date("H00", strtotime($kill['killTime']['date']));
     $class = $this->getClass($system['class']);
     if ($class == 0 || $class == null) {
-        return null;
+      return null;
     }
     $ship = r\table('shipTypes')->get(intval($kill["victim"]["shipTypeID"], 10))->run($conn);
     if(!isset($statsArray[$class]['class'])) { $statsArray[$class]['class'] = $class; };
@@ -372,12 +372,11 @@ class GenerateStats {
           $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
         }
       }
+      $npcOnly = true;
       foreach($kill['attackers'] as $attacker) {
         if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
           $npcOnly = false;
           break;
-        } else {
-          $npcOnly = true;
         }
       }
       if($npcOnly) {
@@ -405,11 +404,8 @@ class GenerateStats {
     !isset($statsArray[$class]['period'][$time]) ? $statsArray[$class]['period'][$time] = 1 : $statsArray[$class]['period'][$time] += 1;
     $record = array('key' => $key, 'stats' => $statsArray);
     $documentExists = r\table('generatedStats')->get($key)->run($conn);
-    if($documentExists != null) {
-      $result = r\table('generatedStats')->get($key)->replace($record)->run($conn);
-    } else {
-      $result = r\table('generatedStats')->insert($record)->run($conn);
-    }
+    $documentExists != null ? $result = r\table('generatedStats')->get($key)->replace($record)->run($conn) :
+                              $result = r\table('generatedStats')->insert($record)->run($conn);
     $conn->close();
   }
 
@@ -550,12 +546,11 @@ class GenerateStats {
 
     foreach($combinedResults as $entity) {
       $entityID = $entity['entityID'];
+      $entity['isAlliance'] = false;
+      $entity['entityName'] = $entity['killsArray'][0]['corporationName'];
       if($entity['killsArray'][0]['allianceID'] == $entityID) {
         $entity['isAlliance'] = true;
         $entity['entityName'] = $entity['killsArray'][0]['allianceName'];
-      } else {
-        $entity['isAlliance'] = false;
-        $entity['entityName'] = $entity['killsArray'][0]['corporationName'];
       }
       if($entityID == 0) {
         $entity['entityName'] = 'NPC';
@@ -621,11 +616,8 @@ class GenerateStats {
     }
     $record = array('key' => $key, 'stats' => $toEncode['stats']);
     $documentExists = r\table('generatedEntityStats')->get($key)->run($conn);
-    if($documentExists != null) {
-      $result = r\table('generatedEntityStats')->get($key)->replace($record)->run($conn);
-    } else {
-      $result = r\table('generatedEntityStats')->insert($record)->run($conn);
-    }
+    $documentExists != null ? $result = r\table('generatedEntityStats')->get($key)->replace($record)->run($conn) :
+                              $result = r\table('generatedEntityStats')->insert($record)->run($conn);
     $conn->close();
   }
 
@@ -653,14 +645,13 @@ class GenerateStats {
     }
     $toEncode = r\table('generatedEntityStats')->get($key)->run($conn);
     foreach($kill['attackers'] as $attacker) {
+      $entityID = $attacker['allianceID'];
+      $entityAlliance = true;
+      $entityName = $attacker['allianceName'];
       if($attacker['allianceID'] == 0) {
         $entityID = $attacker['corporationID'];
         $entityAlliance = false;
         $entityName = $attacker['corporationName'];
-      } else {
-        $entityID = $attacker['allianceID'];
-        $entityAlliance = true;
-        $entityName = $attacker['allianceName'];
       }
       if($entityID == 0) {
         $entityName = 'NPC';
@@ -722,11 +713,8 @@ class GenerateStats {
     }
     $record = array('key' => $key, 'stats' => $toEncode['stats']);
     $documentExists = r\table('generatedEntityStats')->get($key)->run($conn);
-    if($documentExists != null) {
-      $result = r\table('generatedEntityStats')->get($key)->replace($record)->run($conn);
-    } else {
-      $result = r\table('generatedEntityStats')->insert($record)->run($conn);
-    }
+    $documentExists != null ? $result = r\table('generatedEntityStats')->get($key)->replace($record)->run($conn) :
+                              $result = r\table('generatedEntityStats')->insert($record)->run($conn);
     $conn->close();
   }
 }

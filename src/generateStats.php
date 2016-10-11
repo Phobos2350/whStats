@@ -266,26 +266,9 @@ class GenerateStats {
       $statsArray[$i] = $dummyArray;
       $statsArray[$i]['class'] = $i;
     }
-
-    $year = 0;
-    $month = 0;
-    if($period == "month") {
-      if($year == "this" && $month == "this") {
-      	$year = intval(date('Y'), 10);
-      	$month = intval(date('m'), 10);
-      }
-    }
     $statsQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, 1);
 
     for($page = 1; $page <= $statsQuery['numPages']; $page++) {
-      $year = 0;
-      $month = 0;
-      if($period == "month") {
-        if($year == "this" && $month == "this") {
-          $year = intval(date('Y'), 10);
-          $month = intval(date('m'), 10);
-        }
-      }
       $pageQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, $page);
       $killsArray = $pageQuery['kills'];
 
@@ -305,85 +288,38 @@ class GenerateStats {
         !isset($statsArray[$class]['totalISK']) ? $statsArray[$class]['totalISK'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10)) : $statsArray[$class]['totalISK'] += $this->formatValue(intval($kill['zkb']['totalValue'], 10));
 
         if($ship['shipType'] != 'Structure' && $ship['shipType'] != 'Citadel') {
-          if(count($kill['attackers']) == 1) {
-            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-              if(!isset($statsArray[$class]['biggestNPCKill'])) {
-                $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-                $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-                $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-                $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-              } else {
-                if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
-                  $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                  $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-                  $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-                  $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-                  $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-                }
-              }
-            } else {
-              if(!isset($statsArray[$class]['biggestSoloKill'])) {
-                $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
-                $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
-                $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
-                $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
-              } else {
-                if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
-                  $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                  $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
-                  $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
-                  $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
-                  $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
-                }
-              }
-            }
-          } else {
-            if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-              foreach($kill['attackers'] as $attacker) {
-                if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
-                  $npcOnly = false;
-                  break;
-                } else {
-                  $npcOnly = true;
-                }
-              }
-            } else {
-              $npcOnly = false;
-            }
-            if($npcOnly) {
-              if(!isset($statsArray[$class]['biggestNPCKill'])) {
-                $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-                $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-                $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-                $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-              } else {
-                if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
-                  $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-                  $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-                  $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-                  $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-                  $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-                }
-              }
+          if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+            if(!isset($statsArray[$class]['biggestSoloKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
+              $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
+              $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
+              $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
+              $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
+              $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
             }
           }
-          if(!isset($statsArray[$class]['biggestKill'])) {
+          foreach($kill['attackers'] as $attacker) {
+            if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
+              $npcOnly = false;
+              break;
+            } else {
+              $npcOnly = true;
+            }
+          }
+          if($npcOnly) {
+            if(!isset($statsArray[$class]['biggestNPCKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
+              $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
+              $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
+              $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
+              $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
+              $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
+            }
+          }
+          if(!isset($statsArray[$class]['biggestKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestKill']['value']) {
             $statsArray[$class]['biggestKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
             $statsArray[$class]['biggestKill']['killID'] = $kill['killID'];
             $statsArray[$class]['biggestKill']['shipName'] = $ship['shipName'];
             $statsArray[$class]['biggestKill']['shipType'] = $ship['shipType'];
             $statsArray[$class]['biggestKill']['typeID'] = $ship['shipTypeID'];
-          } else {
-            if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestKill']['value']) {
-              $statsArray[$class]['biggestKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-              $statsArray[$class]['biggestKill']['killID'] = $kill['killID'];
-              $statsArray[$class]['biggestKill']['shipName'] = $ship['shipName'];
-              $statsArray[$class]['biggestKill']['shipType'] = $ship['shipType'];
-              $statsArray[$class]['biggestKill']['typeID'] = $ship['shipTypeID'];
-            }
           }
         }
         !isset($statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']]) ? $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] = 1 : $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] += 1;
@@ -396,11 +332,8 @@ class GenerateStats {
     }
     $record = array('key' => $key, 'stats' => $statsArray);
     $documentExists = r\table('generatedStats')->get($key)->run($conn);
-    if($documentExists != null) {
-      $result = r\table('generatedStats')->get($key)->replace($record)->run($conn);
-    } else {
-      $result = r\table('generatedStats')->insert($record)->run($conn);
-    }
+    $documentExists != null ? $result = r\table('generatedStats')->get($key)->replace($record)->run($conn) :
+                              $result = r\table('generatedStats')->insert($record)->run($conn);
     $conn->close();
   }
 
@@ -466,88 +399,40 @@ class GenerateStats {
     !isset($statsArray[$class]['totalISK']) ? $statsArray[$class]['totalISK'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10)) : $statsArray[$class]['totalISK'] += $this->formatValue(intval($kill['zkb']['totalValue'], 10));
 
     if($ship['shipType'] != 'Structure' && $ship['shipType'] != 'Citadel') {
-      if(count($kill['attackers']) == 1) {
-        if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-          if(!isset($statsArray[$class]['biggestNPCKill'])) {
-            $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-            $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-            $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-            $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-            $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-          } else {
-            if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
-              $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-              $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-              $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-              $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-              $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-            }
-          }
-        } else {
-          if(!isset($statsArray[$class]['biggestSoloKill'])) {
-            $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-            $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
-            $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
-            $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
-            $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
-          } else {
-            if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
-              $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-              $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
-              $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
-              $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
-              $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
-            }
-          }
-        }
-      } else {
-        if($kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
-          foreach($kill['attackers'] as $attacker) {
-            if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
-              $npcOnly = false;
-              break;
-            } else {
-              $npcOnly = true;
-            }
-          }
-        } else {
-          $npcOnly = false;
-        }
-        if($npcOnly) {
-          if(!isset($statsArray[$class]['biggestNPCKill'])) {
-            $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-            $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-            $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-            $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-            $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-          } else {
-            if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
-              $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-              $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
-              $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
-              $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
-              $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
-            }
-          }
+      if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] == "Unknown" || $kill['attackers'][0]['factionName'] == "Drifters" || $kill['attackers'][0]['factionName'] == "Serpentis") {
+        if(!isset($statsArray[$class]['biggestSoloKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
+          $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
+          $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
+          $statsArray[$class]['biggestSoloKill']['shipName'] = $ship['shipName'];
+          $statsArray[$class]['biggestSoloKill']['shipType'] = $ship['shipType'];
+          $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
         }
       }
-      if(!isset($statsArray[$class]['biggestKill'])) {
+      foreach($kill['attackers'] as $attacker) {
+        if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
+          $npcOnly = false;
+          break;
+        } else {
+          $npcOnly = true;
+        }
+      }
+      if($npcOnly) {
+        if(!isset($statsArray[$class]['biggestNPCKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestNPCKill']['value']) {
+          $statsArray[$class]['biggestNPCKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
+          $statsArray[$class]['biggestNPCKill']['killID'] = $kill['killID'];
+          $statsArray[$class]['biggestNPCKill']['shipName'] = $ship['shipName'];
+          $statsArray[$class]['biggestNPCKill']['shipType'] = $ship['shipType'];
+          $statsArray[$class]['biggestNPCKill']['typeID'] = $ship['shipTypeID'];
+        }
+      }
+      if(!isset($statsArray[$class]['biggestKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestKill']['value']) {
         $statsArray[$class]['biggestKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
         $statsArray[$class]['biggestKill']['killID'] = $kill['killID'];
         $statsArray[$class]['biggestKill']['shipName'] = $ship['shipName'];
         $statsArray[$class]['biggestKill']['shipType'] = $ship['shipType'];
         $statsArray[$class]['biggestKill']['typeID'] = $ship['shipTypeID'];
-      } else {
-        if($this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestKill']['value']) {
-          $statsArray[$class]['biggestKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
-          $statsArray[$class]['biggestKill']['killID'] = $kill['killID'];
-          $statsArray[$class]['biggestKill']['shipName'] = $ship['shipName'];
-          $statsArray[$class]['biggestKill']['shipType'] = $ship['shipType'];
-          $statsArray[$class]['biggestKill']['typeID'] = $ship['shipTypeID'];
-        }
       }
     }
-
     !isset($statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']]) ? $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] = 1 : $statsArray[$class]['kills']['typeIDs'][$ship['shipTypeID']] += 1;
     !isset($statsArray[$class]['kills']['typeNames'][$ship['shipType']]) ? $statsArray[$class]['kills']['typeNames'][$ship['shipType']] = 1 : $statsArray[$class]['kills']['typeNames'][$ship['shipType']] += 1;
     !isset($statsArray[$class]['kills']['shipNames'][$ship['shipName']]) ? $statsArray[$class]['kills']['shipNames'][$ship['shipName']] = 1 : $statsArray[$class]['kills']['shipNames'][$ship['shipName']] += 1;
@@ -574,7 +459,7 @@ class GenerateStats {
     $combinedResults = array();
 
     if($period != 'month') {
-      $subVal = $this->subValues[strval($period)];
+      $subValue = intval($this->subValues[strval($period)], 10);
       while($continue) {
         $blockResults = r\table('whKills')
         ->between(
@@ -712,57 +597,22 @@ class GenerateStats {
         $entity['entityName'] = 'NPC';
       }
       $entityIDStr = trim(strval($entityID));
-      if(!isset($toEncode['stats']['ALL'][$entityIDStr])) {
-        $toEncode['stats']['ALL'][$entityIDStr] = array();
-        $toEncode['stats']['ALL'][$entityIDStr]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['ALL'][$entityIDStr]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['ALL'][$entityIDStr]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['ALL'][$entityIDStr]['totalKills'] = 0;
-        $toEncode['stats']['ALL'][$entityIDStr]['totalISK'] = 0;
-        $toEncode['stats']['ALL'][$entityIDStr]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['ALL'][$entityIDStr]['c'.$i.'Kills'] = 0;
+      $tzArray = array("ALL", "US", "AU", "EU");
+      foreach($tzArray as $tzVal) {
+        if(!isset($toEncode['stats'][$tzVal][$entityIDStr])) {
+          $toEncode['stats'][$tzVal][$entityIDStr] = array();
+          $toEncode['stats'][$tzVal][$entityIDStr]['isAlliance'] = $entity['isAlliance'];
+          $toEncode['stats'][$tzVal][$entityIDStr]['entityID'] = $entity['entityID'];
+          $toEncode['stats'][$tzVal][$entityIDStr]['entityName'] = $entity['entityName'];
+          $toEncode['stats'][$tzVal][$entityIDStr]['totalKills'] = 0;
+          $toEncode['stats'][$tzVal][$entityIDStr]['totalISK'] = 0;
+          $toEncode['stats'][$tzVal][$entityIDStr]['shipsUsed'] = array();
+          for($i = 1; $i < 10; $i++) {
+            $toEncode['stats'][$tzVal][$entityIDStr]['c'.$i.'Kills'] = 0;
+          }
         }
       }
-      if(!isset($toEncode['stats']['US'][$entityIDStr])) {
-        $toEncode['stats']['US'][$entityIDStr] = array();
-        $toEncode['stats']['US'][$entityIDStr]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['US'][$entityIDStr]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['US'][$entityIDStr]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['US'][$entityIDStr]['totalKills'] = 0;
-        $toEncode['stats']['US'][$entityIDStr]['totalISK'] = 0;
-        $toEncode['stats']['US'][$entityIDStr]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['US'][$entityIDStr]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['AU'][$entityIDStr])) {
-        $toEncode['stats']['AU'][$entityIDStr] = array();
-        $toEncode['stats']['AU'][$entityIDStr]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['AU'][$entityIDStr]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['AU'][$entityIDStr]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['AU'][$entityIDStr]['totalKills'] = 0;
-        $toEncode['stats']['AU'][$entityIDStr]['totalISK'] = 0;
-        $toEncode['stats']['AU'][$entityIDStr]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['AU'][$entityIDStr]['c'.$i.'Kills'] = 0;
-        }
-      }
-      if(!isset($toEncode['stats']['EU'][$entityIDStr])) {
-        $toEncode['stats']['EU'][$entityIDStr] = array();
-        $toEncode['stats']['EU'][$entityIDStr]['isAlliance'] = $entity['isAlliance'];
-        $toEncode['stats']['EU'][$entityIDStr]['entityID'] = $entity['entityID'];
-        $toEncode['stats']['EU'][$entityIDStr]['entityName'] = $entity['entityName'];
-        $toEncode['stats']['EU'][$entityIDStr]['totalKills'] = 0;
-        $toEncode['stats']['EU'][$entityIDStr]['totalISK'] = 0;
-        $toEncode['stats']['EU'][$entityIDStr]['shipsUsed'] = array();
-        for($i = 1; $i < 10; $i++) {
-          $toEncode['stats']['EU'][$entityIDStr]['c'.$i.'Kills'] = 0;
-        }
-      }
-
       $killsSeen = array();
-
       foreach($entity['killsArray'] as $kill) {
         $killTime = $kill['killTime']->getTimestamp();
         $killTimeHour = date('H', $killTime);

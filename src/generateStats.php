@@ -285,7 +285,7 @@ class GenerateStats {
         !isset($statsArray[$class]['totalISK']) ? $statsArray[$class]['totalISK'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10)) : $statsArray[$class]['totalISK'] += $this->formatValue(intval($kill['zkb']['totalValue'], 10));
 
         if($ship['shipType'] != 'Structure' && $ship['shipType'] != 'Citadel') {
-          if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] != "Unknown" || $kill['attackers'][0]['factionName'] != "Drifters" || $kill['attackers'][0]['factionName'] != "Serpentis") {
+          if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] != "Unknown" && $kill['attackers'][0]['factionName'] != "Drifters" && $kill['attackers'][0]['factionName'] != "Serpentis") {
             if(!isset($statsArray[$class]['biggestSoloKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
               $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
               $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];
@@ -363,7 +363,7 @@ class GenerateStats {
     !isset($statsArray[$class]['totalISK']) ? $statsArray[$class]['totalISK'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10)) : $statsArray[$class]['totalISK'] += $this->formatValue(intval($kill['zkb']['totalValue'], 10));
 
     if($ship['shipType'] != 'Structure' && $ship['shipType'] != 'Citadel') {
-      if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] != "Unknown" || $kill['attackers'][0]['factionName'] != "Drifters" || $kill['attackers'][0]['factionName'] != "Serpentis") {
+      if(count($kill['attackers']) == 1 && $kill['attackers'][0]['factionName'] != "Unknown" && $kill['attackers'][0]['factionName'] != "Drifters" && $kill['attackers'][0]['factionName'] != "Serpentis") {
         if(!isset($statsArray[$class]['biggestSoloKill']) || $this->formatValue(intval($kill['zkb']['totalValue'], 10)) > $statsArray[$class]['biggestSoloKill']['value']) {
           $statsArray[$class]['biggestSoloKill']['value'] = $this->formatValue(intval($kill['zkb']['totalValue'], 10));
           $statsArray[$class]['biggestSoloKill']['killID'] = $kill['killID'];

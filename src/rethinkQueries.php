@@ -218,29 +218,16 @@ class RethinkQueries {
       );
     })
     ->run($conn);
-
-    for($i = 1; $i < 10; $i++) {
-      $toEncode['ALL']['c'.$i.'Kills'] = 0;
-      $toEncode['US']['c'.$i.'Kills'] = 0;
-      $toEncode['AU']['c'.$i.'Kills'] = 0;
-      $toEncode['EU']['c'.$i.'Kills'] = 0;
+    $tzArray = array("ALL", "US", "AU", "EU");
+    foreach($tzArray as $tzVal) {
+      for($i = 1; $i < 10; $i++) {
+        $toEncode[$tzVal]['c'.$i.'Kills'] = 0;
+      }
+      $toEncode[$tzVal]['totalKills'] = 0;
+      $toEncode[$tzVal]['totalISK'] = 0;
+      $toEncode[$tzVal]['shipsUsed'] = array();
+      $toEncode[$tzVal]['totalPilotsOnKills'] = 0;
     }
-    $toEncode['ALL']['totalKills'] = 0;
-    $toEncode['US']['totalKills'] = 0;
-    $toEncode['AU']['totalKills'] = 0;
-    $toEncode['EU']['totalKills'] = 0;
-    $toEncode['ALL']['totalISK'] = 0;
-    $toEncode['US']['totalISK'] = 0;
-    $toEncode['AU']['totalISK'] = 0;
-    $toEncode['EU']['totalISK'] = 0;
-    $toEncode['ALL']['shipsUsed'] = array();
-    $toEncode['US']['shipsUsed'] = array();
-    $toEncode['AU']['shipsUsed'] = array();
-    $toEncode['EU']['shipsUsed'] = array();
-    $toEncode['ALL']['totalPilotsOnKills'] = 0;
-    $toEncode['US']['totalPilotsOnKills'] = 0;
-    $toEncode['AU']['totalPilotsOnKills'] = 0;
-    $toEncode['EU']['totalPilotsOnKills'] = 0;
 
     foreach($combinedResults as $kill) {
       $killTime = $kill['killTime']->getTimestamp();
@@ -512,24 +499,15 @@ class RethinkQueries {
     })
     ->run($conn);
 
-    for($i = 1; $i < 10; $i++) {
-      $toEncode['ALL']['c'.$i.'Kills'] = 0;
-      $toEncode['US']['c'.$i.'Kills'] = 0;
-      $toEncode['AU']['c'.$i.'Kills'] = 0;
-      $toEncode['EU']['c'.$i.'Kills'] = 0;
+    $tzArray = array("ALL", "US", "AU", "EU");
+    foreach($tzArray as $tzVal) {
+      for($i = 1; $i < 10; $i++) {
+        $toEncode[$tzVal]['c'.$i.'Kills'] = 0;
+      }
+      $toEncode[$tzVal]['totalKills'] = 0;
+      $toEncode[$tzVal]['totalISK'] = 0;
+      $toEncode[$tzVal]['shipsUsed'] = array();
     }
-    $toEncode['ALL']['totalKills'] = 0;
-    $toEncode['US']['totalKills'] = 0;
-    $toEncode['AU']['totalKills'] = 0;
-    $toEncode['EU']['totalKills'] = 0;
-    $toEncode['ALL']['totalISK'] = 0;
-    $toEncode['US']['totalISK'] = 0;
-    $toEncode['AU']['totalISK'] = 0;
-    $toEncode['EU']['totalISK'] = 0;
-    $toEncode['ALL']['shipsUsed'] = array();
-    $toEncode['US']['shipsUsed'] = array();
-    $toEncode['AU']['shipsUsed'] = array();
-    $toEncode['EU']['shipsUsed'] = array();
 
     foreach($combinedResults as $kill) {
       $killTime = $kill['killTime']->getTimestamp();

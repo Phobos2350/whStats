@@ -26,6 +26,36 @@ class GenerateStats {
       42 => 9,
       43 => 9
     );
+    $this->dummyArray = array(
+      'biggestKill' => array(
+        'killID' => null,
+        'shipName' => null,
+        'shipType' => null,
+        'value' => null
+      ),
+      'biggestSoloKill' => array(
+        'killID' => null,
+        'shipName' => null,
+        'shipType' => null,
+        'value' => null
+      ),
+      'biggestNPCKill' => array(
+        'killID' => null,
+        'shipName' => null,
+        'shipType' => null,
+        'value' => null
+      ),
+      'class' => 0,
+      'kills' => array(
+        'shipNames' => array(),
+        'shipRaces' => array(),
+        'shipTechs' => array(),
+        'typeIDs' => array(),
+        'typeNames' => array()
+      ),
+      'totalISK' => 0,
+      'totalKills' => 0
+    );
   }
 
   public function formatValue($num) {
@@ -228,42 +258,9 @@ class GenerateStats {
     $time = date('Y-m-d H:i');
     $conn = r\connect('localhost', 28015, 'stats');
     $killsArray = array();
-    $dummyArray = array(
-      'activeSystems' => array(),
-      'biggestKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'biggestSoloKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'biggestNPCKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'class' => 0,
-      'items' => array(),
-      'kills' => array(
-        'shipNames' => array(),
-        'shipRaces' => array(),
-        'shipTechs' => array(),
-        'typeIDs' => array(),
-        'typeNames' => array()
-      ),
-      'topSystem' => null,
-      'totalISK' => 0,
-      'totalKills' => 0
-    );
     $statsArray = array();
     for($i=1; $i<10; $i++) {
-      $statsArray[$i] = $dummyArray;
+      $statsArray[$i] = $this->dummyArray;
       $statsArray[$i]['class'] = $i;
     }
     $statsQuery = $this->rethinkQueries->getKills($limit, $period, $year, $month, 1);
@@ -297,12 +294,11 @@ class GenerateStats {
               $statsArray[$class]['biggestSoloKill']['typeID'] = $ship['shipTypeID'];
             }
           }
+          $npcOnly = true;
           foreach($kill['attackers'] as $attacker) {
             if(!$attacker['factionName'] == "Unknown" || !$attacker['factionName'] == "Drifters" || !$attacker['factionName'] == "Serpentis") {
               $npcOnly = false;
               break;
-            } else {
-              $npcOnly = true;
             }
           }
           if($npcOnly) {
@@ -341,43 +337,11 @@ class GenerateStats {
     $key = md5(strtoupper('periodStats_'.$period.'_'.$year.'_'.$month));
     $time = date('Y-m-d H:i');
     $conn = r\connect('localhost', 28015, 'stats');
-    $dummyArray = array(
-      'activeSystems' => array(),
-      'biggestKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'biggestSoloKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'biggestNPCKill' => array(
-        'killID' => null,
-        'shipName' => null,
-        'shipType' => null,
-        'value' => null
-      ),
-      'class' => 0,
-      'items' => array(),
-      'kills' => array(
-        'shipNames' => array(),
-        'shipRaces' => array(),
-        'shipTechs' => array(),
-        'typeIDs' => array(),
-        'typeNames' => array()
-      ),
-      'totalISK' => 0,
-      'totalKills' => 0
-    );
     $existingArray = r\table('generatedStats')->get($key)->run($conn);
     if($existingArray == null) {
       $statsArray = array();
       for($i=1; $i<10; $i++) {
-        $statsArray[$i] = $dummyArray;
+        $statsArray[$i] = $this->dummyArray;
         $statsArray[$i]['class'] = $i;
       }
     } else {
